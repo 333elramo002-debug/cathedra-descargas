@@ -1,0 +1,546 @@
+/* La página de descarga de Cathedra.
+
+   Una sola cosa que hacer: tocar el botón. Todo lo demás es la casa: la bóveda
+   de piedra negra con el filo de oro (el fondo principal de la aplicación,
+   «la bóveda», en versión liviana), la luz del rosetón que la recorre, la C de
+   dovelas con su clave y el nombre en metal. Los valores son los de la
+   aplicación: su escala, sus radios y su foco, el mármol negro y oro, y la
+   paleta de la bóveda. */
+
+/* ═══════════════════════ las tipografías, adentro ═══════════════════════ */
+/* IBM Plex (licencia OFL), las mismas de la aplicación: la página no pide nada a
+   nadie. Sólo el rango latino, que cubre el castellano entero. */
+@font-face {
+  font-family: "IBM Plex Sans Condensed"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url(fuentes/IBMPlexSansCondensed-500-latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans Condensed"; font-style: normal; font-weight: 600; font-display: swap;
+  src: url(fuentes/IBMPlexSansCondensed-600-latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans Condensed"; font-style: normal; font-weight: 700; font-display: block;
+  src: url(fuentes/IBMPlexSansCondensed-700-latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Sans"; font-style: normal; font-weight: 400 500; font-display: swap;
+  src: url(fuentes/IBMPlexSans-400-latin.woff2) format("woff2");
+}
+@font-face {
+  font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url(fuentes/IBMPlexMono-500-latin.woff2) format("woff2");
+}
+
+/* ═══════════════════════ los tokens ═══════════════════════ */
+:root {
+  /* el mármol negro y oro de la aplicación: negro absoluto y capas apenas menos oscuras */
+  --fondo: #060607;
+  --sup-1: #0A0B0E;
+  --sup-2: rgba(18, 19, 24, .86);
+  --sup-3: rgba(27, 29, 36, .9);
+  --borde-suave: rgba(190, 170, 120, .11);
+  --linea-viva: rgba(212, 166, 76, .45);
+  --texto: #F2EFE8;
+  --medio: #B9B3A6;
+  --tenue: #827C70;
+  --acento: #D4A64C;
+
+  /* la bóveda: piedra, nervio, filete de oro y la luz del vitral */
+  --piedra-centro: #17110B;
+  --piedra-borde: #070708;
+  --nervio: #15120E;
+  --nervio-luz: #3A2F20;
+  --oro: #D4A64C;
+  --oro-halo: rgba(212, 166, 76, .32);
+  --lampara: rgba(230, 166, 87, .16);
+  --charco: rgba(6, 6, 7, .9);
+  --mezcla-luz: screen;
+  --luz-fuerza: 1;
+
+  /* el metal de la marca, sobre el oro */
+  --metal:
+    linear-gradient(100deg,
+      color-mix(in srgb, var(--acento) 55%, black) 0%,
+      color-mix(in srgb, var(--acento) 70%, white) 18%,
+      var(--acento) 34%,
+      color-mix(in srgb, var(--acento) 35%, white) 48%,
+      color-mix(in srgb, var(--acento) 80%, black) 66%,
+      color-mix(in srgb, var(--acento) 80%, white) 84%,
+      color-mix(in srgb, var(--acento) 60%, black) 100%);
+  --talla: #2A251D;              /* la letra recién tallada, antes del oro */
+  --vitral: linear-gradient(100deg, transparent 38%, rgba(230, 166, 87, .9) 44%, rgba(163, 50, 74, .9) 49%,
+            rgba(53, 87, 168, .9) 54%, rgba(62, 125, 98, .85) 58%, transparent 64%);
+
+  /* la escala y los radios de la aplicación */
+  --tipo-nota: 11px;
+  --tipo-etiqueta: 11.5px;
+  --tipo-texto: 12.5px;
+  --tipo-cuerpo: 13px;
+  --tipo-parrafo: 14px;
+  --tipo-grande: 15px;
+  --tipo-sub: 16px;
+  --tipo-titulo-2: 19px;
+  --tipo-titulo: 22px;
+  --radio-1: 4px;
+  --radio-2: 6px;
+  --radio-3: 8px;
+  --radio-4: 10px;
+  --sombra-foco-fuerte: 0 0 0 3px color-mix(in srgb, var(--acento) 32%, transparent);
+
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", Consolas, monospace;
+  --e-fuera: cubic-bezier(.16, 1, .3, 1);
+
+  color-scheme: dark;
+}
+
+/* De día: la caliza (la bóveda clara del fondo principal), arenisca y oro viejo;
+   el vitral tiñe la piedra en vez de iluminarla. */
+@media (prefers-color-scheme: light) {
+  :root {
+    --fondo: #EEE8DC;
+    --sup-1: #E6DFD1;
+    --sup-2: rgba(250, 247, 240, .86);
+    --sup-3: rgba(255, 253, 248, .92);
+    --borde-suave: rgba(90, 78, 48, .14);
+    --linea-viva: rgba(150, 114, 44, .45);
+    --texto: #1A1814;
+    --medio: #4E4A42;
+    --tenue: #6E685D;
+    --acento: #A9843A;
+
+    --piedra-centro: #F2ECE0;
+    --piedra-borde: #D9CFBD;
+    --nervio: #D8C8A8;
+    --nervio-luz: #F6EEDC;
+    --oro: #9E7A30;
+    --oro-halo: rgba(169, 132, 58, .22);
+    --lampara: rgba(255, 246, 225, .55);
+    --charco: rgba(238, 232, 220, .84);
+    --mezcla-luz: multiply;
+    --luz-fuerza: .8;
+    --talla: #CDBFA4;
+    --metal:
+      linear-gradient(100deg,
+        color-mix(in srgb, var(--acento) 70%, black) 0%,
+        var(--acento) 30%,
+        color-mix(in srgb, var(--acento) 60%, black) 50%,
+        var(--acento) 72%,
+        color-mix(in srgb, var(--acento) 75%, black) 100%);
+    --vitral: linear-gradient(100deg, transparent 38%, rgba(196, 118, 40, .85) 44%, rgba(150, 40, 66, .85) 49%,
+              rgba(44, 74, 150, .85) 54%, rgba(48, 110, 84, .8) 58%, transparent 64%);
+    color-scheme: light;
+  }
+}
+
+/* ═══════════════════════ base ═══════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+html { background: var(--fondo); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 400 var(--tipo-parrafo)/1.55 var(--sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════ la sala ═══════════════════════ */
+.sala {
+  position: fixed; inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  contain: strict;
+}
+
+/* Las lámparas de las mesas, abajo. Quietas: que respiraran costaba, en un
+   equipo sin placa, un cuadro entero de cada dos (medido); lo vivo es la luz
+   del rosetón. */
+.lamparas {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60vmax 38vmax at 18% 108%, var(--lampara), transparent 70%),
+    radial-gradient(56vmax 34vmax at 84% 112%, var(--lampara), transparent 70%);
+  opacity: .9;
+  animation: lamparasLlegan 1.3s ease-out .9s both;
+}
+@keyframes lamparasLlegan { from { opacity: 0; } to { opacity: .9; } }
+
+/* La bóveda, vista desde abajo y a lo largo de la nave. pagina.js la proyecta
+   en perspectiva al tamaño de la ventana, con la llave de un tramo detrás del
+   signo (`--llave-x`, `--llave-y`): de ahí nace el oro. */
+.boveda {
+  position: absolute; inset: 0;
+  transform-origin: var(--llave-x, 50%) var(--llave-y, 20%);
+  animation: camara 2.8s var(--e-fuera) both;
+}
+/* la cámara venía más cerca y un poco más abajo, y se asienta (sin rebote) */
+@keyframes camara {
+  from { transform: scale(1.12) translateY(-1.5%); }
+  to   { transform: none; }
+}
+.boveda > * { position: absolute; left: 0; top: 0; }
+.boveda svg { width: 100%; height: 100%; overflow: visible; }
+
+/* el oro corre desde la llave, un anillo por golpe */
+@property --r {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 4000px;
+}
+.oro {
+  -webkit-mask-image: radial-gradient(circle at var(--llave-x, 50%) var(--llave-y, 20%), #000 calc(var(--r) - 60px), transparent var(--r));
+          mask-image: radial-gradient(circle at var(--llave-x, 50%) var(--llave-y, 20%), #000 calc(var(--r) - 60px), transparent var(--r));
+  animation: oroCorre 1.9s linear both;
+}
+@keyframes oroCorre {
+  /* cada golpe del sonido de la app (0,10 / 0,38 / 0,64 / 0,92 s) empuja el oro un anillo más */
+  0%   { --r: 0px; }
+  5%   { --r: 0px;   animation-timing-function: cubic-bezier(.2, .8, .3, 1); }
+  20%  { --r: 110px; animation-timing-function: cubic-bezier(.2, .8, .3, 1); }
+  34%  { --r: 300px; animation-timing-function: cubic-bezier(.2, .8, .3, 1); }
+  48%  { --r: 620px; animation-timing-function: cubic-bezier(.3, .6, .3, 1); }
+  100% { --r: 2600px; }
+}
+/* el frente de luz, en el borde del oro que avanza */
+.frente {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--llave-x, 50%) var(--llave-y, 20%),
+    transparent calc(var(--r) - 110px),
+    color-mix(in srgb, var(--oro) 40%, transparent) calc(var(--r) - 25px),
+    transparent var(--r));
+  mix-blend-mode: var(--mezcla-luz);
+  animation: oroCorre 1.9s linear both, frenteSeApaga 1.9s ease-in both;
+}
+@keyframes frenteSeApaga { 0%, 55% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+
+/* la piedra entra con el acorde: hasta ahí sólo se ve el oro */
+.oro { opacity: .82; }
+@media (prefers-color-scheme: light) { .oro { opacity: 1; } }
+.piedra { animation: piedraEntra 1.1s ease-out .85s both; }
+@keyframes piedraEntra { from { opacity: 0; } to { opacity: 1; } }
+
+/* la luz del rosetón: la dibuja pagina.js; cae sesgada sobre la piedra */
+.roseton {
+  position: absolute; left: 0; top: 0;
+  width: 600px; height: 600px;
+  opacity: var(--luz-fuerza);
+  transform-origin: 50% 50%;
+  animation: rosetonEntra 1.5s ease-out 1s both;
+  will-change: transform;
+}
+@keyframes rosetonEntra { from { opacity: 0; } to { opacity: var(--luz-fuerza); } }
+
+/* al volver a proyectar (cambió el tamaño de la ventana) la llegada no se repite */
+/* y una vez llegada, el oro suelta su máscara y el frente se va: lo único que
+   queda moviéndose es la luz (en un equipo sin placa, cada capa viva de más
+   cuesta un cuadro entero) */
+html[data-llego="si"] :is(.boveda, .oro, .piedra, .roseton) { animation: none; }
+html[data-llego="si"] .oro { -webkit-mask-image: none; mask-image: none; }
+html[data-llego="si"] .frente { display: none; }
+
+/* los bordes se pierden en lo oscuro, y detrás del texto la piedra se hunde
+   apenas para que se lea */
+.viñeta {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, var(--fondo) 100%),
+    radial-gradient(ellipse min(52vw, 600px) min(58vh, 620px) at 50% var(--charco-y, 52%), var(--charco) 25%, transparent 100%);
+}
+
+/* ═══════════════════════ la hoja ═══════════════════════ */
+.hoja {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  min-height: 100svh;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: max(9vh, 48px) 24px 56px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+
+/* ── la marca ── */
+.marca-caja { display: flex; flex-direction: column; align-items: center; }
+.signo {
+  width: 62px; height: 62px;
+  margin-bottom: 20px;
+  overflow: visible;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55));
+}
+.signo-c { fill: #0C0C0F; stroke: var(--oro); stroke-width: 2.6; stroke-linejoin: round; }
+.signo-junta { fill: none; stroke: color-mix(in srgb, var(--oro) 40%, #000); stroke-width: 1.4; }
+.signo-clave { fill: var(--oro); }
+@media (prefers-color-scheme: light) {
+  .signo { filter: drop-shadow(0 4px 10px rgba(80, 60, 20, .25)); }
+}
+.signo { animation: signoLlega 1s var(--e-fuera) .05s both; }
+.signo-clave { animation: claveSeEnciende 1.2s ease-out .1s both; }
+@keyframes signoLlega {
+  from { opacity: 0; transform: translateY(6px) scale(.94); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes claveSeEnciende {
+  0%   { filter: brightness(2.6) drop-shadow(0 0 10px var(--oro)); }
+  100% { filter: none; }
+}
+
+.marca {
+  margin: 0;
+  display: flex;
+  font: 700 clamp(40px, 7.4vw, 92px)/1 var(--display);
+  letter-spacing: .34em;
+  text-indent: .34em;            /* compensa el espaciado de la última letra */
+  filter: drop-shadow(0 1px 0 rgba(255, 236, 190, .14)) drop-shadow(0 14px 30px rgba(0, 0, 0, .7));
+  user-select: none;
+}
+@media (prefers-color-scheme: light) {
+  .marca { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .7)) drop-shadow(0 10px 22px rgba(90, 70, 30, .18)); }
+}
+/* Cada letra: la talla (piedra), el oro que sube desde abajo y la luz del
+   vitral que la cruza. Tres capas de fondo recortadas a la letra. */
+.marca span {
+  display: inline-block;
+  color: transparent;
+  background: var(--vitral), var(--metal), linear-gradient(var(--talla), var(--talla));
+  background-size: 300% 100%, 100% 100%, 100% 100%;
+  background-position: 120% 0, 0 100%, 0 0;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+          background-clip: text;
+  animation:
+    letraTalla .5s var(--e-fuera) calc(.1s + var(--g) * .27s) both,
+    letraOro .9s cubic-bezier(.5, 0, .2, 1) calc(1.05s + var(--g) * .05s) both,
+    letraVitral 1.5s cubic-bezier(.45, 0, .55, 1) calc(1.5s + var(--i) * .03s) both;
+}
+/* el texto real (sin el recorte) es lo que un lector de pantalla y el buscador ven */
+@keyframes letraTalla {
+  from { opacity: 0; transform: scale(1.06); filter: brightness(3) blur(3px); }
+  40%  { opacity: 1; }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+@keyframes letraOro {
+  from { background-size: 300% 100%, 100% 0%, 100% 100%; }
+  to   { background-size: 300% 100%, 100% 100%, 100% 100%; }
+}
+@keyframes letraVitral {
+  from { background-position: 120% 0, 0 100%, 0 0; }
+  to   { background-position: -20% 0, 0 100%, 0 0; }
+}
+
+.lema {
+  margin: 22px 0 0;
+  font: 500 clamp(19px, 2.1vw, 24px)/1.3 var(--display);
+  letter-spacing: .01em;
+  color: var(--texto);
+}
+.bajada {
+  margin: 14px 0 0;
+  max-width: 470px;
+  font-size: var(--tipo-grande);
+  line-height: 1.6;
+  color: var(--medio);
+  text-wrap: pretty;
+}
+
+/* el resto llega después de la marca, de a uno */
+.lema, .bajada, .descargar, .notas, .aviso {
+  animation: subeLlega .8s var(--e-fuera) both;
+}
+.lema    { animation-delay: 1.55s; }
+.bajada  { animation-delay: 1.7s; }
+.descargar { animation-delay: 1.85s; }
+.notas   { animation-delay: 2s; }
+.aviso   { animation-delay: 2.15s; }
+@keyframes subeLlega {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── el botón ── */
+.descargar {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 34px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+  min-height: 62px;
+  padding: 0 30px 0 26px;
+  border-radius: var(--radio-3);
+  background: var(--metal);
+  background-size: 140% 100%;
+  background-position: 0 0;
+  color: #17120A;
+  font: 600 19px/1.1 var(--display);
+  letter-spacing: .015em;
+  text-decoration: none;
+  box-shadow:
+    0 1px 0 rgba(255, 244, 214, .55) inset,
+    0 -1px 0 rgba(60, 40, 10, .35) inset,
+    0 18px 40px -18px color-mix(in srgb, var(--acento) 70%, black),
+    0 2px 6px rgba(0, 0, 0, .35);
+  transition: transform .35s var(--e-fuera), box-shadow .35s var(--e-fuera), background-position .9s var(--e-fuera);
+  -webkit-tap-highlight-color: transparent;
+}
+@media (prefers-color-scheme: light) {
+  .descargar { color: #FFFBF2; text-shadow: 0 1px 0 rgba(60, 40, 10, .35); }
+}
+.descargar-icono {
+  width: 24px; height: 24px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
+.descargar-texto { position: relative; }
+/* al pasar: la luz del vitral cruza el oro una vez, la flecha baja a la
+   bandeja y el botón se levanta apenas */
+.descargar-luz {
+  position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(100deg, transparent 40%, rgba(255, 250, 235, .75) 50%, transparent 60%);
+  background-size: 300% 100%;
+  background-position: 120% 0;
+  mix-blend-mode: overlay;
+  opacity: 0;
+}
+.descargar:hover, .descargar:focus-visible {
+  transform: translateY(-2px);
+  background-position: 100% 0;
+  box-shadow:
+    0 1px 0 rgba(255, 244, 214, .6) inset,
+    0 -1px 0 rgba(60, 40, 10, .35) inset,
+    0 26px 50px -18px color-mix(in srgb, var(--acento) 85%, black),
+    0 0 0 1px color-mix(in srgb, var(--acento) 50%, transparent);
+}
+.descargar:hover .descargar-luz, .descargar:focus-visible .descargar-luz {
+  animation: vitralCruza 1.1s cubic-bezier(.45, 0, .55, 1) both;
+}
+.descargar:hover .flecha, .descargar:focus-visible .flecha {
+  animation: flechaBaja .9s var(--e-fuera) both;
+}
+.descargar:active { transform: translateY(0); transition-duration: .08s; }
+.descargar:focus-visible { outline: none; box-shadow: var(--sombra-foco-fuerte), 0 26px 50px -18px color-mix(in srgb, var(--acento) 85%, black); }
+@keyframes vitralCruza {
+  0%   { opacity: 1; background-position: 120% 0; }
+  100% { opacity: 1; background-position: -20% 0; }
+}
+@keyframes flechaBaja {
+  0%   { transform: none; }
+  35%  { transform: translateY(3px); }
+  60%  { transform: translateY(-1px); }
+  100% { transform: none; }
+}
+
+/* ── lo chico ── */
+.notas {
+  list-style: none;
+  margin: 20px 0 0; padding: 0;
+  display: grid; gap: 6px;
+  font-size: var(--tipo-texto);
+  line-height: 1.5;
+  color: var(--tenue);
+  text-wrap: balance;
+}
+.notas b { color: var(--medio); font-weight: 500; }
+.notas .junto { white-space: nowrap; }
+.notas .punto { margin: 0 .35em; color: color-mix(in srgb, var(--acento) 70%, var(--tenue)); }
+
+/* ── el aviso de Windows, dibujado ── */
+.aviso {
+  margin-top: 40px;
+  width: 100%;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--borde-suave);
+  border-radius: var(--radio-4);
+  background: var(--sup-2);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset;
+  text-align: left;
+}
+@media (prefers-color-scheme: light) {
+  .aviso { box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, 0 12px 30px -20px rgba(90, 70, 30, .3); }
+}
+.aviso-texto {
+  margin: 0 0 16px;
+  font-size: var(--tipo-cuerpo);
+  line-height: 1.55;
+  color: var(--medio);
+  text-wrap: pretty;
+}
+.pasos {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;
+}
+.paso { position: relative; padding-left: 0; }
+.paso-num {
+  position: absolute; top: -8px; left: -8px; z-index: 2;
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: var(--metal);
+  color: #17120A;
+  font: 600 var(--tipo-etiqueta)/1 var(--mono);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+}
+/* la ventanita azul: proporciones del aviso real, sin copiar ninguna imagen */
+.ventanita {
+  display: flex; flex-direction: column; gap: 5px;
+  aspect-ratio: 16 / 8.4;
+  padding: 11px 12px 10px;
+  border-radius: var(--radio-1);
+  background: #1B5DA0;
+  color: #fff;
+  font: 400 10px/1.25 "Segoe UI", var(--sans);
+  box-shadow: 0 10px 24px -14px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .06) inset;
+  overflow: hidden;
+}
+.vt-titulo { font-size: 12.5px; font-weight: 500; letter-spacing: -.005em; margin-bottom: 2px; }
+.vt-renglon { display: block; height: 4px; width: var(--l); border-radius: 2px; background: rgba(255, 255, 255, .42); }
+.vt-dato { font-size: 9.5px; color: rgba(255, 255, 255, .85); }
+.vt-dato i { font-style: normal; color: #fff; }
+.vt-enlace { align-self: flex-start; margin-top: 3px; font-size: 10px; text-decoration: underline; text-underline-offset: 2px; }
+.vt-pie {
+  margin: auto -12px -10px; padding: 7px 10px;
+  display: flex; justify-content: flex-end; gap: 6px;
+  background: rgba(0, 0, 0, .14);
+}
+.vt-boton {
+  padding: 3px 8px;
+  border: 1px solid rgba(255, 255, 255, .7);
+  font-size: 9.5px; white-space: nowrap;
+}
+/* lo que hay que tocar: un anillo de oro que late despacio */
+.marcado {
+  position: relative;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px var(--fondo), 0 0 0 3.5px var(--oro);
+  animation: marcaLate 2.6s ease-in-out 3s 3;
+}
+.vt-enlace.marcado { padding: 1px 4px; margin-left: -4px; }
+@keyframes marcaLate {
+  0%, 100% { box-shadow: 0 0 0 2px var(--fondo), 0 0 0 3.5px var(--oro); }
+  50%      { box-shadow: 0 0 0 2px var(--fondo), 0 0 0 3.5px var(--oro), 0 0 14px 4px var(--oro-halo); }
+}
+
+/* ═══════════════════════ teléfono ═══════════════════════ */
+@media (max-width: 560px) {
+  .hoja { padding: max(7vh, 36px) 16px 40px; }
+  .signo { width: 46px; height: 46px; margin-bottom: 14px; }
+  .marca { font-size: clamp(28px, 9.4vw, 42px); letter-spacing: .26em; text-indent: .26em; }
+  .lema { font-size: 19px; margin-top: 16px; }
+  .bajada { font-size: var(--tipo-parrafo); }
+  .descargar { width: 100%; min-height: 58px; padding: 0 18px; font-size: 17px; margin-top: 28px; }
+  .aviso { padding: 16px 14px 16px; margin-top: 32px; }
+  .pasos { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-left: 6px; }
+  .ventanita { aspect-ratio: auto; min-height: 118px; }
+  .paso { width: 100%; max-width: 320px; margin: 0 auto; }
+
+}
+
+
+/* ═══════════════════════ menos movimiento ═══════════════════════ */
+/* Todo llega ya puesto: la bóveda entera, la marca en oro, la luz quieta. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .marca span { background-size: 300% 100%, 100% 100%, 100% 100%; }
+}

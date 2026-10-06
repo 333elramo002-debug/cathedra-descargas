@@ -1,1 +1,83 @@
-<!doctype html><html lang="es-AR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cathedra</title><style>html{background:#07080b;color:#e9e4d8;font:18px/1.5 Georgia,serif}body{margin:0;min-height:100vh;display:grid;place-items:center;text-align:center}p{opacity:.7;margin:.4em 0 0}</style></head><body><div><h1 style="font-weight:500;letter-spacing:.3em;margin:0">CATHEDRA</h1>h1><p>Beta cerrada. La descarga llega muy pronto.</p></div></body></html>html></p></div></body></style></title></head>
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cathedra · Descargar para Windows</title>
+<meta name="description" content="Cathedra: estudiá desde lo que dijo el profesor. Descargala para Windows y entrá a la beta con tu código.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#060607" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#EEE8DC" media="(prefers-color-scheme: light)">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="preload" href="fuentes/IBMPlexSansCondensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<!-- La bóveda: la arma pagina.js (un tramo de bóveda estrellada repetido).
+     Detrás, la luz de las lámparas; encima, la luz del rosetón. -->
+<div class="sala" aria-hidden="true">
+  <div class="lamparas"></div>
+  <div class="boveda" id="boveda"></div>
+  <div class="viñeta"></div>
+</div>
+
+<main class="hoja">
+  <header class="marca-caja">
+    <svg class="signo" viewBox="0 0 100 100" aria-hidden="true">
+      <!-- la C de dovelas, con la clave de oro en el lomo (el mismo signo de la aplicación) -->
+      <path class="signo-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
+      <path class="signo-junta" d="M52.3 93.9 51 70M24.1 85.6 38.2 66.2M24.1 14.4 38.2 33.8M52.3 6.1 51 30"/>
+      <path class="signo-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
+    </svg>
+    <h1 class="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
+    <p class="lema">Estudiá desde lo que dijo el profesor.</p>
+  </header>
+
+  <p class="bajada">Grabás la clase, sumás el material de la cátedra y Cathedra te dice qué estudiar hoy: resúmenes, preguntas y repasos de cada materia, en tu computadora.</p>
+
+  <a class="descargar" id="descargar" href="#" rel="noopener">
+    <span class="descargar-luz" aria-hidden="true"></span>
+    <svg class="descargar-icono" viewBox="0 0 24 24" aria-hidden="true">
+      <path class="flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/>
+      <path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/>
+    </svg>
+    <span class="descargar-texto">Descargar Cathedra para Windows</span>
+  </a>
+
+  <ul class="notas">
+    <li>Windows 10 u 11, 64 bits <span class="punto" aria-hidden="true">·</span> <span class="junto">unos 2 GB libres con la transcripción</span></li>
+    <li><b>Beta cerrada:</b> al abrirla, pegá el código que te dio quien te invitó</li>
+  </ul>
+
+  <section class="aviso" aria-labelledby="aviso-tit">
+    <p class="aviso-texto" id="aviso-tit">Como todavía no está firmada, Windows muestra un aviso azul: tocá «Más información» y después «Ejecutar de todas formas».</p>
+    <ol class="pasos">
+      <li class="paso">
+        <span class="paso-num" aria-hidden="true">1</span>
+        <div class="ventanita" role="img" aria-label="El aviso azul de Windows, con el enlace Más información marcado">
+          <span class="vt-titulo">Windows protegió tu PC</span>
+          <span class="vt-renglon" style="--l:92%"></span>
+          <span class="vt-renglon" style="--l:78%"></span>
+          <span class="vt-renglon" style="--l:40%"></span>
+          <span class="vt-enlace marcado">Más información</span>
+          <span class="vt-pie"><span class="vt-boton">No ejecutar</span></span>
+        </div>
+      </li>
+      <li class="paso">
+        <span class="paso-num" aria-hidden="true">2</span>
+        <div class="ventanita" role="img" aria-label="El mismo aviso abierto, con el botón Ejecutar de todas formas marcado">
+          <span class="vt-titulo">Windows protegió tu PC</span>
+          <span class="vt-renglon" style="--l:92%"></span>
+          <span class="vt-dato">Aplicación: <i>Cathedra-Setup.exe</i></span>
+          <span class="vt-dato">Editor: <i>Editor desconocido</i></span>
+          <span class="vt-pie"><span class="vt-boton marcado">Ejecutar de todas formas</span><span class="vt-boton">No ejecutar</span></span>
+        </div>
+      </li>
+    </ol>
+  </section>
+</main>
+
+<script src="pagina.js"></script>
+</body>
+</html>
