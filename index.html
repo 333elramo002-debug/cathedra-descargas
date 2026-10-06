@@ -23,7 +23,6 @@
 <link rel="icon" href="icono-claro.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
 <link rel="apple-touch-icon" href="imagenes/icono-180.png">
 <link rel="preload" href="fuentes/IBMPlexSansCondensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="modulepreload" href="lib/three-cathedra.min.js">
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
@@ -46,6 +45,7 @@
   <span class="carga-cifra"><span id="carga-cifra">0</span></span>
 </div>
 <div class="apertura" id="apertura" aria-hidden="true"></div>
+<div class="cortina" aria-hidden="true"></div>
 
 <header class="cabecera" id="cabecera">
   <a class="cab-marca" href="#portada" aria-label="Cathedra, volver arriba">
@@ -56,6 +56,7 @@
     <a href="#como">Cómo funciona</a>
     <a href="#distinta">Lo distinto</a>
     <a href="#descargar" class="cab-ir">Descargar</a>
+    <button class="cab-sonido" type="button" id="sonido" aria-pressed="true" aria-label="Sonido de la página" hidden><canvas width="44" height="44" aria-hidden="true"></canvas></button>
   </nav>
 </header>
 
@@ -93,7 +94,9 @@
         <p>Grabala desde la computadora mientras el profesor habla, o soltá el audio, el video o el material que te pasaron. Cathedra la escucha y la pasa a texto ahí mismo, en tu computadora.</p>
       </div>
       <figure class="pantalla">
-        <img src="imagenes/paso-1.webp" width="1280" height="800" loading="lazy" decoding="async" alt="La pantalla de Cathedra para sumar clases y cronogramas: soltá acá los archivos o tocá para buscarlos.">
+        <div class="pantalla-marco"><img src="imagenes/paso-1.webp" width="1280" height="800" loading="lazy" decoding="async" alt="La pantalla de Cathedra para sumar clases y cronogramas: soltá acá los archivos o tocá para buscarlos."></div>
+        <div class="pantalla-detalle" aria-hidden="true"><img src="imagenes/paso-1-detalle.webp" width="640" height="202" loading="lazy" decoding="async" alt=""></div>
+        <button class="ampliar" type="button" data-ampliar aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
       </figure>
     </article>
 
@@ -104,7 +107,9 @@
         <p>Ordena la materia clase por clase, con su fecha y su tema, y arma la guía de estudio desde lo que se dijo en el aula y desde el material de la cátedra.</p>
       </div>
       <figure class="pantalla">
-        <img src="imagenes/paso-2.webp" width="1280" height="800" loading="lazy" decoding="async" alt="Una materia en Cathedra: una tarjeta por clase con el número, la fecha, el tema y la acción para estudiar o armar la guía.">
+        <div class="pantalla-marco"><img src="imagenes/paso-2.webp" width="1280" height="800" loading="lazy" decoding="async" alt="Una materia en Cathedra: una tarjeta por clase con el número, la fecha, el tema y la acción para estudiar o armar la guía."></div>
+        <div class="pantalla-detalle" aria-hidden="true"><img src="imagenes/paso-2-detalle.webp" width="560" height="358" loading="lazy" decoding="async" alt=""></div>
+        <button class="ampliar" type="button" data-ampliar aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
       </figure>
     </article>
 
@@ -114,15 +119,10 @@
         <h3>Preguntás por voz o por chat.</h3>
         <p>Le preguntás como a un compañero que tomó todos los apuntes. Te contesta con lo que dijo el profesor y te muestra de qué clase sale y en qué minuto, para que lo vuelvas a escuchar.</p>
       </div>
-      <figure class="pantalla pantalla-dibujo" aria-label="Una respuesta de Cathedra con la cita de la clase y el minuto">
-        <div class="charla">
-          <p class="ch-pregunta">¿Qué diferencia hay entre moral y derecho?</p>
-          <div class="ch-respuesta">
-            <p>La profesora lo planteó así: la moral obliga desde adentro y no tiene sanción externa; el derecho se impone desde afuera y el Estado puede hacerlo cumplir.</p>
-            <p class="ch-cita"><span class="ch-cita-clase">Clase 1</span><span class="ch-cita-min">min 23:40</span><span class="ch-cita-oir">Escuchar</span></p>
-          </div>
-          <p class="ch-voz"><i></i><i></i><i></i><i></i><i></i> <span>o preguntale en voz alta</span></p>
-        </div>
+      <figure class="pantalla">
+        <div class="pantalla-marco"><img src="imagenes/paso-3.webp" width="1280" height="800" loading="lazy" decoding="async" alt="Cathedra contesta una pregunta sobre los ribosomas: la explicación, cómo lo dijo la profesora entre comillas, la clase de donde sale y el botón para ver el minuto donde lo explica."></div>
+        <div class="pantalla-detalle" aria-hidden="true"><img src="imagenes/paso-3-detalle.webp" width="600" height="296" loading="lazy" decoding="async" alt=""></div>
+        <button class="ampliar" type="button" data-ampliar aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
       </figure>
     </article>
 
@@ -132,14 +132,10 @@
         <h3>Te toma un simulacro.</h3>
         <p>Arma el parcial desde lo que el profesor dijo que toma y con el formato que anunció. Te corrige, te muestra de dónde sale cada consigna y te deja el repaso de lo que te costó.</p>
       </div>
-      <figure class="pantalla pantalla-dibujo" aria-label="Una consigna del simulacro marcada con lo que dijo el profesor que toma">
-        <div class="simulacro">
-          <p class="si-cab"><span>Parcial de práctica</span><span>2 de 5</span></p>
-          <p class="si-insignia"><b>Dijo que lo toma</b> «El caso Bosco va seguro al parcial» · Clase 4, min 51</p>
-          <p class="si-consigna">Analizá el caso Bosco con los principios de transparencia y explicabilidad. Justificá tu respuesta.</p>
-          <div class="si-renglones"><i></i><i></i><i></i></div>
-          <p class="si-pie"><span class="si-tipo">Minicaso · 20 puntos</span><span class="si-boton">Corregir</span></p>
-        </div>
+      <figure class="pantalla">
+        <div class="pantalla-marco"><img src="imagenes/paso-4.webp" width="1280" height="800" loading="lazy" decoding="async" alt="Un parcial de práctica en Cathedra: cada consigna con la marca «Dijo que lo toma», la frase del profesor con la clase y el minuto, y de dónde sale para escucharlo."></div>
+        <div class="pantalla-detalle" aria-hidden="true"><img src="imagenes/paso-4-detalle.webp" width="640" height="120" loading="lazy" decoding="async" alt=""></div>
+        <button class="ampliar" type="button" data-ampliar aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
       </figure>
     </article>
   </section>
@@ -221,14 +217,16 @@
     <a href="terminos">Términos y condiciones</a>
     <a href="cookies">Cookies</a>
     <a href="terminos#contacto" data-contacto>Contacto</a>
+    <a href="#" data-quieto role="button">Ver sin animaciones</a>
   </nav>
   <p class="pie-firma">© 2026 Cathedra</p>
 </footer>
 
+<dialog class="visor" id="visor" aria-label="La pantalla en grande">
+  <img alt="" width="1600" height="1000">
+  <button class="visor-cerrar" type="button" data-cerrar>Cerrar</button>
+</dialog>
+
 <script src="pagina.js"></script>
-<script type="module">
-  import { iniciar } from "./nave.js";
-  window.CATHEDRA_PAGINA.nave(iniciar);
-</script>
 </body>
 </html>

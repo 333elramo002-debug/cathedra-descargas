@@ -1,0 +1,12 @@
+Bibliotecas y recursos de terceros que viajan con la página, con su versión fija y su huella.
+
+three.js r186 (0.186.1), recortado con esbuild 0.25.10 a lo que usa la página
+  archivo: three-r186.ed207b9757.min.js
+  SHA-256: ed207b9757300599369308850a9e1dc8c71edad5b2ec8dc1f8a71579d3c051f7
+  licencia: MIT (texto completo en LICENSE-three.txt)
+  origen: paquete npm three@0.186.1
+
+IBM Plex Sans, IBM Plex Sans Condensed, IBM Plex Mono (subconjunto latino, woff2)
+  carpeta: ../fuentes/
+  licencia: SIL Open Font License 1.1 (https://openfontlicense.org)
+  Copyright © 2017 IBM Corp. con el nombre reservado «Plex».

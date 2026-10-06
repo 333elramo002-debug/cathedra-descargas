@@ -17,7 +17,7 @@
    detiene con la pestaña oculta; con «reducir movimiento» dibuja un cuadro y
    se queda quieta. */
 
-import * as T from "./lib/three-cathedra.min.js";
+import * as T from "./lib/three-r186.ed207b9757.min.js";
 
 const PAGINA = window.CATHEDRA_PAGINA || (window.CATHEDRA_PAGINA = {});
 const avisar = (p) => PAGINA.cargando && PAGINA.cargando(p);
@@ -36,14 +36,16 @@ const ROSA = { y: 16.5, r: 6.2 };
 /* ══════════════════════ la paleta ══════════════════════ */
 const PALETAS = {
   oscuro: {
-    fondo: 0x060607, niebla: 0x07080b, piedra: 0x6a6056, piedraFria: 0x3c4456, suelo: 0x1c1c20,
-    sueloVeta: 0x34343b, oro: 0xd4a64c, lampara: 0xe6a657, densidad: 0.019, ambiente: 0.16,
+    fondo: 0x060607, niebla: 0x07080b, piedra: 0x7c766e, piedraFria: 0x46506a, suelo: 0x1a1a1f,
+    sueloVeta: 0x303038, oro: 0xd4a64c, lampara: 0xe2a35c, densidad: 0.018, ambiente: 0.15,
     vitral: [0xe6a657, 0xa3324a, 0x3557a8, 0x3e7d62], fuerzaVitral: 1.0, exposicion: 1.05,
+    lancetas: [1.5, 0.4, 0.16],
   },
   claro: {
     fondo: 0xeee8dc, niebla: 0xe9e2d4, piedra: 0xd8c8a8, piedraFria: 0x8e98ac, suelo: 0xcfc4b0,
-    sueloVeta: 0xb9ad97, oro: 0xa9843a, lampara: 0xe6a657, densidad: 0.017, ambiente: 0.62,
+    sueloVeta: 0xb9ad97, oro: 0xa9843a, lampara: 0x9c7a50, densidad: 0.017, ambiente: 0.62,
     vitral: [0xe6a657, 0xc0566a, 0x5f7fc4, 0x6a9e84], fuerzaVitral: 0.55, exposicion: 0.95,
+    lancetas: [2.4, 1.5, 1.1],
   },
 };
 
@@ -142,6 +144,10 @@ const FRAG_PIEDRA = /* glsl */`
     vec3 sombra = uPiedraFria * (uAmbiente + cielo);
     // el rebote: la luz de las lámparas que vuelve del piso y de las mesas a la bóveda
     sombra += uLampara * max(-n.y, 0.0) * 0.07 * smoothstep(30.0, 6.0, vW.y);
+    // el frío de las ventanas altas baña la bóveda y lo alto de los muros
+    sombra += uPiedraFria * 1.6 * smoothstep(11.0, 24.0, vW.y) * (0.6 + 0.4 * max(-n.y, 0.0));
+    // la luz del rosetón que se dispersa en el aire y llega a todo, también a la bóveda
+    sombra += manchas * alcance * 0.55 * uFuerzaVitral * smoothstep(4.0, 20.0, vW.y);
 
     vec3 c = alb * (sombra + luzRosa + luzLampara);
     gl_FragColor = vec4(niebla(c, vDist), 1.0);
@@ -513,15 +519,15 @@ function construir(escena, mat) {
     const zc = -i * TRAMO - TRAMO / 2;
     for (const lado of [-1, 1]) {
       for (const dz of [-0.9, 0.9]) {
-        const pie = new T.CylinderGeometry(0.02, 0.02, 0.38, 6);
-        pie.translate(lado * 2.3, 1.03, zc + dz);
+        const pie = new T.CylinderGeometry(0.015, 0.015, 0.3, 6);
+        pie.translate(lado * 2.3, 0.99, zc + dz);
         lamp.push(pie.toNonIndexed());
-        const pantalla = new T.CylinderGeometry(0.1, 0.22, 0.18, 14, 1, true);
-        pantalla.translate(lado * 2.3, 1.25, zc + dz);
+        const pantalla = new T.CylinderGeometry(0.05, 0.13, 0.11, 14, 1, true);
+        pantalla.translate(lado * 2.3, 1.17, zc + dz);
         lamp.push(pantalla.toNonIndexed());
-        const luz = new T.CircleGeometry(0.2, 14);
+        const luz = new T.CircleGeometry(0.12, 14);
         luz.rotateX(Math.PI / 2);
-        luz.translate(lado * 2.3, 1.16, zc + dz);
+        luz.translate(lado * 2.3, 1.115, zc + dz);
         luces.push(luz.toNonIndexed());
       }
     }
@@ -608,7 +614,7 @@ function construir(escena, mat) {
    mira. La sección i de la página corresponde al tramo i del recorrido. */
 const RECORRIDO = [
   // portada: en la entrada, la nave entera y el rosetón al fondo
-  { p: [0, 2.3, 9], m: [0, 9.5, -70] },
+  { p: [0, 2.4, 9], m: [0, 3.6, -70] },
   // cómo funciona: cuatro pasos entre los pilares
   { p: [-1.6, 2.6, -6], m: [1.8, 5.0, -40] },
   { p: [1.7, 3.0, -16], m: [-2.2, 6.5, -52] },
@@ -627,13 +633,25 @@ export function iniciar(lienzo, opciones = {}) {
   const quieto = !!opciones.quieto;
   const forzarAlta = /calidad=alta/.test(location.search);
   const forzarBaja = /calidad=baja/.test(location.search);
+  const medirDeVerdad = /medir/.test(location.search);
+  // antes de pedirle nada a la biblioteca: ¿hay 3D en este navegador? (si no, sin errores: la imagen quieta)
+  try {
+    const prueba = document.createElement("canvas");
+    const ctxPrueba = prueba.getContext("webgl2") || prueba.getContext("webgl");
+    if (!ctxPrueba) return null;
+    const soltar = ctxPrueba.getExtension("WEBGL_lose_context");
+    if (soltar) soltar.loseContext();
+  } catch (e) {
+    return null;
+  }
   let renderer;
   try {
     renderer = new T.WebGLRenderer({ canvas: lienzo, antialias: false, alpha: false, powerPreference: "high-performance" });
   } catch (e) {
     return null;
   }
-  if (!renderer.getContext()) return null;
+  const gl = renderer.getContext();
+  if (!gl) return null;
   avisar(0.15);
 
   const claroMQ = window.matchMedia("(prefers-color-scheme: light)");
@@ -641,6 +659,7 @@ export function iniciar(lienzo, opciones = {}) {
   const esClaro = () => (temaForzado() ? temaForzado() === "claro" : claroMQ.matches);
   let pal = esClaro() ? PALETAS.claro : PALETAS.oscuro;
 
+  renderer.info.autoReset = false;
   renderer.toneMapping = T.ACESFilmicToneMapping;
   renderer.toneMappingExposure = pal.exposicion;
   renderer.outputColorSpace = T.SRGBColorSpace;
@@ -681,12 +700,12 @@ export function iniciar(lienzo, opciones = {}) {
     piedraInst: material(VERT_PIEDRA, FRAG_PIEDRA, { uHiladas: { value: 0.5 }, uTinte: { value: 1 } }),
     madera: material(VERT_PIEDRA, FRAG_PIEDRA, { uHiladas: { value: 0 }, uTinte: { value: 0.32 } }),
     oro: material(VERT_PIEDRA, FRAG_ORO, { uBrillo: { value: 1 } }),
-    bronce: material(VERT_PIEDRA, FRAG_ORO, { uBrillo: { value: 0.28 } }),
+    bronce: material(VERT_PIEDRA, FRAG_ORO, { uBrillo: { value: 0.16 } }),
     suelo: material(VERT_PIEDRA, FRAG_SUELO),
     rosa: material(VERT_UV, FRAG_ROSA),
-    lancetaFondo: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x9fb4e6) }, uFuerza: { value: 1.5 } }),
-    lancetaAlta: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x7d93c8) }, uFuerza: { value: 0.4 } }),
-    lancetaBaja: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x56679a) }, uFuerza: { value: 0.16 } }),
+    lancetaFondo: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x9fb4e6) }, uFuerza: { value: pal.lancetas[0] } }),
+    lancetaAlta: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x7d93c8) }, uFuerza: { value: pal.lancetas[1] } }),
+    lancetaBaja: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x56679a) }, uFuerza: { value: pal.lancetas[2] } }),
     luzLampara: new T.MeshBasicMaterial({ color: new T.Color(pal.lampara).multiplyScalar(6), fog: false }),
     haz: (i, f) => material(VERT_HAZ, FRAG_HAZ,
       { uColor: { value: new T.Color(pal.vitral[i]) }, uFuerza: { value: f } },
@@ -700,11 +719,75 @@ export function iniciar(lienzo, opciones = {}) {
   composer.addPass(new T.RenderPass(escena, camara));
   const halo = new T.UnrealBloomPass(new T.Vector2(256, 256), 0.55, 0.55, 0.92);
   composer.addPass(halo);
+
+  /* el cursor como lente: el puntero deja una estela invisible (un lienzo chico que se va
+     borrando solo) y esa estela tuerce la imagen como un dedo sobre un vidrio, separando
+     apenas los colores. El scroll también la arrastra. Sólo con mouse, nunca con «reducir
+     movimiento» ni en el nivel bajo. */
+  const rastro = document.createElement("canvas");
+  rastro.width = 192; rastro.height = 108;
+  const rctx = rastro.getContext("2d");
+  rctx.fillStyle = "#000"; rctx.fillRect(0, 0, rastro.width, rastro.height);
+  const texRastro = new T.CanvasTexture(rastro);
+  const lente = new T.ShaderPass({
+    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `
+      uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza; varying vec2 vUv;
+      float granito(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453) + fract(sin(dot(p + 0.37, vec2(39.346, 11.135))) * 24634.6345) - 1.0; }
+      float h(vec2 p){ return texture2D(tRastro, p).r; }
+      void main(){
+        vec2 g = vec2(h(vUv + vec2(uPaso.x, 0.0)) - h(vUv - vec2(uPaso.x, 0.0)), h(vUv + vec2(0.0, uPaso.y)) - h(vUv - vec2(0.0, uPaso.y)));
+        vec2 d = g * 0.05 * uFuerza;
+        vec3 c = vec3(texture2D(tDiffuse, vUv + d * 1.25).r, texture2D(tDiffuse, vUv + d).g, texture2D(tDiffuse, vUv + d * 0.75).b);
+        c += granito(gl_FragCoord.xy) / 255.0;
+        gl_FragColor = vec4(c, 1.0);
+      }`,
+  });
+  const conMouse = window.matchMedia("(pointer: fine)").matches;
   composer.addPass(new T.OutputPass());
+  // suavizado de bordes barato (FXAA, no MSAA) en los niveles alto y medio
+  const suavizado = new T.ShaderPass(T.FXAAShader);
+  composer.addPass(suavizado);
+  // la lente y el granito de ruido que evita las bandas en la niebla y los degradés (lh-67)
+  composer.addPass(lente);
+  const estela = { x: -1, y: -1, px: -1, py: -1, carga: 0 };
+  function pintarRastro(dt) {
+    rctx.globalCompositeOperation = "source-over";
+    rctx.fillStyle = `rgba(0,0,0,${Math.min(1, dt * 2.6)})`;
+    rctx.fillRect(0, 0, rastro.width, rastro.height);
+    if (estela.x >= 0 && estela.carga > 0.01) {
+      const x = estela.x * rastro.width, y = estela.y * rastro.height;
+      const r = 6 + 18 * Math.min(estela.carga, 1);
+      const gr = rctx.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, `rgba(255,255,255,${Math.min(0.9, estela.carga)})`);
+      gr.addColorStop(1, "rgba(255,255,255,0)");
+      rctx.globalCompositeOperation = "lighter";
+      rctx.fillStyle = gr;
+      rctx.beginPath(); rctx.arc(x, y, r, 0, Math.PI * 2); rctx.fill();
+    }
+    estela.carga *= Math.exp(-6 * dt);
+    texRastro.needsUpdate = true;
+  }
+  window.addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const x = e.clientX / window.innerWidth, y = e.clientY / window.innerHeight;
+    if (estela.x >= 0) estela.carga = Math.min(1.2, estela.carga + Math.hypot(x - estela.x, y - estela.y) * 9);
+    estela.x = x; estela.y = y;
+  }, { passive: true });
+  let scrollPrevio = window.scrollY;
+  window.addEventListener("scroll", () => {
+    const d = Math.abs(window.scrollY - scrollPrevio) / window.innerHeight;
+    scrollPrevio = window.scrollY;
+    if (estela.x >= 0) estela.carga = Math.min(1.2, estela.carga + d * 3);
+  }, { passive: true });
 
   /* niveles: 2 = alto (densidad hasta 1,5, con halo), 1 = medio, 0 = bajo (sin halo) */
-  let nivel = forzarBaja ? 0 : 2;
-  const DENSIDAD = [0.6, 1.0, 1.5];
+  // el nivel arranca donde quedó la visita anterior si tuvo que bajar (se recuerda en el navegador)
+  let recordado = 2;
+  try { recordado = Math.min(2, Math.max(0, parseInt(localStorage.getItem("cathedra-nivel") ?? "2", 10))); } catch (e) { recordado = 2; }
+  let nivel = forzarBaja ? 0 : forzarAlta ? 2 : recordado;
+  const DENSIDAD = [1.0, 1.25, 1.5];   // liviano 1×, alto 1,5× (lh-22)
   let ancho = 1, alto = 1;
   function medir() {
     ancho = lienzo.clientWidth || window.innerWidth;
@@ -717,6 +800,10 @@ export function iniciar(lienzo, opciones = {}) {
     composer.setPixelRatio(d * tope);
     composer.setSize(ancho, alto);
     halo.enabled = nivel > 0;
+    lente.uniforms.uFuerza.value = conMouse && !quieto && nivel > 0 ? 1 : 0;
+    suavizado.enabled = nivel > 0;
+    const pr = renderer.getPixelRatio();
+    suavizado.material.uniforms.resolution.value.set(1 / (ancho * pr), 1 / (alto * pr));
     halo.resolution.set(ancho / 2, alto / 2);
     camara.aspect = ancho / alto;
     camara.fov = ancho < alto ? 66 : 52;
@@ -750,8 +837,14 @@ export function iniciar(lienzo, opciones = {}) {
     }
     return tramos[tramos.length - 1].i + 1;
   }
-  const curvaP = new T.CatmullRomCurve3(RECORRIDO.map((k) => new T.Vector3(...k.p)), false, "centripetal");
-  const curvaM = new T.CatmullRomCurve3(RECORRIDO.map((k) => new T.Vector3(...k.m)), false, "centripetal");
+  // en pantallas apaisadas la portada mira más bajo: el rosetón sube y queda arriba de la marca
+  let curvaP, curvaM;
+  function armarCurvas() {
+    const puntos = RECORRIDO.map((k, i) => (i === 0 && ancho >= alto ? { p: k.p, m: [k.m[0], 0.6, k.m[2]] } : k));
+    curvaP = new T.CatmullRomCurve3(puntos.map((k) => new T.Vector3(...k.p)), false, "centripetal");
+    curvaM = new T.CatmullRomCurve3(puntos.map((k) => new T.Vector3(...k.m)), false, "centripetal");
+  }
+  armarCurvas();
   const N = RECORRIDO.length - 1;
   const objP = new T.Vector3(), objM = new T.Vector3();
   const camP = new T.Vector3(), camM = new T.Vector3();
@@ -771,22 +864,35 @@ export function iniciar(lienzo, opciones = {}) {
   }, { passive: true });
 
   /* ── el bucle ── */
-  let corriendo = false, ultimo = 0, lentos = 0, cuadros = 0, sumaMs = 0, maxMs = 0;
+  let corriendo = false, ultimo = 0, lentos = 0, cuadros = 0, sumaMs = 0, maxMs = 0, sumaIntervalo = 0;
+  const intervalos = [];
   let tiempo = 0, encendido = quieto ? 1 : 0, objetivoEncendido = 1;
   PAGINA.medida = { cuadros: 0, ms: 0, max: 0, nivel };
   function cuadro(ahora) {
     if (!corriendo) return;
     requestAnimationFrame(cuadro);
-    const dt = Math.min((ahora - (ultimo || ahora)) / 1000, 1 / 20);
+    if (ultimo && ahora - ultimo < 15.5) return;        // tope de 60 cuadros por segundo (pantallas de 120 Hz)
+    const intervalo = ultimo ? ahora - ultimo : 16.7;   // lo que de verdad tardó el cuadro anterior
+    const dt = Math.min(intervalo / 1000, 1 / 20);
     ultimo = ahora;
     pasar(dt);
+    if (lente.uniforms.uFuerza.value > 0) pintarRastro(dt);
     const t0 = performance.now();
+    renderer.info.reset();
     composer.render();
+    if (medirDeVerdad) gl.finish();       // con ?medir, esperar a que la placa termine (el número honesto)
     const ms = performance.now() - t0;
-    cuadros++; sumaMs += ms; maxMs = Math.max(maxMs, ms);
-    PAGINA.medida = { cuadros, ms: sumaMs / cuadros, max: maxMs, nivel, ultimo: ms };
-    if (!forzarAlta && ms > 20) {
-      if (++lentos >= 3 && nivel > 0) { nivel--; lentos = 0; medir(); }
+    cuadros++; sumaMs += ms; maxMs = Math.max(maxMs, ms); sumaIntervalo += intervalo;
+    intervalos.push(intervalo); if (intervalos.length > 240) intervalos.shift();
+    PAGINA.medida = { cuadros, ms: sumaMs / cuadros, max: maxMs, nivel, ultimo: ms, intervalo: sumaIntervalo / cuadros,
+      llamadas: renderer.info.render.calls, triangulos: renderer.info.render.triangles, intervalos };
+    // el nivel baja si el cuadro (el envío o el intervalo real entre cuadros) pasa 20 ms tres veces seguidas;
+    // se tolera hasta 22 ms de intervalo por el ritmo de la pantalla
+    if (!forzarAlta && cuadros > 30 && (ms > 20 || intervalo > 22)) {
+      if (++lentos >= 3 && nivel > 0) {
+        nivel--; lentos = 0; medir();
+        try { localStorage.setItem("cathedra-nivel", String(nivel)); } catch (e) { /* sin almacenamiento */ }
+      }
     } else lentos = 0;
   }
   function pasar(dt) {
@@ -818,9 +924,28 @@ export function iniciar(lienzo, opciones = {}) {
   }
 
   document.addEventListener("visibilitychange", () => (document.hidden ? parar() : arrancar()));
-  window.addEventListener("resize", () => { medir(); medirTramos(); if (!corriendo) unCuadro(); });
+  let esperaResize = 0;
+  window.addEventListener("resize", () => {
+    clearTimeout(esperaResize);
+    esperaResize = setTimeout(() => { medir(); armarCurvas(); medirTramos(); if (!corriendo) unCuadro(); }, 120);
+  });
   window.addEventListener("load", medirTramos);
-  if (window.ResizeObserver) new ResizeObserver(() => medirTramos()).observe(document.body);
+  let esperaTramos = 0;
+  if (window.ResizeObserver) new ResizeObserver(() => { clearTimeout(esperaTramos); esperaTramos = setTimeout(medirTramos, 150); }).observe(document.body);
+  // si la placa pierde el contexto, la página no se rompe: queda la imagen quieta
+  lienzo.addEventListener("webglcontextlost", (e) => {
+    e.preventDefault();
+    parar();
+    if (PAGINA.sinNave) PAGINA.sinNave();
+  });
+  // al irse de la página, liberar lo que ocupa la placa
+  window.addEventListener("pagehide", (e) => {
+    if (e.persisted) { parar(); return; }
+    parar();
+    escena.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
+    Object.values(mat).forEach((m) => m && m.dispose && m.dispose());
+    texRastro.dispose(); composer.dispose && composer.dispose(); renderer.dispose();
+  });
   if (quieto) window.addEventListener("scroll", () => requestAnimationFrame(unCuadro), { passive: true });
 
   function repintarTema() {
@@ -831,12 +956,16 @@ export function iniciar(lienzo, opciones = {}) {
     pal.vitral.forEach((c, i) => comunes["uVitral" + i].value.set(c));
     comunes.uFuerzaVitral.value = pal.fuerzaVitral;
     comunes.uAmbiente.value = pal.ambiente;
+    comunes.uLampara.value.set(pal.lampara);
     propios.uPiedra.value.set(pal.piedra);
     propios.uPiedraFria.value.set(pal.piedraFria);
     propios.uOro.value.set(pal.oro);
     propios.uSuelo.value.set(pal.suelo);
     propios.uVeta.value.set(pal.sueloVeta);
     renderer.toneMappingExposure = pal.exposicion;
+    mat.lancetaFondo.uniforms.uFuerza.value = pal.lancetas[0];
+    mat.lancetaAlta.uniforms.uFuerza.value = pal.lancetas[1];
+    mat.lancetaBaja.uniforms.uFuerza.value = pal.lancetas[2];
     if (!corriendo) unCuadro();
   }
   claroMQ.addEventListener("change", repintarTema);
