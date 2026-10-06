@@ -1,83 +1,234 @@
 <!doctype html>
-<html lang="es-AR">
+<html lang="es-AR" class="cargando">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cathedra · Descargar para Windows</title>
-<meta name="description" content="Cathedra: estudiá desde lo que dijo el profesor. Descargala para Windows y entrá a la beta con tu código.">
+<title>Cathedra · Estudiá desde lo que dijo el profesor</title>
+<meta name="description" content="Cathedra escucha tus clases, arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma. Para Windows.">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#060607" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#EEE8DC" media="(prefers-color-scheme: light)">
-<link rel="icon" href="icono.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_AR">
+<meta property="og:site_name" content="Cathedra">
+<meta property="og:title" content="Cathedra · Estudiá desde lo que dijo el profesor">
+<meta property="og:description" content="Grabás la clase, Cathedra arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma.">
+<meta property="og:url" content="https://cathedra-beta.vercel.app/">
+<meta property="og:image" content="https://cathedra-beta.vercel.app/imagenes/compartir.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="La nave de piedra de Cathedra con el rosetón encendido y la marca en oro">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icono.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icono-claro.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
+<link rel="apple-touch-icon" href="imagenes/icono-180.png">
 <link rel="preload" href="fuentes/IBMPlexSansCondensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="modulepreload" href="lib/three-cathedra.min.js">
 <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
 
-<!-- La bóveda: la arma pagina.js (un tramo de bóveda estrellada repetido).
-     Detrás, la luz de las lámparas; encima, la luz del rosetón. -->
-<div class="sala" aria-hidden="true">
-  <div class="lamparas"></div>
-  <div class="boveda" id="boveda"></div>
-  <div class="viñeta"></div>
+<!-- la nave: el lienzo fijo detrás de todo. Si no hay 3D o se pidió menos movimiento, queda la imagen quieta. -->
+<div class="escena" aria-hidden="true">
+  <canvas id="nave"></canvas>
+  <div class="escena-quieta"></div>
+  <div class="escena-velo"></div>
 </div>
 
-<main class="hoja">
-  <header class="marca-caja">
-    <svg class="signo" viewBox="0 0 100 100" aria-hidden="true">
-      <!-- la C de dovelas, con la clave de oro en el lomo (el mismo signo de la aplicación) -->
-      <path class="signo-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
-      <path class="signo-junta" d="M52.3 93.9 51 70M24.1 85.6 38.2 66.2M24.1 14.4 38.2 33.8M52.3 6.1 51 30"/>
-      <path class="signo-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
-    </svg>
-    <h1 class="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
-    <p class="lema">Estudiá desde lo que dijo el profesor.</p>
-  </header>
+<!-- la carga: la C de dovelas se arma con lo que va llegando y termina siendo la marca -->
+<div class="carga" id="carga" aria-hidden="true">
+  <svg class="carga-signo" viewBox="-4 -4 108 108">
+    <path class="cs-fondo" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
+    <path class="cs-trazo" pathLength="100" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
+    <path class="cs-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
+  </svg>
+  <span class="carga-cifra"><span id="carga-cifra">0</span></span>
+</div>
+<div class="apertura" id="apertura" aria-hidden="true"></div>
 
-  <p class="bajada">Grabás la clase, sumás el material de la cátedra y Cathedra te dice qué estudiar hoy: resúmenes, preguntas y repasos de cada materia, en tu computadora.</p>
-
-  <a class="descargar" id="descargar" href="#" rel="noopener">
-    <span class="descargar-luz" aria-hidden="true"></span>
-    <svg class="descargar-icono" viewBox="0 0 24 24" aria-hidden="true">
-      <path class="flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/>
-      <path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/>
-    </svg>
-    <span class="descargar-texto">Descargar Cathedra para Windows</span>
+<header class="cabecera" id="cabecera">
+  <a class="cab-marca" href="#portada" aria-label="Cathedra, volver arriba">
+    <svg viewBox="-4 -4 108 108" aria-hidden="true"><path class="sg-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/><path class="sg-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/></svg>
+    <span>Cathedra</span>
   </a>
+  <nav class="cab-nav" aria-label="Secciones">
+    <a href="#como">Cómo funciona</a>
+    <a href="#distinta">Lo distinto</a>
+    <a href="#descargar" class="cab-ir">Descargar</a>
+  </nav>
+</header>
 
-  <ul class="notas">
-    <li>Windows 10 u 11, 64 bits <span class="punto" aria-hidden="true">·</span> <span class="junto">unos 2 GB libres con la transcripción</span></li>
-    <li><b>Beta cerrada:</b> al abrirla, pegá el código que te dio quien te invitó</li>
-  </ul>
+<main id="contenido">
 
-  <section class="aviso" aria-labelledby="aviso-tit">
-    <p class="aviso-texto" id="aviso-tit">Como todavía no está firmada, Windows muestra un aviso azul: tocá «Más información» y después «Ejecutar de todas formas».</p>
-    <ol class="pasos">
-      <li class="paso">
-        <span class="paso-num" aria-hidden="true">1</span>
-        <div class="ventanita" role="img" aria-label="El aviso azul de Windows, con el enlace Más información marcado">
-          <span class="vt-titulo">Windows protegió tu PC</span>
-          <span class="vt-renglon" style="--l:92%"></span>
-          <span class="vt-renglon" style="--l:78%"></span>
-          <span class="vt-renglon" style="--l:40%"></span>
-          <span class="vt-enlace marcado">Más información</span>
-          <span class="vt-pie"><span class="vt-boton">No ejecutar</span></span>
+  <section class="portada" id="portada" data-tramo="0" aria-labelledby="marca">
+    <div class="portada-caja">
+      <svg class="signo" id="signo" viewBox="-4 -4 108 108" aria-hidden="true">
+        <path class="signo-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
+        <path class="signo-junta" d="M52.3 93.9 51 70M24.1 85.6 38.2 66.2M24.1 14.4 38.2 33.8M52.3 6.1 51 30"/>
+        <path class="signo-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
+      </svg>
+      <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
+      <p class="lema"><span class="palabras">Estudiá desde lo que dijo el profesor.</span></p>
+      <a class="boton-descarga llega" data-descarga href="#descargar">
+        <span class="bd-punto" aria-hidden="true"></span>
+        <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+        <span class="bd-texto">Descargar para Windows</span>
+      </a>
+      <p class="requisito llega">Windows 10 u 11 · 64 bits</p>
+    </div>
+    <p class="bajar llega" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
+  </section>
+
+  <section class="como" id="como" aria-labelledby="como-tit">
+    <header class="sec-cab" data-tramo="0.6">
+      <p class="rotulo">Cómo funciona</p>
+      <h2 id="como-tit" class="titular"><span class="palabras">De la clase al parcial, en cuatro pasos.</span></h2>
+    </header>
+
+    <article class="paso" data-tramo="1">
+      <div class="paso-texto">
+        <p class="paso-num">01</p>
+        <h3>Grabás o subís la clase.</h3>
+        <p>Grabala desde la computadora mientras el profesor habla, o soltá el audio, el video o el material que te pasaron. Cathedra la escucha y la pasa a texto ahí mismo, en tu computadora.</p>
+      </div>
+      <figure class="pantalla">
+        <img src="imagenes/paso-1.webp" width="1280" height="800" loading="lazy" decoding="async" alt="La pantalla de Cathedra para sumar clases y cronogramas: soltá acá los archivos o tocá para buscarlos.">
+      </figure>
+    </article>
+
+    <article class="paso paso-der" data-tramo="2">
+      <div class="paso-texto">
+        <p class="paso-num">02</p>
+        <h3>Cathedra la lee y arma la guía.</h3>
+        <p>Ordena la materia clase por clase, con su fecha y su tema, y arma la guía de estudio desde lo que se dijo en el aula y desde el material de la cátedra.</p>
+      </div>
+      <figure class="pantalla">
+        <img src="imagenes/paso-2.webp" width="1280" height="800" loading="lazy" decoding="async" alt="Una materia en Cathedra: una tarjeta por clase con el número, la fecha, el tema y la acción para estudiar o armar la guía.">
+      </figure>
+    </article>
+
+    <article class="paso" data-tramo="3">
+      <div class="paso-texto">
+        <p class="paso-num">03</p>
+        <h3>Preguntás por voz o por chat.</h3>
+        <p>Le preguntás como a un compañero que tomó todos los apuntes. Te contesta con lo que dijo el profesor y te muestra de qué clase sale y en qué minuto, para que lo vuelvas a escuchar.</p>
+      </div>
+      <figure class="pantalla pantalla-dibujo" aria-label="Una respuesta de Cathedra con la cita de la clase y el minuto">
+        <div class="charla">
+          <p class="ch-pregunta">¿Qué diferencia hay entre moral y derecho?</p>
+          <div class="ch-respuesta">
+            <p>La profesora lo planteó así: la moral obliga desde adentro y no tiene sanción externa; el derecho se impone desde afuera y el Estado puede hacerlo cumplir.</p>
+            <p class="ch-cita"><span class="ch-cita-clase">Clase 1</span><span class="ch-cita-min">min 23:40</span><span class="ch-cita-oir">Escuchar</span></p>
+          </div>
+          <p class="ch-voz"><i></i><i></i><i></i><i></i><i></i> <span>o preguntale en voz alta</span></p>
         </div>
-      </li>
-      <li class="paso">
-        <span class="paso-num" aria-hidden="true">2</span>
-        <div class="ventanita" role="img" aria-label="El mismo aviso abierto, con el botón Ejecutar de todas formas marcado">
-          <span class="vt-titulo">Windows protegió tu PC</span>
-          <span class="vt-renglon" style="--l:92%"></span>
-          <span class="vt-dato">Aplicación: <i>Cathedra-Setup.exe</i></span>
-          <span class="vt-dato">Editor: <i>Editor desconocido</i></span>
-          <span class="vt-pie"><span class="vt-boton marcado">Ejecutar de todas formas</span><span class="vt-boton">No ejecutar</span></span>
+      </figure>
+    </article>
+
+    <article class="paso paso-der" data-tramo="4">
+      <div class="paso-texto">
+        <p class="paso-num">04</p>
+        <h3>Te toma un simulacro.</h3>
+        <p>Arma el parcial desde lo que el profesor dijo que toma y con el formato que anunció. Te corrige, te muestra de dónde sale cada consigna y te deja el repaso de lo que te costó.</p>
+      </div>
+      <figure class="pantalla pantalla-dibujo" aria-label="Una consigna del simulacro marcada con lo que dijo el profesor que toma">
+        <div class="simulacro">
+          <p class="si-cab"><span>Parcial de práctica</span><span>2 de 5</span></p>
+          <p class="si-insignia"><b>Dijo que lo toma</b> «El caso Bosco va seguro al parcial» · Clase 4, min 51</p>
+          <p class="si-consigna">Analizá el caso Bosco con los principios de transparencia y explicabilidad. Justificá tu respuesta.</p>
+          <div class="si-renglones"><i></i><i></i><i></i></div>
+          <p class="si-pie"><span class="si-tipo">Minicaso · 20 puntos</span><span class="si-boton">Corregir</span></p>
         </div>
+      </figure>
+    </article>
+  </section>
+
+  <section class="distinta" id="distinta" data-tramo="5" aria-labelledby="distinta-tit">
+    <header class="sec-cab">
+      <p class="rotulo">Lo que la hace distinta</p>
+      <h2 id="distinta-tit" class="titular"><span class="palabras">Estudia lo que va a tomar tu profesor, no un apunte cualquiera.</span></h2>
+    </header>
+    <ul class="virtudes">
+      <li>
+        <h3>Desde lo que dijo el profesor</h3>
+        <p>Cada resumen, cada pregunta y cada consigna sale de tus clases y del material de tu cátedra. No de un apunte genérico.</p>
       </li>
-    </ol>
+      <li>
+        <h3>Con la clase y el minuto</h3>
+        <p>Lo que te dice viene con su fuente: la clase y el minuto en que se dijo. Si dudás, lo escuchás.</p>
+      </li>
+      <li>
+        <h3>También sin conexión</h3>
+        <p>Tus clases, tus guías y la transcripción andan sin internet. Lo que necesita conexión, te lo avisa.</p>
+      </li>
+      <li>
+        <h3>Tus clases, en tu computadora</h3>
+        <p>Las grabaciones, las transcripciones y tus resultados quedan guardados en tu computadora. No se venden ni se usan para publicidad.</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="descargar" id="descargar" data-tramo="6" aria-labelledby="descargar-tit">
+    <div class="descargar-caja">
+      <p class="rotulo">Para Windows</p>
+      <h2 id="descargar-tit" class="titular"><span class="palabras">Bajala y empezá por la próxima clase.</span></h2>
+      <a class="boton-descarga" data-descarga href="#descargar">
+        <span class="bd-punto" aria-hidden="true"></span>
+        <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+        <span class="bd-texto">Descargar para Windows</span>
+      </a>
+      <dl class="requisitos">
+        <div><dt>Sistema</dt><dd>Windows 10 u 11 · 64 bits</dd></div>
+        <div><dt>Espacio</dt><dd>Unos 2 GB libres</dd></div>
+        <div><dt>La primera vez</dt><dd>Cathedra baja sola la transcripción (≈ 1,6 GB) y te muestra cuánto falta. Después, ya podés grabar.</dd></div>
+      </dl>
+
+      <div class="aviso" aria-labelledby="aviso-tit">
+        <p class="aviso-texto" id="aviso-tit">Como todavía no está firmada, Windows muestra un aviso azul: tocá «Más información» y después «Ejecutar de todas formas».</p>
+        <ol class="pasos-win">
+          <li class="paso-win">
+            <span class="pw-num" aria-hidden="true">1</span>
+            <div class="ventanita" role="img" aria-label="El aviso azul de Windows, con el enlace Más información marcado">
+              <span class="vt-titulo">Windows protegió tu PC</span>
+              <span class="vt-renglon" style="--l:92%"></span>
+              <span class="vt-renglon" style="--l:78%"></span>
+              <span class="vt-renglon" style="--l:40%"></span>
+              <span class="vt-enlace marcado">Más información</span>
+              <span class="vt-pie"><span class="vt-boton">No ejecutar</span></span>
+            </div>
+          </li>
+          <li class="paso-win">
+            <span class="pw-num" aria-hidden="true">2</span>
+            <div class="ventanita" role="img" aria-label="El mismo aviso abierto, con el botón Ejecutar de todas formas marcado">
+              <span class="vt-titulo">Windows protegió tu PC</span>
+              <span class="vt-renglon" style="--l:92%"></span>
+              <span class="vt-dato">Aplicación: <i>Cathedra-Setup.exe</i></span>
+              <span class="vt-dato">Editor: <i>Editor desconocido</i></span>
+              <span class="vt-pie"><span class="vt-boton marcado">Ejecutar de todas formas</span><span class="vt-boton">No ejecutar</span></span>
+            </div>
+          </li>
+        </ol>
+      </div>
+      <p class="invitacion">Si te invitaron, pegá tu código en Ajustes → Cuenta.</p>
+    </div>
   </section>
 </main>
 
+<footer class="pie" data-tramo="7">
+  <nav class="pie-nav" aria-label="Información legal y contacto">
+    <a href="privacidad">Privacidad</a>
+    <a href="terminos">Términos y condiciones</a>
+    <a href="cookies">Cookies</a>
+    <a href="terminos#contacto" data-contacto>Contacto</a>
+  </nav>
+  <p class="pie-firma">© 2026 Cathedra</p>
+</footer>
+
 <script src="pagina.js"></script>
+<script type="module">
+  import { iniciar } from "./nave.js";
+  window.CATHEDRA_PAGINA.nave(iniciar);
+</script>
 </body>
 </html>
