@@ -1,640 +1,305 @@
-/* La nave de Cathedra: la escena que se recorre bajando la página.
+/* La escena de Cathedra: la que acompaña a la página.
 
-   Una sala de lectura de piedra, hecha toda con geometría (nada se descarga
-   salvo el código): pilares en haz, arcos apuntados, la bóveda de crucería con
-   el filete de oro en cada nervio, las mesas con sus lámparas y, al fondo, el
-   rosetón que tiñe la piedra con su luz. Es la misma familia que el fondo
-   principal de la aplicación («la bóveda»): negro piedra, pizarra, oro en los
-   filos y las manchas del vitral en ámbar, carmín, cobalto y verde.
+   Lo que eligió el dueño (6/10 23:20) juntando las variantes de /direccion: la C de dovelas de
+   ónix pulido (dos de cromo negro para que no sean todas iguales), sola en el agua negra; una
+   tinta Candy Blue que nace en la C y se difunde (la profundidad); un haz de luz Candy en esa
+   bruma, con rayos por dispersión y motas sólo adentro (nunca quemado a blanco); y la voz de la
+   clase como cientos de hilos de luz con volumen, cada uno con su fase, que llegan dispersos de
+   lejos y entran ORDENADOS en la C: caótico → ordenado, que es estudiar.
 
-   Cómo se mueve: la página baja con su scroll de siempre (se puede agrandar,
-   usar el teclado, leer); la cámara persigue a ese scroll con un resorte suave
-   y recorre la nave tramo por tramo, una sección por tramo. El texto nunca va
-   dentro del lienzo: está en la página, encima.
+   Dos colores y nada más: ONYX #020202 (fondo y materia) y CANDY BLUE #B2D5E5 (la luz). El único
+   blanco son los especulares mínimos del ónix.
 
-   Lo que cuida: densidad de píxeles con tope; si un cuadro tarda más de 20 ms
-   tres veces seguidas baja solo de nivel (menos resolución y sin halo); se
-   detiene con la pestaña oculta; con «reducir movimiento» dibuja un cuadro y
-   se queda quieta. */
+   Cómo se mueve: la página baja con su scroll de siempre; cada sección tiene un estado de la
+   escena y la escena lo persigue con resortes de segundo orden. Cinco planos (tinta, haz, C,
+   hilos, motas) con parallax distinto al puntero y al scroll. El texto nunca va en el lienzo.
 
-import * as T from "./lib/three-r186.ed207b9757.min.js";
+   Lo que cuida: densidad 1,5× en alto y 1× en liviano; si un cuadro pasa 20 ms tres veces
+   seguidas baja de nivel (sin sombras, sin halo, tinta más simple) y lo recuerda; se detiene
+   con la pestaña oculta; tope de 60 cuadros; libera todo al irse. */
+
+import * as T from "./lib/three-r186.37b7d93c59.min.js";
 
 const PAGINA = window.CATHEDRA_PAGINA || (window.CATHEDRA_PAGINA = {});
 const avisar = (p) => PAGINA.cargando && PAGINA.cargando(p);
 
-/* ══════════════════════ medidas de la nave ══════════════════════ */
-const TRAMO = 6;                 // largo de cada tramo (entre pilares)
-const TRAMOS = 12;
-const MEDIA = 5;                 // media luz de la nave (eje a pilar)
-const LARGO = TRAMO * TRAMOS;
-const Z_FONDO = -LARGO - 4;      // el muro del rosetón
-const ARRANQUE_ARCO = 8.6;       // donde arrancan los arcos de los pilares
-const ARRANQUE_BOVEDA = 19.5;    // donde arranca la bóveda
-const FLECHA = 5.2;              // cuánto sube la bóveda desde el arranque
-const ROSA = { y: 16.5, r: 6.2 };
-
-/* ══════════════════════ la paleta ══════════════════════ */
+const ONYX = 0x020202, CANDY = 0xb2d5e5;
+// la letra del grabado de la clave tiene que estar antes de dibujar su textura
+try { await document.fonts.load('500 64px "IBM Plex Mono"'); } catch (e) { /* sigue con la de respaldo */ }
 const PALETAS = {
-  oscuro: {
-    fondo: 0x060607, niebla: 0x07080b, piedra: 0x7c766e, piedraFria: 0x46506a, suelo: 0x1a1a1f,
-    sueloVeta: 0x303038, oro: 0xd4a64c, lampara: 0xe2a35c, densidad: 0.018, ambiente: 0.15,
-    vitral: [0xe6a657, 0xa3324a, 0x3557a8, 0x3e7d62], fuerzaVitral: 1.0, exposicion: 1.05,
-    lancetas: [1.5, 0.4, 0.16],
-  },
-  claro: {
-    fondo: 0xeee8dc, niebla: 0xe9e2d4, piedra: 0xd8c8a8, piedraFria: 0x8e98ac, suelo: 0xcfc4b0,
-    sueloVeta: 0xb9ad97, oro: 0xa9843a, lampara: 0x9c7a50, densidad: 0.017, ambiente: 0.62,
-    vitral: [0xe6a657, 0xc0566a, 0x5f7fc4, 0x6a9e84], fuerzaVitral: 0.55, exposicion: 0.95,
-    lancetas: [2.4, 1.5, 1.1],
-  },
+  oscuro: { fondo: ONYX, exposicion: 0.92, entorno: 0.42, clave: 16, tinta: 1.0, haz: 1.0, sombra: 0.0 },
+  // tema claro: la pareja invertida (fondo Candy aclarado, materia Onyx); la luz pasa a ser sombra
+  claro: { fondo: 0xe8f2f6, exposicion: 0.95, entorno: 1.0, clave: 26, tinta: 0.55, haz: 0.35, sombra: 1.0 },
 };
 
-/* ══════════════════════ los sombreadores ══════════════════════ */
-/* La piedra: un solo material para pilares, arcos, muros y bóveda. Luz del
-   rosetón (con sus manchas de color que tiemblan), el calor de las lámparas
-   desde abajo, el frío de las ventanas altas, hiladas de sillares con tono
-   propio y la niebla que se come lo lejano. Las sombras nunca son negras:
-   caen a pizarra. */
-const COMUN = /* glsl */`
-  uniform float uTiempo;
-  uniform vec3 uNiebla;
-  uniform float uDensidad;
-  uniform vec3 uVitral0, uVitral1, uVitral2, uVitral3;
-  uniform float uFuerzaVitral;
-  uniform vec3 uRosa;
-  uniform vec3 uLampara;
-  uniform float uAmbiente;
-  float hash1(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
-  float ruido(vec2 p){
-    vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
-    return mix(mix(hash1(i), hash1(i+vec2(1,0)), f.x), mix(hash1(i+vec2(0,1)), hash1(i+vec2(1,1)), f.x), f.y);
-  }
-  vec3 colorVitral(vec2 p){
-    // manchas de luz de colores: cuatro vidrios que se reparten la piedra y tiemblan
-    float a = ruido(p*0.35 + vec2(uTiempo*0.020, -uTiempo*0.013));
-    float b = ruido(p*0.80 - vec2(uTiempo*0.031, uTiempo*0.017));
-    float k = a*0.75 + b*0.25;
-    vec3 c = mix(uVitral0, uVitral1, smoothstep(0.30, 0.45, k));
-    c = mix(c, uVitral2, smoothstep(0.50, 0.62, k));
-    c = mix(c, uVitral3, smoothstep(0.70, 0.80, k));
-    return c;
-  }
-  float calorLamparas(vec3 w){
-    // las lámparas de las mesas: dos filas a los lados del pasillo, una por tramo
-    float dz = mod(w.z + ${TRAMO / 2}.0, ${TRAMO}.0) - ${TRAMO / 2}.0;
-    float dx = abs(w.x) - 2.3;
-    vec3 d = vec3(dx, (w.y - 1.25)*1.3, dz*0.55);
-    return exp(-dot(d, d)*0.22) * step(w.z, 2.0) * step(${-LARGO + 2}.0, w.z);
-  }
-  vec3 niebla(vec3 c, float dist){
-    float f = 1.0 - exp(-uDensidad*uDensidad*dist*dist);
-    return mix(c, uNiebla, clamp(f, 0.0, 1.0));
-  }
-`;
-
-const VERT_PIEDRA = /* glsl */`
-  varying vec3 vW; varying vec3 vN; varying float vDist;
-  void main(){
-    vec4 w = modelMatrix * vec4(position, 1.0);
-    #ifdef USE_INSTANCING
-      w = modelMatrix * instanceMatrix * vec4(position, 1.0);
-      vN = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * normal);
-    #else
-      vN = normalize(mat3(modelMatrix) * normal);
-    #endif
-    vW = w.xyz;
-    vec4 v = viewMatrix * w;
-    vDist = -v.z;
-    gl_Position = projectionMatrix * v;
-  }
-`;
-
-const FRAG_PIEDRA = /* glsl */`
-  ${COMUN}
-  uniform vec3 uPiedra, uPiedraFria;
-  uniform float uHiladas;
-  uniform float uTinte;
-  varying vec3 vW; varying vec3 vN; varying float vDist;
-  void main(){
-    vec3 n = normalize(vN);
-    // sillares: hiladas horizontales, cada piedra con su tono
-    float hil = vW.y / 0.62;
-    float fila = floor(hil);
-    float junta = smoothstep(0.0, 0.06, fract(hil)) * smoothstep(1.0, 0.94, fract(hil));
-    float largoP = (vW.x + vW.z) / 1.15 + fila * 0.5;
-    float juntaV = smoothstep(0.0, 0.04, fract(largoP)) * smoothstep(1.0, 0.96, fract(largoP));
-    float tono = 0.82 + 0.3 * hash1(vec2(fila, floor(largoP)));
-    float grano = 0.9 + 0.2 * ruido(vW.xy * 3.1 + vW.zx * 2.3);
-    vec3 alb = uPiedra * uTinte * tono * grano * mix(1.0, junta * juntaV * 0.55 + 0.45, uHiladas);
-
-    // la luz del rosetón: viene del fondo, alta; manchas de colores
-    vec3 aR = uRosa - vW;
-    float dR = length(aR);
-    float lamR = max(dot(n, aR / dR), 0.0);
-    float alcance = 1.0 / (1.0 + dR * dR * 0.0005);
-    vec3 manchas = colorVitral(vW.xy * 0.22 + vW.zx * 0.11);
-    vec3 luzRosa = manchas * lamR * alcance * 3.0 * uFuerzaVitral;
-
-    // el calor de las lámparas, desde abajo
-    float cal = calorLamparas(vW);
-    vec3 luzLampara = uLampara * cal * (0.35 + 0.65 * max(dot(n, normalize(vec3(-sign(vW.x)*0.2, -1.0, 0.0))*-1.0), 0.0)) * 2.3;
-
-    // el frío de las ventanas altas: luz de arriba, apenas
-    float cielo = max(n.y, 0.0) * 0.15 + max(-n.y, 0.0) * 0.10;
-    vec3 sombra = uPiedraFria * (uAmbiente + cielo);
-    // el rebote: la luz de las lámparas que vuelve del piso y de las mesas a la bóveda
-    sombra += uLampara * max(-n.y, 0.0) * 0.07 * smoothstep(30.0, 6.0, vW.y);
-    // el frío de las ventanas altas baña la bóveda y lo alto de los muros
-    sombra += uPiedraFria * 1.6 * smoothstep(11.0, 24.0, vW.y) * (0.6 + 0.4 * max(-n.y, 0.0));
-    // la luz del rosetón que se dispersa en el aire y llega a todo, también a la bóveda
-    sombra += manchas * alcance * 0.55 * uFuerzaVitral * smoothstep(4.0, 20.0, vW.y);
-
-    vec3 c = alb * (sombra + luzRosa + luzLampara);
-    gl_FragColor = vec4(niebla(c, vDist), 1.0);
-  }
-`;
-
-/* El oro de los filetes y las llaves: metal que agarra la luz del rosetón y
-   brilla un poco por sí solo (eso es lo único, con el vitral, que llega al halo). */
-const FRAG_ORO = /* glsl */`
-  ${COMUN}
-  uniform vec3 uOro;
-  uniform float uBrillo;
-  varying vec3 vW; varying vec3 vN; varying float vDist;
-  void main(){
-    vec3 n = normalize(vN);
-    vec3 v = normalize(cameraPosition - vW);
-    vec3 aR = normalize(uRosa - vW);
-    float spec = pow(max(dot(reflect(-aR, n), v), 0.0), 18.0);
-    float fres = pow(1.0 - max(dot(n, v), 0.0), 3.0);
-    float pulso = 0.85 + 0.15 * sin(uTiempo * 0.6 + vW.z * 0.21);
-    float cal = calorLamparas(vW);
-    vec3 c = uOro * (0.30 + 0.9 * spec + 0.5 * fres + cal * 1.6) * pulso * uBrillo;
-    gl_FragColor = vec4(niebla(c, vDist), 1.0);
-  }
-`;
-
-/* El suelo: losas de mármol negro con vetas, el reflejo blando del rosetón por
-   el pasillo central y los charcos de luz de las lámparas. */
-const FRAG_SUELO = /* glsl */`
-  ${COMUN}
-  uniform vec3 uSuelo, uVeta;
-  varying vec3 vW; varying vec3 vN; varying float vDist;
-  void main(){
-    vec2 p = vW.xz;
-    vec2 losa = floor(p / 1.5);
-    float tablero = mod(losa.x + losa.y, 2.0);
-    vec2 f = fract(p / 1.5);
-    float junta = smoothstep(0.0, 0.02, f.x) * smoothstep(1.0, 0.98, f.x) * smoothstep(0.0, 0.02, f.y) * smoothstep(1.0, 0.98, f.y);
-    float veta = smoothstep(0.55, 0.9, ruido(p * vec2(0.6, 2.2) + ruido(p * 1.3) * 2.0));
-    vec3 alb = mix(uSuelo, uVeta, tablero * 0.3 + veta * 0.45) * (0.6 + 0.4 * junta);
-    // el reflejo del rosetón: una franja que se aviva hacia el fondo
-    float pasillo = exp(-p.x * p.x * 0.12);
-    float hacia = smoothstep(4.0, ${Z_FONDO}.0, p.y);
-    vec3 refl = colorVitral(vec2(p.x * 0.4, p.y * 0.05)) * pasillo * hacia * 0.32 * uFuerzaVitral;
-    float cal = calorLamparas(vec3(vW.x, 0.9, vW.z));
-    vec3 c = alb * (uAmbiente * 1.4 + 0.08) + refl * (0.5 + 0.5 * tablero) + uLampara * cal * 0.55 * alb * 6.0;
-    gl_FragColor = vec4(niebla(c, vDist), 1.0);
-  }
-`;
-
-/* El rosetón: doce pétalos, dos anillos de tracería, vidrios de cuatro
-   colores con plomos oscuros; cada vidrio respira apenas, como el aire. */
-const FRAG_ROSA = /* glsl */`
-  ${COMUN}
-  uniform float uEncendido;
-  varying vec2 vUv;
-  varying float vDist;
-  void main(){
-    vec2 p = vUv * 2.0 - 1.0;
-    float r = length(p);
-    if (r > 1.0) discard;
-    float a = atan(p.y, p.x);
-    float sector = 3.14159265 / 6.0;
-    float as = mod(a + sector * 0.5, sector) - sector * 0.5;     // ángulo dentro del pétalo
-    float idx = floor((a + 3.14159265) / sector);
-    // tracería: anillos y radios
-    float plomo = 0.0;
-    plomo += smoothstep(0.035, 0.0, abs(r - 0.98));
-    plomo += smoothstep(0.03, 0.0, abs(r - 0.62));
-    plomo += smoothstep(0.03, 0.0, abs(r - 0.26));
-    plomo += smoothstep(0.022, 0.0, abs(as) * r) * step(0.26, r);
-    // círculos de los pétalos exteriores
-    vec2 cen = vec2(cos(idx * sector - 3.14159265 + sector * 0.5), sin(idx * sector - 3.14159265 + sector * 0.5)) * 0.80;
-    float dc = length(p - cen);
-    plomo += smoothstep(0.03, 0.0, abs(dc - 0.15));
-    // una red fina de plomos dentro de los vidrios
-    float red = smoothstep(0.012, 0.0, abs(fract(r * 9.0) - 0.5) * 0.11) * 0.5;
-    plomo = clamp(plomo + red, 0.0, 1.0);
-    // el color de cada vidrio
-    float anillo = r < 0.26 ? 0.0 : (r < 0.62 ? 1.0 : 2.0);
-    float sel = hash1(vec2(idx + anillo * 13.0, anillo + (dc < 0.15 ? 7.0 : 0.0)));
-    vec3 c = sel < 0.3 ? uVitral2 : (sel < 0.55 ? uVitral1 : (sel < 0.8 ? uVitral0 : uVitral3));
-    if (r < 0.26) c = mix(uVitral0, vec3(1.0, 0.9, 0.7), 0.4);
-    float resp = 0.82 + 0.18 * sin(uTiempo * (0.7 + sel) + sel * 30.0);
-    vec3 luz = c * (2.6 + 1.4 * sel) * resp * uEncendido;
-    vec3 col = mix(luz, vec3(0.012, 0.011, 0.01), plomo);
-    // el aro de piedra
-    col = mix(col, vec3(0.02), smoothstep(0.97, 1.0, r));
-    gl_FragColor = vec4(niebla(col, vDist * 0.6), 1.0);
-  }
-`;
-
-/* Las ventanas altas (lancetas): un arco apuntado de vidrio frío con plomos
-   en rombo; desde lejos se ven como rendijas de luz. */
-const FRAG_LANCETA = /* glsl */`
-  ${COMUN}
-  uniform vec3 uColor;
-  uniform float uFuerza;
-  varying vec2 vUv;
-  varying float vDist;
-  varying vec3 vW;
-  void main(){
-    vec2 p = vUv * 2.0 - 1.0;          // x: -1..1, y: -1..1
-    // arco apuntado arriba: dos círculos de radio 1.6 centrados a los lados
-    float arriba = p.y - 0.25;
-    if (arriba > 0.0) {
-      float d1 = length(vec2(p.x + 0.6, arriba)), d2 = length(vec2(p.x - 0.6, arriba));
-      if (max(d1, d2) > 1.6) discard;
-    }
-    if (abs(p.x) > 1.0) discard;
-    vec2 q = vec2(p.x * 3.0 + p.y * 6.0, p.x * 3.0 - p.y * 6.0);
-    float plomo = smoothstep(0.08, 0.0, abs(fract(q.x) - 0.5) * 0.3) + smoothstep(0.08, 0.0, abs(fract(q.y) - 0.5) * 0.3);
-    vec3 mezcla = colorVitral(vW.zy * 0.3);
-    vec3 c = mix(uColor, mezcla, 0.35) * uFuerza * (0.8 + 0.2 * sin(uTiempo * 0.5 + vW.z));
-    c = mix(c, vec3(0.01), clamp(plomo, 0.0, 1.0) * 0.7);
-    gl_FragColor = vec4(niebla(c, vDist), 1.0);
-  }
-`;
-
-const VERT_UV = /* glsl */`
-  varying vec2 vUv; varying float vDist; varying vec3 vW;
-  void main(){
-    vUv = uv;
-    vec4 w = modelMatrix * vec4(position, 1.0);
-    #ifdef USE_INSTANCING
-      w = modelMatrix * instanceMatrix * vec4(position, 1.0);
-    #endif
-    vW = w.xyz;
-    vec4 v = viewMatrix * w;
-    vDist = -v.z;
-    gl_Position = projectionMatrix * v;
-  }
-`;
-
-/* Los haces del rosetón: conos abiertos, aditivos, que se apagan hacia los
-   bordes y hacia el piso; el polvo es un ruido que viaja dentro. */
-const VERT_HAZ = /* glsl */`
-  varying vec3 vW; varying vec3 vN; varying float vT; varying float vDist;
-  void main(){
-    vT = uv.y;
-    vec4 w = modelMatrix * vec4(position, 1.0);
-    vW = w.xyz;
-    vN = normalize(mat3(modelMatrix) * normal);
-    vec4 v = viewMatrix * w;
-    vDist = -v.z;
-    gl_Position = projectionMatrix * v;
-  }
-`;
-const FRAG_HAZ = /* glsl */`
-  ${COMUN}
-  uniform vec3 uColor;
-  uniform float uFuerza;
-  varying vec3 vW; varying vec3 vN; varying float vT; varying float vDist;
-  void main(){
-    vec3 v = normalize(cameraPosition - vW);
-    float borde = pow(abs(dot(normalize(vN), v)), 2.2);
-    float largo = smoothstep(0.0, 0.25, vT) * smoothstep(1.0, 0.55, vT);
-    float polvo = 0.7 + 0.6 * ruido(vW.xy * 1.7 + vec2(0.0, uTiempo * 0.12)) * ruido(vW.zy * 0.9 - uTiempo * 0.05);
-    float cerca = smoothstep(1.5, 9.0, vDist);
-    float a = borde * largo * polvo * uFuerza * cerca;
-    gl_FragColor = vec4(uColor * a, 1.0);
-  }
-`;
-
-/* ══════════════════════ geometrías ══════════════════════ */
-/* Un arco apuntado (dos arcos de círculo que se cortan en la clave), en un
-   plano vertical, entre dos puntos a la misma altura. */
-class ArcoApuntado extends T.Curve {
-  constructor(a, b, flecha, puntiagudo = 1.5) {
-    super();
-    this.a = a; this.b = b; this.flecha = flecha; this.k = puntiagudo;
-  }
-  getPoint(t, destino = new T.Vector3()) {
-    const s = 1 - Math.pow(Math.abs(2 * t - 1), this.k);   // 0 en los arranques, 1 en la clave
-    return destino.set(
-      this.a.x + (this.b.x - this.a.x) * t,
-      this.a.y + this.flecha * Math.sqrt(Math.max(s, 0)) * (0.35 + 0.65 * s),
-      this.a.z + (this.b.z - this.a.z) * t,
-    );
-  }
+/* ══════════════════════ los materiales ══════════════════════ */
+function azarCon(semilla) {
+  let s = semilla * 9301 + 49297;
+  return () => ((s = (s * 9301 + 49297) % 233280) / 233280);
 }
-/* el perfil de la bóveda: 0 en el arranque, 1 en la clave (apuntado) */
-const perfil = (t) => {
-  const s = 1 - Math.pow(Math.abs(2 * t - 1), 1.5);
-  return Math.sqrt(Math.max(s, 0)) * (0.35 + 0.65 * s);
-};
-
-function pilar() {
-  // un pilar en haz: el núcleo, ocho columnillas, la basa y el capitel
-  const partes = [];
-  const alto = ARRANQUE_ARCO;
-  const nucleo = new T.CylinderGeometry(0.5, 0.5, alto, 20, 1, true);
-  nucleo.translate(0, alto / 2, 0);
-  partes.push(nucleo);
-  for (let i = 0; i < 8; i++) {
-    const a = (i / 8) * Math.PI * 2;
-    const c = new T.CylinderGeometry(0.13, 0.13, alto, 8, 1, true);
-    c.translate(Math.cos(a) * 0.52, alto / 2, Math.sin(a) * 0.52);
-    partes.push(c);
+/* el ónix: casi negro, nubes de tono y vetas en capas apenas más claras (frías) */
+function texturaOnix(semilla) {
+  const c = document.createElement("canvas"); c.width = c.height = 512;
+  const g = c.getContext("2d"); const azar = azarCon(semilla);
+  g.fillStyle = "#050506"; g.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 24; i++) {
+    const x = azar() * 512, y = azar() * 512, r = 45 + azar() * 130;
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(${14 + azar() * 6},${15 + azar() * 6},${17 + azar() * 6},.5)`); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 512, 512);
   }
-  const basa = new T.CylinderGeometry(0.82, 0.9, 0.55, 20);
-  basa.translate(0, 0.27, 0);
-  partes.push(basa);
-  const toro = new T.CylinderGeometry(0.72, 0.82, 0.25, 20);
-  toro.translate(0, 0.66, 0);
-  partes.push(toro);
-  const capitel = new T.CylinderGeometry(0.85, 0.62, 0.7, 20);
-  capitel.translate(0, alto + 0.35, 0);
-  partes.push(capitel);
-  const abaco = new T.BoxGeometry(1.8, 0.22, 1.8);
-  abaco.translate(0, alto + 0.8, 0);
-  partes.push(abaco);
-  // el haz sigue arriba del capitel hasta la bóveda (los baquetones del muro)
-  const fuste = new T.CylinderGeometry(0.22, 0.22, ARRANQUE_BOVEDA - alto - 0.9, 10, 1, true);
-  fuste.translate(0.35, alto + 0.9 + (ARRANQUE_BOVEDA - alto - 0.9) / 2, 0);
-  partes.push(fuste);
-  return unir(partes);
+  for (let i = 0; i < 7; i++) {
+    let x = -10, y = azar() * 512, ang = (azar() - 0.5) * 0.6;
+    g.beginPath(); g.moveTo(x, y);
+    for (let k = 0; k < 60; k++) { ang += (azar() - 0.5) * 0.18; x += Math.cos(ang) * 9; y += Math.sin(ang) * 9; g.lineTo(x, y); }
+    g.strokeStyle = `rgba(150,175,186,${0.05 + azar() * 0.09})`;
+    g.lineWidth = 0.6 + azar() * 2.6; g.stroke();
+  }
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; return t;
+}
+/* micro-variación de rugosidad por pieza */
+function texturaRugosidad(semilla) {
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d"); const azar = azarCon(semilla + 7);
+  g.fillStyle = "#2a2a2a"; g.fillRect(0, 0, 128, 128);
+  for (let i = 0; i < 90; i++) {
+    const x = azar() * 128, y = azar() * 128, r = 3 + azar() * 18, v = Math.floor(20 + azar() * 90);
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(${v},${v},${v},.5)`); gr.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  }
+  return new T.CanvasTexture(c);
+}
+function materialOnix(i) {
+  // pulido sin capa de barniz (la capa cortaba el dibujo en placas modestas): el pulido sale de la rugosidad baja
+  return new T.MeshPhysicalMaterial({
+    color: 0xffffff, map: texturaOnix(i + 1), roughnessMap: texturaRugosidad(i + 1),
+    roughness: 0.2 + (i % 3) * 0.08, metalness: 0, specularIntensity: 1, ior: 1.6,
+  });
+}
+function materialCromoNegro() {
+  return new T.MeshPhysicalMaterial({ color: 0x08090a, metalness: 1, roughness: 0.38, envMapIntensity: 0.6 });
+}
+/* la marca de luz grabada en la clave: la clase y el minuto, Candy, que brilla desde adentro */
+function grabadoDeLuz(texto) {
+  const c = document.createElement("canvas"); c.width = 1024; c.height = 512;
+  const g = c.getContext("2d");
+  g.fillStyle = "#000"; g.fillRect(0, 0, 1024, 512);
+  g.fillStyle = "#b2d5e5"; g.shadowColor = "#b2d5e5"; g.shadowBlur = 14;
+  g.font = '500 64px "IBM Plex Mono", monospace'; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText(texto, 512, 256);
+  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+  return t;
 }
 
-/* para unir mallas: sólo posición y normal (la piedra no usa coordenadas de textura) */
-function limpia(g) {
-  const s = g.index ? g.toNonIndexed() : g;
-  for (const nombre of Object.keys(s.attributes)) if (nombre !== "position" && nombre !== "normal") s.deleteAttribute(nombre);
-  return s;
+/* ══════════════════════ la C y la clave ══════════════════════ */
+const R = 1.0, r = 0.47, PROF = 0.46;
+function dovela(a0, a1, i) {
+  const f = new T.Shape();
+  f.absarc(0, 0, R, a0, a1, false); f.lineTo(Math.cos(a1) * r, Math.sin(a1) * r); f.absarc(0, 0, r, a1, a0, true); f.closePath();
+  // chaflanes en todas las aristas: nada de arista viva de caja
+  const geo = new T.ExtrudeGeometry(f, { depth: PROF, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.035, bevelSegments: 3, curveSegments: 28 });
+  geo.translate(0, 0, -PROF / 2);
+  const m = new T.Mesh(geo, i === 1 || i === 4 ? materialCromoNegro() : materialOnix(i));
+  m.castShadow = m.receiveShadow = true;
+  const am = (a0 + a1) / 2;
+  m.userData.hacia = new T.Vector3(Math.cos(am), Math.sin(am), 0);
+  return m;
 }
-const unir = (lista) => T.mergeGeometries(lista.map(limpia));
-
-function tubo(curva, radio, segmentos = 48, lados = 7) {
-  return new T.TubeGeometry(curva, segmentos, radio, lados, false).toNonIndexed();
+/* la clave: una cuña trapezoidal de verdad (ancha afuera, angosta adentro), tallada con chaflán
+   grueso; en su cara del frente, la clase y el minuto grabados en luz. Centrada en su origen. */
+function clave() {
+  const f = new T.Shape();
+  f.moveTo(-0.34, 0.25); f.lineTo(0.34, 0.1); f.lineTo(0.34, -0.1); f.lineTo(-0.34, -0.25); f.closePath();
+  const geo = new T.ExtrudeGeometry(f, { depth: PROF * 1.06, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.04, bevelSegments: 4 });
+  geo.translate(0, 0, -PROF * 0.53);
+  const piedra = materialOnix(9);
+  piedra.roughness = 0.34;
+  const m = new T.Mesh(geo, piedra);
+  m.castShadow = true;
+  // la marca de luz va en una placa apenas delante de la cara frontal (la cara se ve tallada)
+  const placa = new T.Mesh(new T.PlaneGeometry(0.62, 0.31), new T.MeshBasicMaterial({
+    map: grabadoDeLuz("CLASE 4 · 00:51"), color: new T.Color(CANDY).multiplyScalar(1.6),
+    transparent: true, blending: T.AdditiveBlending, depthWrite: false,
+  }));
+  placa.position.z = PROF * 0.53 + 0.051;
+  m.add(placa);
+  return m;
 }
 
-function construir(escena, mat) {
-  const piedras = [], oros = [];
-  const V = (x, y, z) => new T.Vector3(x, y, z);
+/* ══════════════════════ la voz: hilos de luz con volumen ══════════════════════ */
+/* Una curva que entra ondulando y se aquieta en el ojo de la C; sobre ella, cientos de tubos
+   instanciados, cada uno con su fase, su grosor y su brillo. uOrden (0..1) los junta: con 0
+   están dispersos (la clase cruda); con 1 entran en haz (lo estudiado). */
+class Onda extends T.Curve {
+  constructor(desde, hasta, alto) { super(); this.d = desde; this.h = hasta; this.a = alto; }
+  getPoint(t, o = new T.Vector3()) {
+    const amp = this.a * Math.pow(1 - t, 1.6) * (0.55 + 0.45 * Math.sin(t * 9.0));
+    return o.set(this.d.x + (this.h.x - this.d.x) * t, this.d.y + (this.h.y - this.d.y) * t + Math.sin(t * 46.0) * amp, this.d.z + (this.h.z - this.d.z) * t);
+  }
+}
+function hilosDeLuz(curva, cuantos) {
+  const base = new T.TubeGeometry(curva, 150, 1.0, 3, false);   // radio 1: el grosor real va por instancia
+  const geo = new T.InstancedBufferGeometry();
+  geo.index = base.index;
+  for (const k of ["position", "normal", "uv"]) geo.setAttribute(k, base.attributes[k]);
+  geo.instanceCount = cuantos;
+  const azar = azarCon(5);
+  const fase = new Float32Array(cuantos), radio = new Float32Array(cuantos), brillo = new Float32Array(cuantos), grosor = new Float32Array(cuantos);
+  for (let i = 0; i < cuantos; i++) {
+    fase[i] = azar() * 6.283; radio[i] = Math.pow(azar(), 1.4); brillo[i] = 0.3 + azar() * 0.7;
+    grosor[i] = 0.0016 + Math.pow(azar(), 3) * 0.0075;     // muchos finos y unos pocos gruesos
+  }
+  geo.setAttribute("aFase", new T.InstancedBufferAttribute(fase, 1));
+  geo.setAttribute("aRadio", new T.InstancedBufferAttribute(radio, 1));
+  geo.setAttribute("aBrillo", new T.InstancedBufferAttribute(brillo, 1));
+  geo.setAttribute("aGrosor", new T.InstancedBufferAttribute(grosor, 1));
+  // el centro de la curva (para quitarlo y aplicar el grosor por instancia): position - normal
+  const mat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    uniforms: {
+      uColor: { value: new T.Color(CANDY) }, uOnyx: { value: new T.Color(ONYX) },
+      uOrden: { value: 0 }, uTiempo: { value: 0 }, uFuerza: { value: 1 }, uLatido: { value: 0 },
+    },
+    vertexShader: `attribute float aFase, aRadio, aBrillo, aGrosor; uniform float uOrden, uTiempo;
+      varying float vT; varying float vB; varying float vBorde; varying float vDist;
+      void main(){
+        vT = uv.x; vB = aBrillo;
+        vec3 centro = position - normal;                    // el tubo base tiene radio 1
+        vec3 p = centro + normal * aGrosor;
+        // dispersión: lejos y sin orden, los hilos se abren; cerca de la C y con orden, entran en haz
+        float abre = (0.12 + 0.62 * (1.0 - uOrden)) * pow(1.0 - uv.x, 1.15) * aRadio;
+        float f = aFase + uTiempo * (0.35 + 0.25 * aRadio);
+        p += vec3(0.0, sin(uv.x * 26.0 + f) * abre, cos(uv.x * 21.0 + f * 1.3) * abre);
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        vDist = -mv.z;
+        vBorde = abs(dot(normalize(normalMatrix * normal), normalize(-mv.xyz)));
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `uniform vec3 uColor, uOnyx; uniform float uFuerza, uLatido, uTiempo; varying float vT; varying float vB; varying float vBorde; varying float vDist;
+      void main(){
+        // Candy al 100 % en el núcleo, mezclado con Onyx hacia los bordes; atenuación con la distancia
+        vec3 c = mix(uOnyx, uColor, smoothstep(0.0, 0.85, vBorde));
+        float a = smoothstep(0.0, 0.2, vT) * smoothstep(1.0, 0.86, vT) * vB * 0.16;
+        a *= 1.0 / (1.0 + max(vDist - 6.0, 0.0) * 0.35);
+        // el latido: un pulso que corre hacia la C cuando se pregunta
+        a *= 1.0 + uLatido * 1.4 * smoothstep(0.9, 1.0, sin(vT * 14.0 - uTiempo * 3.0));
+        gl_FragColor = vec4(c * a * uFuerza, 1.0);
+      }`,
+  });
+  const m = new T.Mesh(geo, mat);
+  m.frustumCulled = false;
+  return m;
+}
 
-  // pilares: dos filas
-  const geoPilar = pilar();
-  const nPilares = (TRAMOS + 1) * 2;
-  const pilares = new T.InstancedMesh(geoPilar, mat.piedraInst, nPilares);
-  const m = new T.Matrix4();
-  let k = 0;
-  for (let i = 0; i <= TRAMOS; i++) {
-    const z = -i * TRAMO;
-    for (const lado of [-1, 1]) {
-      m.makeRotationY(lado < 0 ? Math.PI : 0);
-      m.setPosition(lado * MEDIA, 0, z);
-      pilares.setMatrixAt(k++, m);
-    }
-  }
-  escena.add(pilares);
+/* ══════════════════════ la tinta en agua negra ══════════════════════ */
+/* Un fluido 2D por capas: un campo de ruido que se advecta por su propia corriente y se difunde;
+   nace en la C y se abre hacia la izquierda. Con granito de ruido para que nunca haga bandas. */
+function tinta(octavas) {
+  const mat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    defines: { OCTAVAS: octavas },
+    uniforms: { uColor: { value: new T.Color(CANDY) }, uT: { value: 0 }, uFuerza: { value: 1 } },
+    vertexShader: "varying vec2 vU; void main(){ vU = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform vec3 uColor; uniform float uT, uFuerza; varying vec2 vU;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float ruido(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+      float fbm(vec2 p){ float s = 0.0, a = 0.5; for (int i = 0; i < OCTAVAS; i++){ s += a * ruido(p); p = p * 2.03 + 11.7; a *= 0.5; } return s; }
+      void main(){
+        vec2 p = vU * vec2(3.2, 1.6);
+        vec2 q = vec2(fbm(p + vec2(0.0, uT * 0.06)), fbm(p + vec2(5.2, 1.3) - uT * 0.03));
+        vec2 r = vec2(fbm(p + 3.0 * q + vec2(1.7, 9.2) + uT * 0.04), fbm(p + 3.0 * q + vec2(8.3, 2.8)));
+        float d = fbm(p + 3.4 * r);
+        float origen = smoothstep(0.0, 0.9, vU.x) * smoothstep(1.0, 0.82, vU.x);
+        float banda = exp(-pow((vU.y - 0.5 - (d - 0.5) * 0.6) * 4.2, 2.0));
+        float a = smoothstep(0.42, 0.95, d) * banda * origen * 0.75;
+        a += (h(gl_FragCoord.xy + uT) - 0.5) / 255.0;          // granito: sin bandas
+        gl_FragColor = vec4(uColor * max(a, 0.0) * uFuerza, 1.0);
+      }`,
+  });
+  return new T.Mesh(new T.PlaneGeometry(9.5, 3.4), mat);
+}
 
-  for (let i = 0; i < TRAMOS; i++) {
-    const z0 = -i * TRAMO, z1 = z0 - TRAMO, zc = (z0 + z1) / 2;
-    for (const lado of [-1, 1]) {
-      const x = lado * MEDIA;
-      // arcos de la arquería (a lo largo de la nave)
-      const arco = new ArcoApuntado(V(x, ARRANQUE_ARCO + 0.9, z0), V(x, ARRANQUE_ARCO + 0.9, z1), 3.6);
-      piedras.push(tubo(arco, 0.34, 40, 8));
-      const filete = new ArcoApuntado(V(x - lado * 0.36, ARRANQUE_ARCO + 0.75, z0), V(x - lado * 0.36, ARRANQUE_ARCO + 0.75, z1), 3.6);
-      oros.push(tubo(filete, 0.045, 40, 5));
-      // nervio formero (contra el muro alto)
-      const formero = new ArcoApuntado(V(x * 1.02, ARRANQUE_BOVEDA, z0), V(x * 1.02, ARRANQUE_BOVEDA, z1), FLECHA * 0.62);
-      piedras.push(tubo(formero, 0.16, 32, 6));
-    }
-    // nervios diagonales de la crucería, con su filete de oro debajo
-    for (const [xa, xb] of [[-MEDIA, MEDIA], [MEDIA, -MEDIA]]) {
-      const d = new ArcoApuntado(V(xa, ARRANQUE_BOVEDA, z0), V(xb, ARRANQUE_BOVEDA, z1), FLECHA);
-      piedras.push(tubo(d, 0.19, 56, 7));
-      const f = new ArcoApuntado(V(xa * 0.99, ARRANQUE_BOVEDA - 0.2, z0 - 0.03), V(xb * 0.99, ARRANQUE_BOVEDA - 0.2, z1 + 0.03), FLECHA);
-      oros.push(tubo(f, 0.04, 56, 5));
-    }
-    // la llave de la clave: un disco de oro
-    const llave = new T.CylinderGeometry(0.42, 0.42, 0.16, 16);
-    llave.translate(0, ARRANQUE_BOVEDA + FLECHA - 0.2, zc);
-    oros.push(llave.toNonIndexed());
-    // la plementería: superficie de crucería (mínimo de las dos bóvedas que se cruzan)
-    const N = 22;
-    const pos = [], idx = [];
-    for (let a = 0; a <= N; a++) {
-      for (let b = 0; b <= N; b++) {
-        const u = a / N, v = b / N;
-        const h = Math.min(perfil(u), perfil(v));
-        pos.push(-MEDIA + 2 * MEDIA * u, ARRANQUE_BOVEDA + FLECHA * h + 0.12, z0 - TRAMO * v);
-      }
-    }
-    for (let a = 0; a < N; a++) {
-      for (let b = 0; b < N; b++) {
-        const p = a * (N + 1) + b;
-        idx.push(p, p + 1, p + N + 1, p + 1, p + N + 2, p + N + 1);
-      }
-    }
-    const g = new T.BufferGeometry();
-    g.setAttribute("position", new T.Float32BufferAttribute(pos, 3));
-    g.setIndex(idx);
-    g.computeVertexNormals();
-    // las normales miran hacia abajo (adentro de la nave)
-    const nn = g.attributes.normal;
-    for (let q = 0; q < nn.count; q++) if (nn.getY(q) > 0) nn.setXYZ(q, -nn.getX(q), -nn.getY(q), -nn.getZ(q));
-    piedras.push(g.toNonIndexed());
+/* ══════════════════════ el haz y sus motas ══════════════════════ */
+function haz() {
+  const mat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide,
+    uniforms: { uColor: { value: new T.Color(CANDY) }, uT: { value: 0 }, uFuerza: { value: 1 } },
+    vertexShader: "varying vec3 vN; varying vec3 vV; varying vec2 vU; void main(){ vU = uv; vec4 mv = modelViewMatrix * vec4(position,1.0); vV = normalize(-mv.xyz); vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * mv; }",
+    fragmentShader: `uniform vec3 uColor; uniform float uT, uFuerza; varying vec3 vN; varying vec3 vV; varying vec2 vU;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(41.3, 289.1))) * 43758.5); }
+      float ruido(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+      void main(){
+        float b = pow(abs(dot(normalize(vN), normalize(vV))), 2.2);
+        float rayos = 0.55 + 0.45 * ruido(vec2(vU.x * 38.0 + uT * 0.05, vU.y * 2.0));   // rayos por dispersión
+        float bruma = 0.7 + 0.3 * ruido(vU * vec2(9.0, 14.0) + vec2(0.0, uT * 0.03));
+        float a = b * rayos * bruma * smoothstep(0.0, 0.7, vU.y) * 0.14;               // nunca a blanco
+        gl_FragColor = vec4(uColor * a * uFuerza, 1.0);
+      }`,
+  });
+  return new T.Mesh(new T.ConeGeometry(2.3, 9, 64, 1, true), mat);
+}
+function motas(cuantos) {
+  // pocas y sólo adentro del haz (no partículas por todo el cuadro)
+  const pos = new Float32Array(cuantos * 3); const azar = azarCon(13);
+  for (let i = 0; i < cuantos; i++) {
+    const y = azar() * 5.5, rr = 1.6 * (y / 5.5) * Math.sqrt(azar()), a = azar() * 6.283;
+    pos[i * 3] = Math.cos(a) * rr; pos[i * 3 + 1] = 2.75 - y; pos[i * 3 + 2] = Math.sin(a) * rr;
   }
-  // arcos fajones (de lado a lado, en cada línea de pilares)
-  for (let i = 0; i <= TRAMOS; i++) {
-    const z = -i * TRAMO;
-    const f = new ArcoApuntado(V(-MEDIA, ARRANQUE_BOVEDA, z), V(MEDIA, ARRANQUE_BOVEDA, z), FLECHA * 0.92);
-    piedras.push(tubo(f, 0.26, 48, 8));
-    const fo = new ArcoApuntado(V(-MEDIA, ARRANQUE_BOVEDA - 0.3, z), V(MEDIA, ARRANQUE_BOVEDA - 0.3, z), FLECHA * 0.92);
-    oros.push(tubo(fo, 0.05, 48, 5));
-  }
-  // los muros altos (sobre la arquería) y los de las naves laterales
-  for (const lado of [-1, 1]) {
-    const alto = ARRANQUE_BOVEDA - (ARRANQUE_ARCO + 4.4);
-    const muro = new T.PlaneGeometry(LARGO + 8, alto, 1, 1);
-    muro.rotateY(-lado * Math.PI / 2);
-    muro.translate(lado * (MEDIA + 0.25), ARRANQUE_ARCO + 4.4 + alto / 2, -LARGO / 2);
-    piedras.push(muro.toNonIndexed());
-    const lateral = new T.PlaneGeometry(LARGO + 8, ARRANQUE_ARCO + 4, 1, 1);
-    lateral.rotateY(-lado * Math.PI / 2);
-    lateral.translate(lado * 10.5, (ARRANQUE_ARCO + 4) / 2, -LARGO / 2);
-    piedras.push(lateral.toNonIndexed());
-    const techoLat = new T.PlaneGeometry(LARGO + 8, 5.6, 1, 1);
-    techoLat.rotateX(Math.PI / 2);
-    techoLat.rotateY(-lado * Math.PI / 2);
-    techoLat.translate(lado * 7.9, ARRANQUE_ARCO + 4.4, -LARGO / 2);
-    piedras.push(techoLat.toNonIndexed());
-  }
-  // el muro del fondo, con el hueco del rosetón detrás del vidrio
-  const fondo = new T.PlaneGeometry(22, ARRANQUE_BOVEDA + FLECHA + 2, 1, 1);
-  fondo.translate(0, (ARRANQUE_BOVEDA + FLECHA + 2) / 2, Z_FONDO - 0.05);
-  piedras.push(fondo.toNonIndexed());
-  // el aro moldurado del rosetón
-  const aro = new T.TubeGeometry(new (class extends T.Curve {
-    getPoint(t, d = new T.Vector3()) { const a = t * Math.PI * 2; return d.set(Math.cos(a) * (ROSA.r + 0.2), ROSA.y + Math.sin(a) * (ROSA.r + 0.2), Z_FONDO + 0.1); }
-  })(), 96, 0.32, 8, true);
-  piedras.push(aro.toNonIndexed());
-  const aroOro = new T.TubeGeometry(new (class extends T.Curve {
-    getPoint(t, d = new T.Vector3()) { const a = t * Math.PI * 2; return d.set(Math.cos(a) * (ROSA.r - 0.1), ROSA.y + Math.sin(a) * (ROSA.r - 0.1), Z_FONDO + 0.25); }
-  })(), 96, 0.05, 5, true);
-  oros.push(aroOro.toNonIndexed());
-
-  // las mesas de lectura: largas, a los dos lados del pasillo, una por tramo
-  const mesas = [];
-  for (let i = 0; i < TRAMOS - 1; i++) {
-    const zc = -i * TRAMO - TRAMO / 2;
-    for (const lado of [-1, 1]) {
-      const tabla = new T.BoxGeometry(1.25, 0.09, 3.6);
-      tabla.translate(lado * 2.3, 0.8, zc);
-      mesas.push(tabla.toNonIndexed());
-      const pata = new T.BoxGeometry(1.0, 0.75, 0.1).toNonIndexed();
-      pata.translate(lado * 2.3, 0.38, zc - 1.6);
-      mesas.push(pata);
-      const pata2 = pata.clone(); pata2.translate(0, 0, 3.2);
-      mesas.push(pata2);
-      const banco = new T.BoxGeometry(0.4, 0.06, 3.4).toNonIndexed();
-      banco.translate(lado * 3.25, 0.48, zc);
-      mesas.push(banco);
-      const banco2 = banco.clone(); banco2.translate(-lado * 1.9, 0, 0);
-      mesas.push(banco2);
-    }
-  }
-  escena.add(new T.Mesh(unir(mesas), mat.madera));
-
-  escena.add(new T.Mesh(unir(piedras), mat.piedra));
-  escena.add(new T.Mesh(unir(oros), mat.oro));
-
-  // las lámparas: la pantalla de bronce y la luz que cae
-  const lamp = [];
-  const luces = [];
-  for (let i = 0; i < TRAMOS - 1; i++) {
-    const zc = -i * TRAMO - TRAMO / 2;
-    for (const lado of [-1, 1]) {
-      for (const dz of [-0.9, 0.9]) {
-        const pie = new T.CylinderGeometry(0.015, 0.015, 0.3, 6);
-        pie.translate(lado * 2.3, 0.99, zc + dz);
-        lamp.push(pie.toNonIndexed());
-        const pantalla = new T.CylinderGeometry(0.05, 0.13, 0.11, 14, 1, true);
-        pantalla.translate(lado * 2.3, 1.17, zc + dz);
-        lamp.push(pantalla.toNonIndexed());
-        const luz = new T.CircleGeometry(0.12, 14);
-        luz.rotateX(Math.PI / 2);
-        luz.translate(lado * 2.3, 1.115, zc + dz);
-        luces.push(luz.toNonIndexed());
-      }
-    }
-  }
-  escena.add(new T.Mesh(unir(lamp), mat.bronce));
-  escena.add(new T.Mesh(unir(luces), mat.luzLampara));
-
-  // el suelo
-  const suelo = new T.PlaneGeometry(24, LARGO + 30, 1, 1);
-  suelo.rotateX(-Math.PI / 2);
-  suelo.translate(0, 0, -LARGO / 2 + 6);
-  escena.add(new T.Mesh(suelo, mat.suelo));
-
-  // el rosetón
-  const rosa = new T.Mesh(new T.CircleGeometry(ROSA.r, 96), mat.rosa);
-  rosa.position.set(0, ROSA.y, Z_FONDO + 0.02);
-  escena.add(rosa);
-  // cinco lancetas bajo el rosetón y dos por tramo en los muros altos
-  const geoLanceta = new T.PlaneGeometry(1, 1);
-  const lancetasFondo = new T.InstancedMesh(geoLanceta, mat.lancetaFondo, 5);
-  for (let i = 0; i < 5; i++) {
-    const alto = 7.5 - Math.abs(i - 2) * 1.1;
-    m.makeScale(1.25, alto, 1);
-    m.setPosition((i - 2) * 1.9, 4.2 + alto / 2, Z_FONDO + 0.03);
-    lancetasFondo.setMatrixAt(i, m);
-  }
-  escena.add(lancetasFondo);
-  const lancetasAltas = new T.InstancedMesh(geoLanceta, mat.lancetaAlta, TRAMOS * 4);
-  k = 0;
-  const giro = new T.Matrix4();
-  for (let i = 0; i < TRAMOS; i++) {
-    for (const lado of [-1, 1]) {
-      for (const dz of [-1.1, 1.1]) {
-        giro.makeRotationY(-lado * Math.PI / 2);
-        m.makeScale(0.95, 4.0, 1);
-        m.premultiply(giro);
-        m.setPosition(lado * (MEDIA + 0.2), ARRANQUE_ARCO + 4.4 + 2.6, -i * TRAMO - TRAMO / 2 + dz);
-        lancetasAltas.setMatrixAt(k++, m);
-      }
-    }
-  }
-  escena.add(lancetasAltas);
-  // las ventanas de las naves laterales, vistas a través de la arquería
-  const lancetasBajas = new T.InstancedMesh(geoLanceta, mat.lancetaBaja, TRAMOS * 2);
-  k = 0;
-  for (let i = 0; i < TRAMOS; i++) {
-    for (const lado of [-1, 1]) {
-      giro.makeRotationY(-lado * Math.PI / 2);
-      m.makeScale(1.1, 4.6, 1);
-      m.premultiply(giro);
-      m.setPosition(lado * 10.45, 5.6, -i * TRAMO - TRAMO / 2);
-      lancetasBajas.setMatrixAt(k++, m);
-    }
-  }
-  escena.add(lancetasBajas);
-
-  // los haces del rosetón: conos abiertos desde el vidrio hacia el piso de la nave
-  const haces = new T.Group();
-  const HACES = [
-    { hasta: [0.0, 0, -42], r: 3.6, c: 0, f: 0.22 },
-    { hasta: [-3.0, 0, -50], r: 2.6, c: 1, f: 0.16 },
-    { hasta: [3.2, 0, -47], r: 2.8, c: 2, f: 0.16 },
-    { hasta: [1.0, 0, -30], r: 4.2, c: 3, f: 0.10 },
-  ];
-  for (const h of HACES) {
-    const desde = new T.Vector3(h.hasta[0] * 0.25, ROSA.y, Z_FONDO + 0.5);
-    const hasta = new T.Vector3(...h.hasta);
-    const largo = desde.distanceTo(hasta);
-    const cono = new T.CylinderGeometry(ROSA.r * 0.35, h.r, largo, 24, 1, true);
-    // uv.y: 0 en el vidrio, 1 en el piso
-    cono.translate(0, -largo / 2, 0);
-    const uv = cono.attributes.uv;
-    for (let q = 0; q < uv.count; q++) uv.setY(q, 1 - uv.getY(q));
-    const malla = new T.Mesh(cono, mat.haz(h.c, h.f));
-    malla.position.copy(desde);
-    malla.quaternion.setFromUnitVectors(new T.Vector3(0, -1, 0), hasta.clone().sub(desde).normalize());
-    haces.add(malla);
-  }
-  escena.add(haces);
+  const g = new T.BufferGeometry(); g.setAttribute("position", new T.BufferAttribute(pos, 3));
+  return new T.Points(g, new T.PointsMaterial({ color: CANDY, size: 0.011, transparent: true, opacity: 0.32, blending: T.AdditiveBlending, depthWrite: false }));
 }
 
 /* ══════════════════════ el recorrido ══════════════════════ */
-/* Un punto de cámara por sección (y algunos intermedios): dónde está y adónde
-   mira. La sección i de la página corresponde al tramo i del recorrido. */
-const RECORRIDO = [
-  // portada: en la entrada, la nave entera y el rosetón al fondo
-  { p: [0, 2.4, 9], m: [0, 3.6, -70] },
-  // cómo funciona: cuatro pasos entre los pilares
-  { p: [-1.6, 2.6, -6], m: [1.8, 5.0, -40] },
-  { p: [1.7, 3.0, -16], m: [-2.2, 6.5, -52] },
-  { p: [-1.4, 3.4, -26], m: [2.6, 7.5, -60] },
-  { p: [1.5, 3.8, -36], m: [-1.5, 10, -70] },
-  // lo distinto: la cámara mira hacia arriba, a la bóveda (como el fondo de la app)
-  { p: [0, 4.2, -42], m: [0, 40, -56] },
-  // descargar: bajo el rosetón
-  { p: [0, 5.2, -58], m: [0, ROSA.y - 1.5, Z_FONDO] },
-  // pie: un paso atrás, la luz entera
-  { p: [0, 3.2, -52], m: [0, ROSA.y - 2, Z_FONDO] },
+/* Un estado por sección: dónde está la C (p, g, e), cuánto se abre, dónde va la clave (0 en su
+   lugar, 1 afuera y adelante), cuánto orden tienen los hilos, el latido, y la fuerza de la tinta
+   y del haz. Para pantallas apaisadas; en vertical se ajusta (ajustarVertical). */
+const ESTADOS = [
+  // 0 portada: la C a la derecha, bruma + haz + hilos entrando ordenados
+  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 1, haz: 1 },
+  // 1 grabar: la voz es la protagonista: los hilos llegan dispersos; la C se aleja arriba
+  { p: [-4.4, 3.3, -11.5], g: [0.5, 0.4, 0.1], e: 0.9, abre: 0.04, clave: 0, orden: 0.15, latido: 0, tinta: 0.5, haz: 0.4 },
+  // 2 la guía: la clave tallada sale, con la clase y el minuto
+  { p: [5.0, 3.7, -13.0], g: [0.6, -0.5, -0.1], e: 0.9, abre: 0.3, clave: 1, orden: 0.5, latido: 0, tinta: 0.3, haz: 0.3 },
+  // 3 preguntar: el hilo late
+  { p: [-5.0, 3.7, -13.0], g: [0.4, 0.9, 0.2], e: 0.9, abre: 0.08, clave: 0, orden: 0.8, latido: 1, tinta: 0.35, haz: 0.3 },
+  // 4 simulacro: las dovelas se reagrupan en la C, grande y lejos, detrás de la pantalla
+  { p: [5.4, 2.2, -9.5], g: [0.15, -0.6, 0.0], e: 1.5, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.6 },
+  // 5 lo distinto: la C se abre y se va arriba; la clave sale con lo grabado a la vista
+  { p: [0.0, 6.5, -12.0], g: [0.2, 0.3, 0.1], e: 1.0, abre: 1.0, clave: 1, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
+  // 6 las cuatro razones
+  { p: [0.0, 6.5, -12.0], g: [0.2, 0.5, 0.1], e: 1.0, abre: 1.0, clave: 0, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
+  // 7 descargar: la cámara «entra» en la C (la C grande, el ojo en el centro, la caja adelante)
+  { p: [0.2, 0.1, -2.2], g: [0.0, -0.12, 0.0], e: 2.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.8, haz: 0.5 },
+  // 8 pie
+  { p: [0.2, 0.1, -2.6], g: [0.0, -0.08, 0.0], e: 2.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.4 },
 ];
+const CANALES = ["abre", "clave", "orden", "latido", "tinta", "haz"];
 
-/* ══════════════════════ arranque ══════════════════════ */
+/* un resorte de segundo orden (frecuencia f, amortiguación z, respuesta r), como los de Lusion:
+   cada cosa persigue a su objetivo con masa y un asentamiento natural */
+class Resorte {
+  constructor(f, z, r, x0) {
+    this.k1 = z / (Math.PI * f); this.k2 = 1 / ((2 * Math.PI * f) ** 2); this.k3 = r * z / (2 * Math.PI * f);
+    this.x = x0; this.y = x0; this.v = 0;
+  }
+  paso(dt, x) {
+    const xd = (x - this.x) / Math.max(dt, 1e-4); this.x = x;
+    const k2 = Math.max(this.k2, 1.1 * (dt * dt / 4 + dt * this.k1 / 2));
+    this.y += dt * this.v;
+    this.v += dt * (x + this.k3 * xd - this.y - this.k1 * this.v) / k2;
+    return this.y;
+  }
+  fijar(x) { this.x = this.y = x; this.v = 0; }
+}
+
 export function iniciar(lienzo, opciones = {}) {
   const quieto = !!opciones.quieto;
   const forzarAlta = /calidad=alta/.test(location.search);
   const forzarBaja = /calidad=baja/.test(location.search);
   const medirDeVerdad = /medir/.test(location.search);
-  // antes de pedirle nada a la biblioteca: ¿hay 3D en este navegador? (si no, sin errores: la imagen quieta)
+  const saltar = /saltar/.test(location.search);
+  // ¿hay 3D en este navegador? (si no, sin errores: la imagen quieta)
   try {
     const prueba = document.createElement("canvas");
     const ctxPrueba = prueba.getContext("webgl2") || prueba.getContext("webgl");
@@ -655,116 +320,125 @@ export function iniciar(lienzo, opciones = {}) {
   avisar(0.15);
 
   const claroMQ = window.matchMedia("(prefers-color-scheme: light)");
-  const temaForzado = () => document.documentElement.dataset.tema;
-  const esClaro = () => (temaForzado() ? temaForzado() === "claro" : claroMQ.matches);
+  const esClaro = () => (document.documentElement.dataset.tema ? document.documentElement.dataset.tema === "claro" : claroMQ.matches);
   let pal = esClaro() ? PALETAS.claro : PALETAS.oscuro;
 
   renderer.info.autoReset = false;
   renderer.toneMapping = T.ACESFilmicToneMapping;
   renderer.toneMappingExposure = pal.exposicion;
   renderer.outputColorSpace = T.SRGBColorSpace;
+  renderer.shadowMap.type = T.PCFShadowMap;
 
   const escena = new T.Scene();
   escena.background = new T.Color(pal.fondo);
-  const camara = new T.PerspectiveCamera(52, 1, 0.1, 180);
+  const pmrem = new T.PMREMGenerator(renderer);
+  const entorno = pmrem.fromScene(new T.RoomEnvironment(), 0.04).texture;
+  escena.environment = entorno;
+  escena.environmentIntensity = pal.entorno;
+  const camara = new T.PerspectiveCamera(30, 1, 0.1, 60);
+  camara.position.set(0, 0.25, 7.2);
 
-  // los uniformes comunes: un solo objeto compartido por todos los materiales
-  const comunes = {
-    uTiempo: { value: 0 },
-    uNiebla: { value: new T.Color(pal.niebla) },
-    uDensidad: { value: pal.densidad },
-    uVitral0: { value: new T.Color(pal.vitral[0]) },
-    uVitral1: { value: new T.Color(pal.vitral[1]) },
-    uVitral2: { value: new T.Color(pal.vitral[2]) },
-    uVitral3: { value: new T.Color(pal.vitral[3]) },
-    uFuerzaVitral: { value: pal.fuerzaVitral },
-    uRosa: { value: new T.Vector3(0, ROSA.y, Z_FONDO + 2) },
-    uLampara: { value: new T.Color(pal.lampara) },
-    uAmbiente: { value: pal.ambiente },
-  };
-  const propios = {
-    uPiedra: { value: new T.Color(pal.piedra) },
-    uPiedraFria: { value: new T.Color(pal.piedraFria) },
-    uOro: { value: new T.Color(pal.oro) },
-    uSuelo: { value: new T.Color(pal.suelo) },
-    uVeta: { value: new T.Color(pal.sueloVeta) },
-    uEncendido: { value: quieto ? 1 : 0 },
-  };
-  const material = (vert, frag, extra = {}, mas = {}) => new T.ShaderMaterial({
-    vertexShader: vert, fragmentShader: frag,
-    uniforms: { ...comunes, ...propios, ...extra },
-    ...mas,
-  });
-  const mat = {
-    piedra: material(VERT_PIEDRA, FRAG_PIEDRA, { uHiladas: { value: 1 }, uTinte: { value: 1 } }),
-    piedraInst: material(VERT_PIEDRA, FRAG_PIEDRA, { uHiladas: { value: 0.5 }, uTinte: { value: 1 } }),
-    madera: material(VERT_PIEDRA, FRAG_PIEDRA, { uHiladas: { value: 0 }, uTinte: { value: 0.32 } }),
-    oro: material(VERT_PIEDRA, FRAG_ORO, { uBrillo: { value: 1 } }),
-    bronce: material(VERT_PIEDRA, FRAG_ORO, { uBrillo: { value: 0.16 } }),
-    suelo: material(VERT_PIEDRA, FRAG_SUELO),
-    rosa: material(VERT_UV, FRAG_ROSA),
-    lancetaFondo: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x9fb4e6) }, uFuerza: { value: pal.lancetas[0] } }),
-    lancetaAlta: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x7d93c8) }, uFuerza: { value: pal.lancetas[1] } }),
-    lancetaBaja: material(VERT_UV, FRAG_LANCETA, { uColor: { value: new T.Color(0x56679a) }, uFuerza: { value: pal.lancetas[2] } }),
-    luzLampara: new T.MeshBasicMaterial({ color: new T.Color(pal.lampara).multiplyScalar(6), fog: false }),
-    haz: (i, f) => material(VERT_HAZ, FRAG_HAZ,
-      { uColor: { value: new T.Color(pal.vitral[i]) }, uFuerza: { value: f } },
-      { transparent: true, depthWrite: false, blending: T.AdditiveBlending, side: T.DoubleSide }),
-  };
-  construir(escena, mat);
-  avisar(0.55);
+  const nivelInicial = forzarBaja ? 0 : 2;
 
-  /* ── el dibujo: escena → halo (sólo lo que brilla) → tono y color ── */
+  /* la C */
+  const grupo = new T.Group();
+  const dovelas = [];
+  const abre = 0.72, gap = 0.022, hueco = 0.2;
+  const arriba = [abre, Math.PI - hueco], abajo = [Math.PI + hueco, Math.PI * 2 - abre];
+  const segs = [];
+  for (let i = 0; i < 3; i++) segs.push([arriba[0] + (arriba[1] - arriba[0]) * i / 3, arriba[0] + (arriba[1] - arriba[0]) * (i + 1) / 3]);
+  for (let i = 0; i < 2; i++) segs.push([abajo[0] + (abajo[1] - abajo[0]) * i / 2, abajo[0] + (abajo[1] - abajo[0]) * (i + 1) / 2]);
+  segs.forEach(([a, b], i) => { const d = dovela(a + gap, b - gap, i); dovelas.push(d); grupo.add(d); });
+  const laClave = clave();
+  const claveEnLugar = new T.Vector3(-0.8, 0, 0);
+  laClave.position.copy(claveEnLugar);
+  grupo.add(laClave);
+  escena.add(grupo);
+  avisar(0.45);
+  // la clave, cuando sale, viene adelante con la cara grabada hacia la cámara
+  const claveAfuera = { p: new T.Vector3(1.1, -0.72, 0.6), g: new T.Vector3(0.12, -0.72, 0.16), e: 1.55 };
+
+  /* la tinta (plano del fondo), el haz y las motas (plano medio), los hilos (plano delantero) */
+  const laTinta = tinta(nivelInicial > 0 ? 6 : 4);
+  laTinta.position.set(-1.2, 0.15, -1.4);
+  escena.add(laTinta);
+  const elHaz = haz(); elHaz.position.set(0, 3.4, -0.6); escena.add(elHaz);
+  const lasMotas = motas(220); lasMotas.position.set(0, 0.85, -0.4); escena.add(lasMotas);
+  const curva = new Onda(new T.Vector3(-7.5, -0.05, -1.6), new T.Vector3(0, 0, 0), 0.32);
+  const hilos = hilosDeLuz(curva, nivelInicial > 0 ? 260 : 80);
+  escena.add(hilos);
+
+  /* la luz: una clave suave, el borde Candy, relleno mínimo; las sombras con color (el entorno) */
+  const luzClave = new T.SpotLight(0xd8e9f0, pal.clave, 0, 0.5, 0.95, 2);
+  luzClave.position.set(-4.5, 5.5, 5.2);
+  luzClave.target.position.set(0, 0, 0);
+  luzClave.shadow.mapSize.set(1024, 1024);
+  luzClave.shadow.bias = -0.0004;
+  luzClave.shadow.radius = 5;
+  escena.add(luzClave, luzClave.target);
+  const borde = new T.DirectionalLight(CANDY, 0.45); borde.position.set(1.5, 4.5, -5); escena.add(borde);
+  const borde2 = new T.DirectionalLight(CANDY, 1.0); borde2.position.set(-4, -2, -4); escena.add(borde2);
+  const relleno = new T.DirectionalLight(CANDY, 0.12); relleno.position.set(4, -1, 3); escena.add(relleno);
+  const luzHaz = new T.SpotLight(CANDY, 10, 0, 0.3, 0.9, 2); escena.add(luzHaz, luzHaz.target);
+  const apagar = (new URLSearchParams(location.search).get("apagar") || "").split(",");
+  if (apagar.includes("clave")) luzClave.visible = false;
+  if (apagar.includes("borde")) { borde.visible = false; borde2.visible = false; }
+  if (apagar.includes("haz")) { elHaz.visible = false; }
+  if (apagar.includes("entorno")) escena.environmentIntensity = 0;
+  avisar(0.6);
+
+  /* ── el dibujo: escena → halo contenido (sólo la marca de luz) → tono → suavizado → lente, viñeta,
+     aberración mínima en los bordes y granito ── */
   const composer = new T.EffectComposer(renderer);
   composer.addPass(new T.RenderPass(escena, camara));
-  const halo = new T.UnrealBloomPass(new T.Vector2(256, 256), 0.55, 0.55, 0.92);
+  const halo = new T.UnrealBloomPass(new T.Vector2(256, 256), 0.12, 0.3, 2.2);
   composer.addPass(halo);
 
-  /* el cursor como lente: el puntero deja una estela invisible (un lienzo chico que se va
-     borrando solo) y esa estela tuerce la imagen como un dedo sobre un vidrio, separando
-     apenas los colores. El scroll también la arrastra. Sólo con mouse, nunca con «reducir
-     movimiento» ni en el nivel bajo. */
+  /* el cursor como lente: el puntero deja una estela invisible (un lienzo chico que se borra
+     solo) que tuerce la imagen como un dedo sobre un vidrio. Sólo con mouse y en alto o medio. */
   const rastro = document.createElement("canvas");
   rastro.width = 192; rastro.height = 108;
   const rctx = rastro.getContext("2d");
   rctx.fillStyle = "#000"; rctx.fillRect(0, 0, rastro.width, rastro.height);
   const texRastro = new T.CanvasTexture(rastro);
   const lente = new T.ShaderPass({
-    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 } },
+    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 }, uGrano: { value: 0.03 }, uVineta: { value: 0.5 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     fragmentShader: `
-      uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza; varying vec2 vUv;
-      float granito(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453) + fract(sin(dot(p + 0.37, vec2(39.346, 11.135))) * 24634.6345) - 1.0; }
+      uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza, uGrano, uVineta; varying vec2 vUv;
       float h(vec2 p){ return texture2D(tRastro, p).r; }
+      float granito(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453) + fract(sin(dot(p + 0.37, vec2(39.346, 11.135))) * 24634.6345) - 1.0; }
       void main(){
         vec2 g = vec2(h(vUv + vec2(uPaso.x, 0.0)) - h(vUv - vec2(uPaso.x, 0.0)), h(vUv + vec2(0.0, uPaso.y)) - h(vUv - vec2(0.0, uPaso.y)));
         vec2 d = g * 0.05 * uFuerza;
-        vec3 c = vec3(texture2D(tDiffuse, vUv + d * 1.25).r, texture2D(tDiffuse, vUv + d).g, texture2D(tDiffuse, vUv + d * 0.75).b);
-        c += granito(gl_FragCoord.xy) / 255.0;
+        // aberración cromática mínima, sólo hacia los bordes
+        vec2 borde = (vUv - 0.5) * 0.0025 * dot(vUv - 0.5, vUv - 0.5) * 4.0;
+        vec3 c = vec3(texture2D(tDiffuse, vUv + d * 1.25 + borde).r, texture2D(tDiffuse, vUv + d).g, texture2D(tDiffuse, vUv + d * 0.75 - borde).b);
+        float v = smoothstep(1.15, 0.25, length((vUv - 0.5) * vec2(1.25, 1.0)));
+        c *= mix(1.0 - uVineta, 1.0, v);
+        c += granito(gl_FragCoord.xy) * uGrano;
         gl_FragColor = vec4(c, 1.0);
       }`,
   });
   const conMouse = window.matchMedia("(pointer: fine)").matches;
   composer.addPass(new T.OutputPass());
-  // suavizado de bordes barato (FXAA, no MSAA) en los niveles alto y medio
   const suavizado = new T.ShaderPass(T.FXAAShader);
   composer.addPass(suavizado);
-  // la lente y el granito de ruido que evita las bandas en la niebla y los degradés (lh-67)
   composer.addPass(lente);
-  const estela = { x: -1, y: -1, px: -1, py: -1, carga: 0 };
+  const estela = { x: -1, y: -1, carga: 0 };
   function pintarRastro(dt) {
     rctx.globalCompositeOperation = "source-over";
     rctx.fillStyle = `rgba(0,0,0,${Math.min(1, dt * 2.6)})`;
     rctx.fillRect(0, 0, rastro.width, rastro.height);
     if (estela.x >= 0 && estela.carga > 0.01) {
       const x = estela.x * rastro.width, y = estela.y * rastro.height;
-      const r = 6 + 18 * Math.min(estela.carga, 1);
-      const gr = rctx.createRadialGradient(x, y, 0, x, y, r);
+      const rr = 6 + 18 * Math.min(estela.carga, 1);
+      const gr = rctx.createRadialGradient(x, y, 0, x, y, rr);
       gr.addColorStop(0, `rgba(255,255,255,${Math.min(0.9, estela.carga)})`);
       gr.addColorStop(1, "rgba(255,255,255,0)");
       rctx.globalCompositeOperation = "lighter";
       rctx.fillStyle = gr;
-      rctx.beginPath(); rctx.arc(x, y, r, 0, Math.PI * 2); rctx.fill();
+      rctx.beginPath(); rctx.arc(x, y, rr, 0, Math.PI * 2); rctx.fill();
     }
     estela.carga *= Math.exp(-6 * dt);
     texRastro.needsUpdate = true;
@@ -775,104 +449,156 @@ export function iniciar(lienzo, opciones = {}) {
     if (estela.x >= 0) estela.carga = Math.min(1.2, estela.carga + Math.hypot(x - estela.x, y - estela.y) * 9);
     estela.x = x; estela.y = y;
   }, { passive: true });
-  let scrollPrevio = window.scrollY;
-  window.addEventListener("scroll", () => {
-    const d = Math.abs(window.scrollY - scrollPrevio) / window.innerHeight;
-    scrollPrevio = window.scrollY;
-    if (estela.x >= 0) estela.carga = Math.min(1.2, estela.carga + d * 3);
-  }, { passive: true });
 
-  /* niveles: 2 = alto (densidad hasta 1,5, con halo), 1 = medio, 0 = bajo (sin halo) */
-  // el nivel arranca donde quedó la visita anterior si tuvo que bajar (se recuerda en el navegador)
+  /* niveles: 2 = alto (1,5×, sombras 1024), 1 = medio (1,25×, sin sombras), 0 = liviano (1×, sin suavizado ni lente) */
   let recordado = 2;
   try { recordado = Math.min(2, Math.max(0, parseInt(localStorage.getItem("cathedra-nivel") ?? "2", 10))); } catch (e) { recordado = 2; }
   let nivel = forzarBaja ? 0 : forzarAlta ? 2 : recordado;
-  const DENSIDAD = [1.0, 1.25, 1.5];   // liviano 1×, alto 1,5× (lh-22)
+  const DENSIDAD = [1.0, 1.25, 1.5];
   let ancho = 1, alto = 1;
   function medir() {
     ancho = lienzo.clientWidth || window.innerWidth;
     alto = lienzo.clientHeight || window.innerHeight;
     const d = Math.min(window.devicePixelRatio || 1, DENSIDAD[nivel]);
-    // tope de píxeles: 2560 × 1440 como mucho
     const tope = Math.min(1, Math.sqrt((2560 * 1440) / (ancho * alto * d * d)));
     renderer.setPixelRatio(d * tope);
     renderer.setSize(ancho, alto, false);
     composer.setPixelRatio(d * tope);
     composer.setSize(ancho, alto);
+    renderer.shadowMap.enabled = nivel > 1;
     halo.enabled = nivel > 0;
+    luzClave.castShadow = nivel > 1;
     lente.uniforms.uFuerza.value = conMouse && !quieto && nivel > 0 ? 1 : 0;
     suavizado.enabled = nivel > 0;
     const pr = renderer.getPixelRatio();
     suavizado.material.uniforms.resolution.value.set(1 / (ancho * pr), 1 / (alto * pr));
-    halo.resolution.set(ancho / 2, alto / 2);
     camara.aspect = ancho / alto;
-    camara.fov = ancho < alto ? 66 : 52;
+    camara.fov = ancho < alto ? 42 : 30;
+    // en vertical la clave sale al centro, abajo del texto (a la derecha se cortaba)
+    if (ancho < alto) claveAfuera.p.set(0.1, -1.1, 0.6);
+    else claveAfuera.p.set(1.1, -0.72, 0.6);
     camara.updateProjectionMatrix();
   }
   medir();
 
   /* ── el recorrido por el scroll ── */
-  const secciones = () => Array.from(document.querySelectorAll("[data-tramo]"));
   let tramos = [];
   function medirTramos() {
     const y0 = window.scrollY;
-    tramos = secciones().map((s) => {
-      const r = s.getBoundingClientRect();
-      return { desde: r.top + y0, alto: Math.max(r.height, 1), i: parseFloat(s.dataset.tramo) };
+    tramos = Array.from(document.querySelectorAll("[data-tramo]")).map((s) => {
+      const rr = s.getBoundingClientRect();
+      return { desde: rr.top + y0, alto: Math.max(rr.height, 1), i: parseFloat(s.dataset.tramo) };
     });
   }
   medirTramos();
   function posicionScroll() {
-    // qué parte del recorrido corresponde al centro de la pantalla
+    // el estado de cada sección vale exacto cuando su centro pasa por el centro de la pantalla
     const c = window.scrollY + window.innerHeight * 0.5;
     if (!tramos.length) return 0;
-    if (c <= tramos[0].desde) return tramos[0].i;
-    for (let j = 0; j < tramos.length; j++) {
-      const t = tramos[j];
-      if (c < t.desde + t.alto) {
-        const sig = tramos[j + 1] ? tramos[j + 1].i : t.i + 1;
-        const f = (c - t.desde) / t.alto;
-        return t.i + (sig - t.i) * f;
-      }
+    const centro = (t) => t.desde + t.alto / 2;
+    if (c <= centro(tramos[0])) return tramos[0].i;
+    for (let k = 0; k < tramos.length - 1; k++) {
+      const a = tramos[k], b = tramos[k + 1];
+      if (c < centro(b)) return a.i + (b.i - a.i) * ((c - centro(a)) / Math.max(centro(b) - centro(a), 1));
     }
-    return tramos[tramos.length - 1].i + 1;
+    return tramos[tramos.length - 1].i;
   }
-  // en pantallas apaisadas la portada mira más bajo: el rosetón sube y queda arriba de la marca
-  let curvaP, curvaM;
-  function armarCurvas() {
-    const puntos = RECORRIDO.map((k, i) => (i === 0 && ancho >= alto ? { p: k.p, m: [k.m[0], 0.6, k.m[2]] } : k));
-    curvaP = new T.CatmullRomCurve3(puntos.map((k) => new T.Vector3(...k.p)), false, "centripetal");
-    curvaM = new T.CatmullRomCurve3(puntos.map((k) => new T.Vector3(...k.m)), false, "centripetal");
+  // en vertical (teléfono): la C arriba y al centro, más chica
+  function ajustarVertical(e) {
+    if (ancho >= alto) return e;
+    return { ...e, p: [e.p[0] * 0.25, e.p[1] + 0.95, e.p[2] - 0.6], e: e.e * 0.8 };
   }
-  armarCurvas();
-  const N = RECORRIDO.length - 1;
-  const objP = new T.Vector3(), objM = new T.Vector3();
-  const camP = new T.Vector3(), camM = new T.Vector3();
-  function objetivo(s) {
-    const t = Math.min(Math.max(s / N, 0), 1);
-    curvaP.getPoint(t, objP);
-    curvaM.getPoint(t, objM);
+  const suave = (t) => t * t * (3 - 2 * t);
+  const objetivo = { p: new T.Vector3(), g: new T.Vector3(), e: 1 };
+  for (const k of CANALES) objetivo[k] = 0;
+  const tmp = new T.Vector3();
+  function estadoEn(s) {
+    const n = ESTADOS.length - 1;
+    const i = Math.min(Math.max(Math.floor(s), 0), n), j = Math.min(i + 1, n);
+    const f = suave(Math.min(Math.max(s - i, 0), 1));
+    const a = ajustarVertical(ESTADOS[i]), b = ajustarVertical(ESTADOS[j]);
+    objetivo.p.set(...a.p).lerp(tmp.set(...b.p), f);
+    objetivo.g.set(...a.g).lerp(tmp.set(...b.g), f);
+    objetivo.e = a.e + (b.e - a.e) * f;
+    for (const k of CANALES) objetivo[k] = a[k] + (b[k] - a[k]) * f;
   }
-  objetivo(posicionScroll());
-  camP.copy(objP); camM.copy(objM);
+  estadoEn(posicionScroll());
+  // un resorte de segundo orden por cada número del estado (la C con algo de peso; lo demás, suave)
+  const resortes = {};
+  ["px", "py", "pz", "gx", "gy", "gz", "e"].forEach((k) => { resortes[k] = new Resorte(0.55, 0.85, 0.6, 0); });
+  CANALES.forEach((k) => { resortes[k] = new Resorte(0.45, 1.0, 0.4, 0); });
+  const actual = { p: new T.Vector3(), g: new T.Vector3(), e: 1 };
+  function fijarActual() {
+    actual.p.copy(objetivo.p); actual.g.copy(objetivo.g); actual.e = objetivo.e;
+    for (const k of CANALES) actual[k] = objetivo[k];
+    resortes.px.fijar(actual.p.x); resortes.py.fijar(actual.p.y); resortes.pz.fijar(actual.p.z);
+    resortes.gx.fijar(actual.g.x); resortes.gy.fijar(actual.g.y); resortes.gz.fijar(actual.g.z); resortes.e.fijar(actual.e);
+    for (const k of CANALES) resortes[k].fijar(actual[k]);
+  }
+  fijarActual();
 
-  /* el puntero: la cámara gira apenas hacia él, como quien gira la cabeza */
   const puntero = { x: 0, y: 0, sx: 0, sy: 0 };
   window.addEventListener("pointermove", (e) => {
     puntero.x = (e.clientX / window.innerWidth) * 2 - 1;
     puntero.y = (e.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
+  let scrollSuave = window.scrollY;
+
+  const enLugar = new T.Vector3();
+  // el orden de los hilos al abrir: llegan dispersos y se ordenan en los primeros 3 segundos
+  let ordenInicial = quieto || saltar ? 1 : 0;
+  function aplicar(t) {
+    // cinco planos con parallax distinto al puntero y al scroll: tinta, haz, C, hilos, motas
+    const desp = (scrollSuave / Math.max(window.innerHeight, 1));
+    const px = puntero.sx, py = puntero.sy;
+    laTinta.position.set(-1.2 - px * 0.08, 0.15 + py * 0.04 + desp * 0.05, -1.4);
+    elHaz.position.set(actual.p.x * 0.6 + px * 0.12, 3.4 + actual.p.y * 0.4 - py * 0.06, -0.6 + actual.p.z * 0.4);
+    lasMotas.position.set(elHaz.position.x + px * 0.1, 0.85 + actual.p.y * 0.4 - py * 0.1 - desp * 0.08, elHaz.position.z + 0.2);
+    luzHaz.position.set(elHaz.position.x + 0.2, 7.5, 0.2 + actual.p.z * 0.4); luzHaz.target.position.copy(actual.p);
+    grupo.position.copy(actual.p);
+    grupo.rotation.set(actual.g.x + py * 0.08, actual.g.y + px * 0.14 + Math.sin(t * 0.25) * 0.05, actual.g.z);
+    grupo.scale.setScalar(actual.e);
+    dovelas.forEach((d, i) => {
+      d.position.copy(d.userData.hacia).multiplyScalar(actual.abre * (0.35 + 0.12 * i));
+      d.position.z = -actual.abre * (0.4 + 0.3 * i);
+    });
+    const k = Math.min(Math.max(actual.clave, 0), 1);
+    grupo.updateMatrixWorld();
+    if (k < 0.001) {
+      if (laClave.parent !== grupo) grupo.add(laClave);
+      laClave.position.copy(claveEnLugar); laClave.rotation.set(0, 0, 0); laClave.scale.setScalar(1);
+    } else {
+      if (laClave.parent !== escena) escena.add(laClave);
+      enLugar.copy(claveEnLugar).applyMatrix4(grupo.matrixWorld);
+      laClave.position.copy(enLugar).lerp(claveAfuera.p, k);
+      laClave.position.x += px * 0.05 * k; laClave.position.y -= py * 0.03 * k;
+      laClave.rotation.set(grupo.rotation.x * (1 - k) + claveAfuera.g.x * k,
+        grupo.rotation.y * (1 - k) + (claveAfuera.g.y + Math.sin(t * 0.3) * 0.1 + px * 0.12) * k,
+        grupo.rotation.z * (1 - k) + claveAfuera.g.z * k);
+      laClave.scale.setScalar(actual.e * (1 - k) + claveAfuera.e * k);
+    }
+    // los hilos siguen a la C (entran en su ojo) con un poco más de parallax
+    hilos.position.set(actual.p.x + px * 0.18, actual.p.y - py * 0.08, actual.p.z);
+    const uh = hilos.material.uniforms;
+    uh.uOrden.value = Math.min(actual.orden, ordenInicial);
+    uh.uTiempo.value = t; uh.uLatido.value = actual.latido;
+    laTinta.material.uniforms.uT.value = t;
+    laTinta.material.uniforms.uFuerza.value = actual.tinta * pal.tinta;
+    elHaz.material.uniforms.uT.value = t;
+    elHaz.material.uniforms.uFuerza.value = actual.haz * pal.haz;
+    lasMotas.material.opacity = 0.32 * actual.haz * pal.haz;
+    luzHaz.intensity = 10 * actual.haz;
+  }
 
   /* ── el bucle ── */
-  let corriendo = false, ultimo = 0, lentos = 0, cuadros = 0, sumaMs = 0, maxMs = 0, sumaIntervalo = 0;
+  let corriendo = false, ultimo = 0, lentos = 0, cuadros = 0, sumaMs = 0, maxMs = 0, sumaIntervalo = 0, tiempo = 0;
   const intervalos = [];
-  let tiempo = 0, encendido = quieto ? 1 : 0, objetivoEncendido = 1;
   PAGINA.medida = { cuadros: 0, ms: 0, max: 0, nivel };
   function cuadro(ahora) {
     if (!corriendo) return;
     requestAnimationFrame(cuadro);
-    if (ultimo && ahora - ultimo < 15.5) return;        // tope de 60 cuadros por segundo (pantallas de 120 Hz)
-    const intervalo = ultimo ? ahora - ultimo : 16.7;   // lo que de verdad tardó el cuadro anterior
+    if (ultimo && ahora - ultimo < 15.5) return;        // tope de 60 cuadros por segundo
+    const intervalo = ultimo ? ahora - ultimo : 16.7;
     const dt = Math.min(intervalo / 1000, 1 / 20);
     ultimo = ahora;
     pasar(dt);
@@ -880,14 +606,13 @@ export function iniciar(lienzo, opciones = {}) {
     const t0 = performance.now();
     renderer.info.reset();
     composer.render();
-    if (medirDeVerdad) gl.finish();       // con ?medir, esperar a que la placa termine (el número honesto)
+    if (medirDeVerdad) gl.finish();
     const ms = performance.now() - t0;
     cuadros++; sumaMs += ms; maxMs = Math.max(maxMs, ms); sumaIntervalo += intervalo;
     intervalos.push(intervalo); if (intervalos.length > 240) intervalos.shift();
     PAGINA.medida = { cuadros, ms: sumaMs / cuadros, max: maxMs, nivel, ultimo: ms, intervalo: sumaIntervalo / cuadros,
       llamadas: renderer.info.render.calls, triangulos: renderer.info.render.triangles, intervalos };
-    // el nivel baja si el cuadro (el envío o el intervalo real entre cuadros) pasa 20 ms tres veces seguidas;
-    // se tolera hasta 22 ms de intervalo por el ritmo de la pantalla
+    // el nivel baja si el envío o el intervalo real pasa 20 ms (22 por el ritmo de la pantalla) tres veces seguidas
     if (!forzarAlta && cuadros > 30 && (ms > 20 || intervalo > 22)) {
       if (++lentos >= 3 && nivel > 0) {
         nivel--; lentos = 0; medir();
@@ -897,18 +622,19 @@ export function iniciar(lienzo, opciones = {}) {
   }
   function pasar(dt) {
     tiempo += dt;
-    comunes.uTiempo.value = tiempo;
-    encendido += (objetivoEncendido - encendido) * (1 - Math.exp(-1.6 * dt));
-    propios.uEncendido.value = encendido;
-    objetivo(posicionScroll());
-    const k = 1 - Math.exp(-3.2 * dt);       // el resorte que persigue al scroll
-    camP.lerp(objP, k); camM.lerp(objM, k);
+    if (ordenInicial < 1) ordenInicial = Math.min(1, ordenInicial + dt / 2.8);
+    estadoEn(posicionScroll());
+    scrollSuave += (window.scrollY - scrollSuave) * (1 - Math.exp(-6 * dt));
+    if (saltar) fijarActual();
+    else {
+      actual.p.set(resortes.px.paso(dt, objetivo.p.x), resortes.py.paso(dt, objetivo.p.y), resortes.pz.paso(dt, objetivo.p.z));
+      actual.g.set(resortes.gx.paso(dt, objetivo.g.x), resortes.gy.paso(dt, objetivo.g.y), resortes.gz.paso(dt, objetivo.g.z));
+      actual.e = resortes.e.paso(dt, objetivo.e);
+      for (const c of CANALES) actual[c] = resortes[c].paso(dt, objetivo[c]);
+    }
     puntero.sx += (puntero.x - puntero.sx) * (1 - Math.exp(-2.5 * dt));
     puntero.sy += (puntero.y - puntero.sy) * (1 - Math.exp(-2.5 * dt));
-    camara.position.copy(camP);
-    camara.lookAt(camM);
-    camara.rotateY(-puntero.sx * 0.05);
-    camara.rotateX(-puntero.sy * 0.03);
+    aplicar(tiempo);
   }
   function arrancar() {
     if (corriendo || quieto || document.hidden) return;
@@ -917,9 +643,9 @@ export function iniciar(lienzo, opciones = {}) {
   }
   function parar() { corriendo = false; }
   function unCuadro() {
-    pasar(0);
-    camP.copy(objP); camM.copy(objM);
-    camara.position.copy(camP); camara.lookAt(camM);
+    estadoEn(posicionScroll());
+    fijarActual();
+    aplicar(tiempo);
     composer.render();
   }
 
@@ -927,7 +653,7 @@ export function iniciar(lienzo, opciones = {}) {
   let esperaResize = 0;
   window.addEventListener("resize", () => {
     clearTimeout(esperaResize);
-    esperaResize = setTimeout(() => { medir(); armarCurvas(); medirTramos(); if (!corriendo) unCuadro(); }, 120);
+    esperaResize = setTimeout(() => { medir(); medirTramos(); if (!corriendo) unCuadro(); }, 120);
   });
   window.addEventListener("load", medirTramos);
   let esperaTramos = 0;
@@ -940,32 +666,24 @@ export function iniciar(lienzo, opciones = {}) {
   });
   // al irse de la página, liberar lo que ocupa la placa
   window.addEventListener("pagehide", (e) => {
-    if (e.persisted) { parar(); return; }
     parar();
-    escena.traverse((o) => { if (o.geometry) o.geometry.dispose(); });
-    Object.values(mat).forEach((m) => m && m.dispose && m.dispose());
-    texRastro.dispose(); composer.dispose && composer.dispose(); renderer.dispose();
+    if (e.persisted) return;
+    escena.traverse((o) => {
+      if (o.geometry) o.geometry.dispose();
+      if (o.material) {
+        for (const v of Object.values(o.material)) if (v && v.isTexture) v.dispose();
+        o.material.dispose();
+      }
+    });
+    entorno.dispose(); pmrem.dispose(); texRastro.dispose(); renderer.dispose();
   });
-  if (quieto) window.addEventListener("scroll", () => requestAnimationFrame(unCuadro), { passive: true });
 
   function repintarTema() {
     pal = esClaro() ? PALETAS.claro : PALETAS.oscuro;
     escena.background.set(pal.fondo);
-    comunes.uNiebla.value.set(pal.niebla);
-    comunes.uDensidad.value = pal.densidad;
-    pal.vitral.forEach((c, i) => comunes["uVitral" + i].value.set(c));
-    comunes.uFuerzaVitral.value = pal.fuerzaVitral;
-    comunes.uAmbiente.value = pal.ambiente;
-    comunes.uLampara.value.set(pal.lampara);
-    propios.uPiedra.value.set(pal.piedra);
-    propios.uPiedraFria.value.set(pal.piedraFria);
-    propios.uOro.value.set(pal.oro);
-    propios.uSuelo.value.set(pal.suelo);
-    propios.uVeta.value.set(pal.sueloVeta);
+    escena.environmentIntensity = pal.entorno;
+    luzClave.intensity = pal.clave;
     renderer.toneMappingExposure = pal.exposicion;
-    mat.lancetaFondo.uniforms.uFuerza.value = pal.lancetas[0];
-    mat.lancetaAlta.uniforms.uFuerza.value = pal.lancetas[1];
-    mat.lancetaBaja.uniforms.uFuerza.value = pal.lancetas[2];
     if (!corriendo) unCuadro();
   }
   claroMQ.addEventListener("change", repintarTema);
@@ -978,6 +696,5 @@ export function iniciar(lienzo, opciones = {}) {
   return {
     arrancar, parar, unCuadro, repintarTema,
     get nivel() { return nivel; },
-    encender() { objetivoEncendido = 1; },
   };
 }

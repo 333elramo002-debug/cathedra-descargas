@@ -34,31 +34,36 @@
 /* ═══════════════════════ los valores de diseño ═══════════════════════ */
 @property --ar { syntax: "<length>"; inherits: true; initial-value: 0px; }
 
+/* La marca, definitiva: dos colores y nada más. Todo lo demás son mezclas de estos dos.
+   ONYX #020202 es fondo y materia; CANDY BLUE #B2D5E5 es luz: texto principal, foco, el botón.
+   Proporción 80 % Onyx / 20 % Candy Blue. Los nombres viejos (--oro, --metal) quedan como alias
+   de la luz Candy para no reescribir cada regla. */
 :root {
-  --fondo: #060607;
-  --sup-1: #0A0B0E;
-  --sup-2: rgba(14, 15, 19, .78);
-  --sup-3: rgba(23, 25, 31, .86);
-  --borde: rgba(212, 166, 76, .16);
-  --borde-vivo: rgba(212, 166, 76, .48);
-  --texto: #F2EFE8;
-  --medio: #C2BCAE;
-  --tenue: #8A8476;
-  --oro: #D4A64C;
-  --oro-claro: #F0D59A;
-  --oro-halo: rgba(212, 166, 76, .32);
-  --velo: rgba(6, 6, 7, .62);
-  --sombra-texto: 0 1px 2px rgba(0, 0, 0, .65), 0 0 28px rgba(0, 0, 0, .55);
-  --metal:
-    linear-gradient(100deg,
-      color-mix(in srgb, var(--oro) 55%, black) 0%,
-      color-mix(in srgb, var(--oro) 70%, white) 18%,
-      var(--oro) 34%,
-      color-mix(in srgb, var(--oro) 35%, white) 48%,
-      color-mix(in srgb, var(--oro) 80%, black) 66%,
-      color-mix(in srgb, var(--oro) 80%, white) 84%,
-      color-mix(in srgb, var(--oro) 60%, black) 100%);
-  --talla: #2A251D;
+  --onyx: #020202;
+  --candy: #B2D5E5;
+  --capa-1: color-mix(in srgb, var(--candy) 4%, var(--onyx));
+  --capa-2: color-mix(in srgb, var(--candy) 8%, var(--onyx));
+  --capa-3: color-mix(in srgb, var(--candy) 12%, var(--onyx));
+  --candy-60: color-mix(in srgb, var(--candy) 60%, var(--onyx));
+  --candy-40: color-mix(in srgb, var(--candy) 40%, var(--onyx));
+
+  --fondo: var(--onyx);
+  --sup-1: var(--capa-1);
+  --sup-2: color-mix(in srgb, var(--capa-2) 82%, transparent);
+  --sup-3: color-mix(in srgb, var(--capa-3) 88%, transparent);
+  --borde: color-mix(in srgb, var(--candy) 16%, transparent);
+  --borde-vivo: color-mix(in srgb, var(--candy) 50%, transparent);
+  --texto: var(--candy);
+  --medio: var(--candy-60);
+  --tenue: color-mix(in srgb, var(--candy) 46%, var(--onyx));
+  --oro: var(--candy);
+  --oro-claro: var(--candy);
+  --oro-halo: color-mix(in srgb, var(--candy) 30%, transparent);
+  --sobre-luz: var(--onyx);          /* texto sobre una superficie Candy */
+  --velo: color-mix(in srgb, var(--onyx) 74%, transparent);
+  --sombra-texto: 0 1px 2px color-mix(in srgb, var(--onyx) 70%, transparent), 0 0 28px color-mix(in srgb, var(--onyx) 60%, transparent);
+  --metal: linear-gradient(var(--candy), var(--candy));
+  --talla: var(--capa-3);
 
   --curva: cubic-bezier(.22, .68, 0, 1);
   --curva-corta: cubic-bezier(.4, 0, .1, 1);
@@ -71,23 +76,29 @@
   --radio-2: 6px; --radio-4: 10px; --radio-6: 14px; --radio-7: 16px;
   color-scheme: dark;
 }
+/* tema claro: la pareja invertida (fondo Candy aclarado hacia blanco, materia y texto Onyx) */
 @media (prefers-color-scheme: light) {
   :root:not([data-tema="oscuro"]) {
-    --fondo: #EEE8DC;
-    --sup-1: #F4EFE5;
-    --sup-2: rgba(246, 241, 232, .82);
-    --sup-3: rgba(250, 247, 240, .9);
-    --borde: rgba(120, 92, 40, .2);
-    --borde-vivo: rgba(158, 122, 48, .6);
-    --texto: #1A1610;
-    --medio: #4B4437;
-    --tenue: #7A705F;
-    --oro: #9E7A30;
-    --oro-claro: #C49A45;
-    --oro-halo: rgba(169, 132, 58, .25);
-    --velo: rgba(238, 232, 220, .55);
-    --sombra-texto: 0 1px 0 rgba(255, 255, 255, .6), 0 0 26px rgba(238, 232, 220, .8);
-    --talla: #C9BBA0;
+    --fondo: color-mix(in srgb, var(--candy) 22%, white);
+    --capa-1: color-mix(in srgb, var(--candy) 30%, white);
+    --capa-2: color-mix(in srgb, var(--candy) 38%, white);
+    --capa-3: color-mix(in srgb, var(--candy) 46%, white);
+    --sup-1: var(--capa-1);
+    --sup-2: color-mix(in srgb, var(--capa-1) 86%, transparent);
+    --sup-3: color-mix(in srgb, var(--capa-2) 90%, transparent);
+    --borde: color-mix(in srgb, var(--onyx) 14%, transparent);
+    --borde-vivo: color-mix(in srgb, var(--onyx) 45%, transparent);
+    --texto: var(--onyx);
+    --medio: color-mix(in srgb, var(--onyx) 72%, var(--candy));
+    --tenue: color-mix(in srgb, var(--onyx) 56%, var(--candy));
+    --oro: var(--onyx);
+    --oro-claro: var(--onyx);
+    --oro-halo: color-mix(in srgb, var(--onyx) 18%, transparent);
+    --sobre-luz: var(--candy);
+    --velo: color-mix(in srgb, var(--fondo) 64%, transparent);
+    --sombra-texto: 0 0 24px color-mix(in srgb, var(--fondo) 85%, transparent);
+    --metal: linear-gradient(var(--onyx), var(--onyx));
+    --talla: var(--capa-3);
     color-scheme: light;
   }
 }
@@ -106,7 +117,7 @@ body {
 .quieto { scroll-behavior: auto; }
 a { color: inherit; }
 img { display: block; max-width: 100%; height: auto; }
-::selection { background: var(--oro); color: #120E07; }
+::selection { background: var(--oro); color: var(--sobre-luz); }
 :focus-visible {
   outline: 2px solid var(--oro);
   outline-offset: 3px;
@@ -115,7 +126,7 @@ img { display: block; max-width: 100%; height: auto; }
 .saltar {
   position: fixed; left: 16px; top: -60px; z-index: 300;
   padding: 10px 16px; border-radius: var(--radio-2);
-  background: var(--oro); color: #120E07; font: 600 15px/1 var(--display);
+  background: var(--oro); color: var(--sobre-luz); font: 600 15px/1 var(--display);
   text-decoration: none; transition: top .3s var(--curva);
 }
 .saltar:focus { top: 16px; }
@@ -266,34 +277,42 @@ main, .pie { position: relative; z-index: 1; }
 /* ═══════════════════════ la portada ═══════════════════════ */
 .portada {
   min-height: 100vh; min-height: 100svh;
-  display: grid; place-items: end center;
+  display: grid; place-items: end start;
   /* el contenido abajo: el rosetón queda arriba, enmarcado por la nave */
   padding: 96px var(--gutter) max(15vh, 110px);
-  text-align: center;
+  text-align: left;
   position: relative;
 }
-.portada-caja { display: flex; flex-direction: column; align-items: center; width: min(100%, 1100px); }
-.signo { width: clamp(54px, 6vw, 76px); height: auto; margin-bottom: clamp(18px, 3vh, 30px); overflow: visible; }
+.portada-caja { display: flex; flex-direction: column; align-items: flex-start; width: min(100%, 860px); }
+/* el signo de la portada no se ve: marca el lugar donde aparece la C de piedra, para que la
+   C de la carga viaje hasta ahí y la luz se abra desde la escultura */
+.signo { position: absolute; left: 65vw; top: 46vh; width: 30vh; height: auto; translate: -50% -50%; overflow: visible; opacity: 0; pointer-events: none; }
+.portada-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: clamp(26px, 4.4vh, 40px); }
+.portada-acciones .boton-descarga { margin-top: 0; }
+.pildora {
+  display: inline-flex; align-items: center; min-height: 60px; padding: 0 26px; border-radius: 999px;
+  border: 1px solid var(--borde); color: var(--texto); text-decoration: none;
+  font: 600 18px/1 var(--display); letter-spacing: .03em;
+  transition: border-color .4s var(--curva-corta), background-color .4s var(--curva-corta);
+}
+.pildora:hover { border-color: var(--borde-vivo); background: color-mix(in srgb, var(--oro) 10%, transparent); }
 .signo-c { fill: color-mix(in srgb, var(--fondo) 80%, var(--oro)); stroke: var(--oro); stroke-width: 2.6; stroke-linejoin: round; }
 .signo-junta { fill: none; stroke: color-mix(in srgb, var(--oro) 40%, var(--fondo)); stroke-width: 1.4; }
 .signo-clave { fill: var(--oro); filter: drop-shadow(0 0 8px var(--oro-halo)); }
 /* mientras carga, el signo de la portada lo tiene la carga */
-.cargando .signo, .abriendo .signo { opacity: 0; }
-.abriendo .signo { animation: signoAparece 0s linear 1.05s forwards; }
-@keyframes signoAparece { to { opacity: 1; } }
+
 
 .marca {
   margin: 0;
   display: flex;
-  font: 700 clamp(44px, 7.2vw, 108px)/1 var(--display);
-  letter-spacing: .3em;
-  text-indent: .3em;
+  font: 700 clamp(44px, 6.2vw, 112px)/1 var(--display);
+  letter-spacing: .26em;
   height: 1em; white-space: nowrap;
-  filter: drop-shadow(0 1px 0 rgba(255, 236, 190, .14)) drop-shadow(0 16px 34px rgba(0, 0, 0, .75));
+  filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--candy) 14%, transparent)) drop-shadow(0 16px 34px color-mix(in srgb, var(--onyx) 75%, transparent));
   user-select: none;
 }
 @media (prefers-color-scheme: light) {
-  :root:not([data-tema="oscuro"]) .marca { filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .7)) drop-shadow(0 10px 22px rgba(90, 70, 30, .2)); }
+  :root:not([data-tema="oscuro"]) .marca { filter: drop-shadow(0 1px 0 color-mix(in srgb, var(--candy) 70%, transparent)) drop-shadow(0 10px 22px color-mix(in srgb, var(--onyx) 20%, transparent)); }
 }
 .marca span {
   display: inline-block;
@@ -335,40 +354,39 @@ main, .pie { position: relative; z-index: 1; }
 .abriendo .bajar { transition-delay: 1.5s; }
 .abierta .llega { transition-delay: 0s; }
 
-/* ── el botón de descarga: el punto de oro crece hasta ser el fondo ── */
+/* el botón de descarga: sólido Candy con texto Onyx; al pasar, el punto Onyx crece hasta ser el
+   fondo y el texto y el borde quedan en Candy. Es magnético: se acerca apenas al puntero. */
 .boton-descarga {
   position: relative; isolation: isolate; overflow: hidden;
   display: inline-flex; align-items: center; gap: 12px;
   margin-top: clamp(26px, 4.4vh, 40px);
   min-height: 60px; padding: 0 30px 0 24px;
   border-radius: 999px;
-  border: 1px solid var(--borde-vivo);
-  background: color-mix(in srgb, var(--fondo) 55%, transparent);
-  -webkit-backdrop-filter: blur(10px);
-          backdrop-filter: blur(10px);
-  color: var(--texto);
+  border: 1px solid var(--oro);
+  background: var(--oro);
+  color: var(--sobre-luz);
   font: 600 18px/1 var(--display); letter-spacing: .03em;
   text-decoration: none;
-  box-shadow: 0 18px 44px -22px rgba(0, 0, 0, .9), 0 0 0 1px rgba(255, 255, 255, .03) inset;
-  transition: color .45s var(--curva-corta) .05s, translate .5s var(--curva), box-shadow .5s var(--curva);
+  box-shadow: 0 18px 44px -22px color-mix(in srgb, var(--oro) 55%, transparent);
+  transform: translate(var(--imanx, 0px), var(--imany, 0px));
+  transition: color .45s var(--curva-corta) .05s, transform .5s var(--curva), box-shadow .5s var(--curva);
 }
 .bd-punto {
   position: absolute; z-index: -1; left: 24px; top: 50%;
   width: 10px; height: 10px; margin-top: -5px; border-radius: 50%;
-  background: var(--metal); background-size: 200% 100%;
-  transition: transform .6s var(--curva), background-position 1.2s var(--curva);
+  background: var(--sobre-luz);
+  transition: transform .6s var(--curva);
 }
 .bd-icono { width: 22px; height: 22px; margin-left: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: margin .45s var(--curva); }
 .bd-texto { transition: translate .45s var(--curva); }
 .boton-descarga:hover, .boton-descarga:focus-visible {
-  color: #140F06;
-  translate: 0 -2px;
-  box-shadow: 0 26px 54px -20px color-mix(in srgb, var(--oro) 70%, black), 0 0 0 1px var(--oro) inset;
+  color: var(--oro);
+  box-shadow: 0 26px 54px -20px color-mix(in srgb, var(--oro) 45%, transparent);
 }
-.boton-descarga:hover .bd-punto, .boton-descarga:focus-visible .bd-punto { transform: scale(48); background-position: 100% 0; }
+.boton-descarga:hover .bd-punto, .boton-descarga:focus-visible .bd-punto { transform: scale(48); }
 .boton-descarga:hover .bd-icono, .boton-descarga:focus-visible .bd-icono { margin-left: 0; }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva) .1s both; }
-.boton-descarga:active { translate: 0 0; transition-duration: .08s; }
+.boton-descarga:active { transition-duration: .08s; }
 .boton-descarga:focus-visible { outline-offset: 5px; }
 @keyframes flechaBaja {
   0% { transform: none; } 35% { transform: translateY(3px); } 60% { transform: translateY(-1px); } 100% { transform: none; }
@@ -418,9 +436,14 @@ main, .pie { position: relative; z-index: 1; }
 .paso-der .paso-texto { order: 2; }
 .paso-texto { position: relative; max-width: 470px; }
 .paso-texto::before {
-  /* un charco de sombra detrás del texto, sin borde: la nave sigue viéndose */
-  content: ""; position: absolute; inset: -18% -22%; z-index: -1;
-  background: radial-gradient(closest-side, var(--velo), transparent);
+  /* un charco de sombra detrás del texto, sin borde, más hondo: el texto se lee aunque
+     pase delante del rosetón; la nave sigue viéndose alrededor */
+  content: ""; position: absolute; inset: -30% -30%; z-index: -1;
+  background: radial-gradient(closest-side, var(--velo), color-mix(in srgb, var(--velo) 60%, transparent) 55%, transparent);
+  -webkit-backdrop-filter: blur(3px);
+          backdrop-filter: blur(3px);
+  -webkit-mask: radial-gradient(closest-side, #000 50%, transparent);
+          mask: radial-gradient(closest-side, #000 50%, transparent);
 }
 .paso-num {
   margin: 0 0 18px;
@@ -461,13 +484,13 @@ main, .pie { position: relative; z-index: 1; }
   border-radius: var(--radio-6);
   overflow: hidden;
   border: 1px solid var(--borde);
-  background: #0B0C10;
-  box-shadow: 0 50px 100px -40px rgba(0, 0, 0, .95), 0 0 0 1px rgba(255, 255, 255, .03) inset, 0 0 60px -20px var(--oro-halo);
+  background: var(--capa-1);
+  box-shadow: 0 50px 100px -40px color-mix(in srgb, var(--onyx) 95%, transparent), 0 0 0 1px color-mix(in srgb, var(--candy) 3%, transparent) inset, 0 0 60px -20px var(--oro-halo);
 }
 .pantalla-marco::after {
   /* el brillo del vidrio */
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: radial-gradient(600px circle at var(--mx) var(--my), rgba(255, 244, 214, .09), transparent 45%);
+  background: radial-gradient(600px circle at var(--mx) var(--my), color-mix(in srgb, var(--candy) 9%, transparent), transparent 45%);
   mix-blend-mode: screen;
 }
 .pantalla-marco img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; }
@@ -476,7 +499,7 @@ main, .pie { position: relative; z-index: 1; }
   width: 46%; right: -6%; bottom: -10%;
   border-radius: 12px; overflow: hidden;
   border: 1px solid var(--borde-vivo);
-  box-shadow: 0 40px 70px -24px rgba(0, 0, 0, .95), 0 0 40px -10px var(--oro-halo);
+  box-shadow: 0 40px 70px -24px color-mix(in srgb, var(--onyx) 95%, transparent), 0 0 40px -10px var(--oro-halo);
   transform: translateZ(70px);
   transition: transform 1.2s var(--curva) .15s, opacity 1s var(--curva) .15s;
 }
@@ -485,8 +508,11 @@ main, .pie { position: relative; z-index: 1; }
 .pantalla-detalle img { width: 100%; height: auto; aspect-ratio: auto; }
 
 /* ── lo distinto: la cámara mira la bóveda; el texto, en cuatro columnas ── */
-.distinta { min-height: 130vh; padding: 20vh var(--gutter) 16vh; display: flex; flex-direction: column; justify-content: center; }
-.distinta > .sec-cab { margin: 0 auto 8vh; text-align: center; }
+.distinta { padding: 0 var(--gutter) 16vh; display: flex; flex-direction: column; }
+/* el momento de la clave: el texto como voz, en mayúsculas, y mucho vacío (la clave aparece abajo a la derecha) */
+.distinta > .distinta-voz { min-height: 100vh; min-height: 100svh; margin: 0 auto; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 30vh; text-align: center; max-width: 1200px; }
+.titular.voz { text-transform: uppercase; font-size: clamp(34px, 4.4vw, 76px); line-height: 1.08; letter-spacing: .02em; font-weight: 600; }
+.distinta-bajada { margin: 0 auto 6vh; max-width: 760px; text-align: center; font: 600 clamp(24px, 2.6vw, 38px)/1.2 var(--display); color: var(--texto); text-shadow: var(--sombra-texto); }
 .virtudes {
   list-style: none; margin: 0 auto; padding: 0;
   max-width: 1240px; width: 100%;
@@ -521,7 +547,7 @@ main, .pie { position: relative; z-index: 1; }
   border: 1px solid var(--borde);
   -webkit-backdrop-filter: blur(16px) saturate(1.1);
           backdrop-filter: blur(16px) saturate(1.1);
-  box-shadow: 0 60px 120px -50px rgba(0, 0, 0, .9);
+  box-shadow: 0 60px 120px -50px color-mix(in srgb, var(--onyx) 90%, transparent);
   text-align: center;
 }
 .descargar .titular { font-size: clamp(32px, 4.2vw, 56px); }
@@ -543,9 +569,9 @@ main, .pie { position: relative; z-index: 1; }
 .pw-num {
   position: absolute; top: -9px; left: -9px; z-index: 2;
   width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%;
-  background: var(--metal); color: #17120A;
+  background: var(--metal); color: var(--sobre-luz);
   font: 600 12px/1 var(--mono);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--onyx) 40%, transparent);
 }
 /* la ventanita azul: proporciones del aviso real, sin copiar ninguna imagen */
 .ventanita {
@@ -553,23 +579,23 @@ main, .pie { position: relative; z-index: 1; }
   aspect-ratio: 16 / 8.4;
   padding: 12px 13px 10px;
   border-radius: 4px;
-  background: #1B5DA0; color: #fff;
+  background: color-mix(in srgb, var(--candy) 30%, var(--onyx)); color: var(--candy);
   font: 400 10.5px/1.25 "Segoe UI", var(--sans);
-  box-shadow: 0 14px 30px -16px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .06) inset;
+  box-shadow: 0 14px 30px -16px color-mix(in srgb, var(--onyx) 70%, transparent), 0 0 0 1px color-mix(in srgb, var(--candy) 6%, transparent) inset;
   overflow: hidden;
 }
 .vt-titulo { font-size: 13px; font-weight: 500; letter-spacing: -.005em; margin-bottom: 2px; }
-.vt-renglon { display: block; height: 4px; width: var(--l); border-radius: 2px; background: rgba(255, 255, 255, .42); }
-.vt-dato { font-size: 10px; color: rgba(255, 255, 255, .85); }
-.vt-dato i { font-style: normal; color: #fff; }
+.vt-renglon { display: block; height: 4px; width: var(--l); border-radius: 2px; background: color-mix(in srgb, var(--candy) 42%, transparent); }
+.vt-dato { font-size: 10px; color: color-mix(in srgb, var(--candy) 85%, transparent); }
+.vt-dato i { font-style: normal; color: var(--candy); }
 .vt-enlace { align-self: flex-start; margin-top: 3px; font-size: 10.5px; text-decoration: underline; text-underline-offset: 2px; }
-.vt-pie { margin: auto -13px -10px; padding: 7px 10px; display: flex; justify-content: flex-end; gap: 6px; background: rgba(0, 0, 0, .14); }
-.vt-boton { padding: 3px 8px; border: 1px solid rgba(255, 255, 255, .7); font-size: 10px; white-space: nowrap; }
-.marcado { position: relative; border-radius: 3px; box-shadow: 0 0 0 2px #1B5DA0, 0 0 0 3.5px var(--oro-claro); animation: marcaLate 2.6s ease-in-out infinite; }
+.vt-pie { margin: auto -13px -10px; padding: 7px 10px; display: flex; justify-content: flex-end; gap: 6px; background: color-mix(in srgb, var(--onyx) 14%, transparent); }
+.vt-boton { padding: 3px 8px; border: 1px solid color-mix(in srgb, var(--candy) 70%, transparent); font-size: 10px; white-space: nowrap; }
+.marcado { position: relative; border-radius: 3px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--candy) 30%, var(--onyx)), 0 0 0 3.5px var(--oro-claro); animation: marcaLate 2.6s ease-in-out infinite; }
 .vt-enlace.marcado { padding: 1px 4px; margin-left: -4px; }
 @keyframes marcaLate {
-  0%, 100% { box-shadow: 0 0 0 2px #1B5DA0, 0 0 0 3.5px var(--oro-claro); }
-  50% { box-shadow: 0 0 0 2px #1B5DA0, 0 0 0 3.5px var(--oro-claro), 0 0 16px 4px var(--oro-halo); }
+  0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--candy) 30%, var(--onyx)), 0 0 0 3.5px var(--oro-claro); }
+  50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--candy) 30%, var(--onyx)), 0 0 0 3.5px var(--oro-claro), 0 0 16px 4px var(--oro-halo); }
 }
 .invitacion { margin: 26px 0 0; font: 500 13px/1.5 var(--mono); color: var(--tenue); }
 
@@ -599,7 +625,10 @@ main, .pie { position: relative; z-index: 1; }
   body { font-size: 16px; }
   .cab-nav a:not(.cab-ir) { display: none; }
   .cab-marca span { font-size: 13px; letter-spacing: .26em; }
-  .marca { font-size: clamp(30px, 10vw, 46px); letter-spacing: .24em; text-indent: .24em; }
+  .marca { font-size: clamp(30px, 10vw, 46px); letter-spacing: .22em; }
+  .signo { left: 50vw; top: 27vh; width: 26vh; }
+  .portada-acciones { width: 100%; }
+  .pildora { width: 100%; justify-content: center; min-height: 54px; }
   .lema { min-height: 2.5em; display: grid; align-items: center; }
   .boton-descarga { width: 100%; justify-content: center; }
   .como { padding-top: 12vh; }
@@ -618,7 +647,7 @@ main, .pie { position: relative; z-index: 1; }
 .quieto *, .quieto *::before, .quieto *::after { animation: none !important; transition: none !important; }
 .quieto .carga, .quieto .apertura { display: none; }
 .quieto .marca span { opacity: 1; background-size: 100% 100%, 100% 100%; }
-.quieto .llega, .quieto .entra, .quieto .signo, .quieto .cabecera > * { opacity: 1 !important; translate: none !important; }
+.quieto .llega, .quieto .entra, .quieto .cabecera > * { opacity: 1 !important; translate: none !important; }
 .quieto .pal > span { transform: none; }
 .quieto .pantalla { transform: none !important; }
 .quieto .pantalla-detalle { opacity: 1 !important; transform: none !important; }
@@ -689,12 +718,12 @@ main, .pie { position: relative; z-index: 1; }
   color: var(--texto); font: 600 17px/1 var(--display); letter-spacing: .03em; text-decoration: none;
   transition: background-color .4s var(--curva-corta), color .4s var(--curva-corta);
 }
-.boton-volver:hover { background: var(--oro); color: #140F06; }
+.boton-volver:hover { background: var(--oro); color: var(--sobre-luz); }
 @media (prefers-reduced-motion: reduce) { .perdida-clave { animation: none; } }
 
 /* vistas de taller: sólo para fabricar las imágenes (la nave quieta y la de compartir) */
 .vista-nave main, .vista-nave .cabecera, .vista-nave .pie, .vista-nave .carga, .vista-nave .apertura, .vista-nave .escena-velo { display: none !important; }
-.vista-compartir .cabecera, .vista-compartir .boton-descarga, .vista-compartir .requisito, .vista-compartir .bajar { display: none !important; }
+.vista-compartir .cabecera, .vista-compartir .boton-descarga, .vista-compartir .pildora, .vista-compartir .requisito, .vista-compartir .bajar { display: none !important; }
 
 /* ═══════════════════════ el sonido ═══════════════════════ */
 /* Un botón redondo con la onda dibujada: quieta y plana si está apagado, ondulando con
@@ -734,11 +763,11 @@ main, .pie { position: relative; z-index: 1; }
   cursor: zoom-in; transform: translateZ(40px);
   opacity: .75; transition: opacity .3s var(--curva-corta), background-color .3s var(--curva-corta);
 }
-.ampliar:hover, .ampliar:focus-visible { opacity: 1; background: var(--oro); color: #140F06; }
+.ampliar:hover, .ampliar:focus-visible { opacity: 1; background: var(--oro); color: var(--sobre-luz); }
 .ampliar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .visor {
   width: min(96vw, 1600px); max-height: 94vh; padding: 0; border: 1px solid var(--borde-vivo);
-  border-radius: var(--radio-6); background: #0B0C10; overflow: hidden;
+  border-radius: var(--radio-6); background: var(--capa-1); overflow: hidden;
   box-shadow: 0 60px 140px -40px #000;
 }
 .visor::backdrop { background: color-mix(in srgb, var(--fondo) 82%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
