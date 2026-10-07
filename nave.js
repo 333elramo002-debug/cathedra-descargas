@@ -420,8 +420,9 @@ function campoLejano(onix, candy, cuantas) {
   const mO = new T.InstancedMesh(geo, onix, resto.length), mC = new T.InstancedMesh(geo, candy, deCandy.length);
   const g = new T.Group(); g.add(mO, mC);
   const m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), v = new T.Vector3(), esc = new T.Vector3();
-  g.userData.poner = (t) => {
+  g.userData.poner = (t, cuanto = 1) => {
     [[mO, resto], [mC, deCandy]].forEach(([malla, ls]) => {
+      malla.count = Math.round(ls.length * Math.min(1, Math.max(0, cuanto)));
       ls.forEach((l, i) => {
         v.set(l.p.x + vaiven(t, l.semilla, 0.031) * 0.6, l.p.y + vaiven(t, l.semilla + 1, 0.027) * 0.5, l.p.z);
         e.set(l.rot.x + t * l.vel.x, l.rot.y + t * l.vel.y + vaiven(t, l.semilla + 2, 0.05) * 0.4, l.rot.z + t * l.vel.z); q.setFromEuler(e);
@@ -462,7 +463,9 @@ function ruido1(x, s) {
   const h = (n) => { const v = Math.sin((n + s * 57.31) * 127.13) * 43758.5453; return v - Math.floor(v); };
   return h(i) * (1 - u) + h(i + 1) * u;
 }
-function vaiven(t, s, f) { return (ruido1(t * f, s) * 2 - 1) * 0.65 + (ruido1(t * f * 2.137, s + 9.1) * 2 - 1) * 0.35; }
+function vaiven(t, s, f) {
+  return (ruido1(t * f, s) * 2 - 1) * 0.5 + (ruido1(t * f * 2.137 + 3.3, s + 9.1) * 2 - 1) * 0.3 + (ruido1(t * f * 0.6180 + 7.7, s + 4.4) * 2 - 1) * 0.35;
+}
 /* La grilla: luz de ventana en la pared del fondo (paños con bordes blandos, en diagonal) y la
    sombra de hojas que se mueve despacio sobre ellos */
 function ventana() {
@@ -496,10 +499,10 @@ function ventana() {
 // lo que no se dice en un estado vale lo de acá: luz clave normal desde la izquierda, cámara en su lugar
 const LUZ_BLANCA = new T.Color(0xd8e9f0), LUZ_CANDY = new T.Color(CANDY);
 const BASE = { abre: 0, clave: 0, orden: 1, latido: 0, tinta: 1, haz: 1, campo: 0, papel: 0, ventana: 0,
-  expo: 1, luz: 1, luzX: -4.5, temp: 0, cx: 0, cy: 0, cz: 0, cerca: 1 };
+  expo: 1, luz: 1, luzX: -4.5, temp: 0, cx: 0, cy: 0, cz: 0, cerca: 1, lejos: 0.25 };
 const ESTADOS = [
   // 0 portada: la C a la derecha, bruma + haz + hilos entrando ordenados
-  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95 },
+  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95, lejos: 1 },
   // 1 el cronograma: la C chica arriba; al fondo, el calendario de dovelas (los días de clase en Candy); luz desde la derecha
   { p: [4.8, 3.0, -10.5], g: [0.4, -0.9, 0.1], e: 0.9, orden: 0.6, tinta: 0.2, haz: 0.12, campo: 1, luz: 0.85, luzX: 4.5, temp: 0.3, cx: -0.6, cy: 0.3, expo: 0.95 },
   // 2 grabar: la voz es la protagonista: el haz y las motas, los hilos llegan dispersos; la C se aleja arriba
@@ -515,9 +518,9 @@ const ESTADOS = [
   // 7 todo lo demás (la grilla): luz de ventana en la pared del fondo, la C lejos a la derecha, casi sin bruma
   { p: [6.5, -1.6, -16.0], g: [0.3, -1.1, 0.2], e: 1.0, abre: 0.2, tinta: 0.05, haz: 0, ventana: 1, luz: 0.7, luzX: 5, temp: 0.4, cx: 0.3, cy: 0.4 },
   // 8 descargar: la cámara llega a la C: el ojo enmarca la caja como un portal
-  { p: [0.0, 0.05, -1.05], g: [0.04, -0.16, 0.0], e: 4.3, tinta: 0.8, haz: 0.5, cerca: 0 },
+  { p: [0.0, 0.05, -1.05], g: [0.04, -0.16, 0.0], e: 4.3, tinta: 0.8, haz: 0.5, cerca: 0, lejos: 0.5 },
   // 9 pie: la cámara ya pasó por el ojo; el aro queda atrás, en los bordes
-  { p: [0.0, 0.05, -1.05], g: [0.02, -0.08, 0.0], e: 8.0, tinta: 0.6, haz: 0.4, cerca: 0 },
+  { p: [0.0, 0.05, -1.05], g: [0.02, -0.08, 0.0], e: 8.0, tinta: 0.6, haz: 0.4, cerca: 0, lejos: 0.5 },
 ].map((e) => ({ ...BASE, ...e }));
 const CANALES = Object.keys(BASE);
 
@@ -647,7 +650,9 @@ export async function iniciar(lienzo, opciones = {}) {
   /* los fondos por sección: el calendario de dovelas, el papel de los renglones, la luz de ventana */
   const campo = campoDeDovelas(materialOnix(3), materialCeramicaCandy());
   campo.position.set(3.4, -2.5, -8.0); campo.visible = false; escena.add(campo);
-  const elPapel = estante(materialOnix(7), materialAnodizado()); elPapel.position.set(2.6, -0.4, -6.0); elPapel.rotation.y = -0.35; elPapel.visible = false; escena.add(elPapel);
+  const onixEstante = materialOnix(7), titanioEstante = materialAnodizado();
+  onixEstante.envMapIntensity = 0.35; titanioEstante.envMapIntensity = 0.3; titanioEstante.color.multiplyScalar(0.55);   // las caras planas no espejan el softbox
+  const elPapel = estante(onixEstante, titanioEstante); elPapel.position.set(2.6, -0.4, -6.0); elPapel.rotation.y = -0.75; elPapel.visible = false; escena.add(elPapel);
   const laVentana = ventana(); laVentana.position.set(-2.0, 0.6, -7.0); laVentana.visible = false; escena.add(laVentana);
 
   /* la luz: una clave suave, el borde Candy, relleno mínimo; las sombras con color (el entorno) */
@@ -912,7 +917,7 @@ export async function iniciar(lienzo, opciones = {}) {
     // cinco planos con parallax distinto al puntero y al scroll: tinta, haz, C, hilos, motas
     const desp = (scrollSuave / Math.max(window.innerHeight, 1));
     const px = puntero.sx, py = puntero.sy;
-    lejano.userData.poner(t);
+    lejano.userData.poner(t, actual.lejos);
     lejano.position.set(-px * 0.25, py * 0.12 + desp * 0.15, 0);
     cercanos.children.forEach((m, i) => {
       m.position.set(m.userData.base.x + px * 0.12 + vaiven(t, 60 + i, 0.07) * 0.05, m.userData.base.y - py * 0.08 + vaiven(t, 70 + i, 0.06) * 0.04, m.userData.base.z);

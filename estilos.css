@@ -496,7 +496,6 @@ main, .pie { position: relative; z-index: 1; }
 .pf-tira.pf-abajo { bottom: -14%; right: 4%; width: 80%; transform: translateZ(60px); }
 .tramo-der .pf-tira { left: -6%; }
 .tramo-der .pf-tira.pf-abajo { left: 4%; }
-.tramo:not(.visto) .pf-frente { opacity: 0; transform: translateZ(0) translateY(36px); }
 .profundidad .ampliar { z-index: 3; }
 
 /* ── las demos: la interfaz de verdad, con datos de una materia de ejemplo ── */
@@ -920,3 +919,24 @@ main, .pie { position: relative; z-index: 1; }
 /* ── lo que está lejos de la pantalla no se maqueta ni se dibuja hasta acercarse ── */
 .tramo { content-visibility: auto; contain-intrinsic-size: auto 1100px; }
 .todo { content-visibility: auto; contain-intrinsic-size: auto 2300px; }
+
+/* ── las transiciones atadas al scroll (pagina.js pone --v de 0 a 1 según la posición) ── */
+[data-rev] { --v: 1; }
+.rev-texto { opacity: var(--v); transform: translateY(calc((1 - var(--v)) * 28px)); filter: blur(calc((1 - var(--v)) * 6px)); will-change: opacity, transform; }
+.rev-panel { opacity: var(--v); transform: translateY(calc((1 - var(--v)) * 48px)) scale(calc(0.97 + var(--v) * 0.03)); }
+.tarjeta.rev-panel .tj-fondo { scale: calc(1.12 - var(--v) * 0.1); }
+.rev-mascara { clip-path: inset(-0.2em -0.2em calc((1 - var(--v)) * 110%) -0.2em); }
+.rev-mascara .pal > span, .visto .rev-mascara .pal > span {
+  transform: translateY(calc((1 - clamp(0, var(--v) * 1.8 - var(--n) * 0.09, 1)) * 105%)) rotate(calc((1 - clamp(0, var(--v) * 1.8 - var(--n) * 0.09, 1)) * 5deg));
+  transition: none;
+}
+.rev-imagen { opacity: clamp(0, var(--v) * 1.6, 1); }
+.rev-imagen .pf-fondo { clip-path: inset(calc((1 - var(--v)) * 12%) calc((1 - var(--v)) * 6%) round 14px); scale: calc(1.1 - var(--v) * 0.1); transition: none; }
+.rev-imagen .pf-frente { opacity: clamp(0, var(--v) * 1.4 - 0.3, 1); transform: translateZ(90px) translateY(calc((1 - var(--v)) * 60px)); transition: none; }
+.rev-salida { opacity: var(--v); transform: translateY(calc((1 - var(--v)) * -40px)); filter: blur(calc((1 - var(--v)) * 6px)); }
+/* la cabecera dice la sección */
+.cab-seccion { margin-left: 22px; margin-right: auto; font: 500 11.5px/1 var(--mono); letter-spacing: .18em; text-transform: uppercase; color: var(--candy-60); transition: opacity .18s var(--curva), transform .18s var(--curva); }
+.cab-seccion.cambiando { opacity: 0; transform: translateY(-6px); }
+.cab-seccion.vacio { opacity: 0; }
+@media (max-width: 600px) { .cab-seccion { display: none; } }
+.quieto [data-rev] { --v: 1 !important; }

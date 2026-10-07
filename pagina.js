@@ -59,20 +59,83 @@ document.querySelectorAll(".palabras").forEach((el) => {
   });
 });
 
-/* ══════════════════════ las entradas ══════════════════════ */
+/* ══════════════════════ las transiciones atadas al scroll ══════════════════════ */
+/* Ningún texto aparece de golpe: cada título, párrafo, etiqueta, botón, tarjeta e imagen tiene un
+   valor --v (0 a 1) que sigue a su posición en la pantalla con la curva de la casa. Entra desde
+   abajo (de desenfocado a nítido, con un desplazamiento corto; los títulos por máscara y palabra
+   por palabra; las imágenes con zoom lento y revelado) y sale igual, en espejo, cuando se va por
+   arriba. Con «reducir movimiento» todo queda puesto desde el principio. */
+const TIPOS = [
+  [".tramo .titular, .todo .titular, .descargar .titular", "rev-mascara"],
+  [".tramo .paso-num, .tramo-bajada, .datos li, .nota-al-pie, .todo .rotulo, .todo .tramo-bajada, .descargar-caja > :not(.titular), .pie > *", "rev-texto"],
+  [".demo, .tarjeta", "rev-panel"],
+  [".profundidad", "rev-imagen"],
+];
+const revelables = [];
+TIPOS.forEach(([sel, clase]) => document.querySelectorAll(sel).forEach((el) => {
+  if (el.dataset.rev !== undefined) return;
+  el.dataset.rev = ""; el.classList.add(clase); revelables.push(el);
+}));
+// la portada ya entra con la apertura: sólo sale, en espejo, al bajar
+document.querySelectorAll("#portada .portada-caja, #portada .bajar").forEach((el) => { el.dataset.rev = "salida"; el.classList.add("rev-salida"); revelables.push(el); });
+const curva = (x) => { const t = Math.min(1, Math.max(0, x)); return 1 - Math.pow(1 - t, 3); };
+if (quieto || !("IntersectionObserver" in window)) {
+  revelables.forEach((el) => el.style.setProperty("--v", "1"));
+} else {
+  const activos = new Set();
+  let pedido = 0;
+  const actualizar = () => {
+    pedido = 0;
+    const vh = window.innerHeight;
+    activos.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const entra = el.dataset.rev === "salida" ? 1 : curva((vh - r.top) / (vh * 0.3));
+      const sale = curva((r.bottom - vh * 0.04) / (vh * 0.26));
+      el.style.setProperty("--v", Math.min(entra, sale).toFixed(3));
+    });
+  };
+  const pedir = () => { if (!pedido) pedido = requestAnimationFrame(actualizar); };
+  // se observa cada sección (no cada elemento: un título recortado por su máscara no «se ve» y no avisaría)
+  const porSeccion = new Map();
+  revelables.forEach((el) => {
+    if (el.dataset.rev !== "salida") el.style.setProperty("--v", "0");
+    const sec = el.closest("section, footer, header") || el;
+    if (!porSeccion.has(sec)) porSeccion.set(sec, []);
+    porSeccion.get(sec).push(el);
+  });
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => porSeccion.get(e.target).forEach((el) => (e.isIntersecting ? activos.add(el) : activos.delete(el))));
+    pedir();
+  }, { rootMargin: "15% 0px 15% 0px" });
+  porSeccion.forEach((_, sec) => io.observe(sec));
+  window.addEventListener("scroll", pedir, { passive: true });
+  window.addEventListener("resize", pedir);
+}
+// los tramos se marcan cuando entran (lo usa la escena y los avisos de la cabecera)
 const observador = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
-  for (const e of entradas) {
-    if (e.isIntersecting) { e.target.classList.add("visto"); observador.unobserve(e.target); }
-  }
+  for (const e of entradas) if (e.isIntersecting) { e.target.classList.add("visto"); observador.unobserve(e.target); }
 }, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }) : null;
-document.querySelectorAll(".sec-cab, .tramo-texto, .demo, .tarjeta, .descargar-caja, .pie").forEach((el) => {
-  el.classList.add("entra");
+document.querySelectorAll(".tramo, .sec-cab").forEach((el) => {
   if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
 });
-// los tramos sólo se marcan (la pieza de adelante de cada pantalla llega cuando el tramo entra)
-document.querySelectorAll(".tramo").forEach((el) => {
-  if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
-});
+
+/* la cabecera dice en qué sección estás (cambia con un fundido corto) */
+const rotuloCab = document.querySelector(".cab-seccion");
+const conNombre = [...document.querySelectorAll("[data-nombre]")];
+if (rotuloCab && conNombre.length) {
+  let actual = "";
+  const cual = () => {
+    const c = window.innerHeight * 0.45;
+    let nombre = "";
+    for (const s of conNombre) { const r = s.getBoundingClientRect(); if (r.top <= c && r.bottom > c) { nombre = s.dataset.nombre; break; } }
+    if (nombre === actual) return;
+    actual = nombre;
+    rotuloCab.classList.add("cambiando");
+    setTimeout(() => { rotuloCab.textContent = nombre; rotuloCab.classList.toggle("vacio", !nombre); rotuloCab.classList.remove("cambiando"); }, quieto ? 0 : 180);
+  };
+  window.addEventListener("scroll", cual, { passive: true });
+  cual();
+}
 
 /* ══════════════════════ la cabecera ══════════════════════ */
 const cabecera = document.querySelector(".cabecera");
