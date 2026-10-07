@@ -1,8 +1,8 @@
 Bibliotecas y recursos de terceros que viajan con la página, con su versión fija y su huella.
 
 three.js r186 (0.186.1), recortado con esbuild 0.25.10 a lo que usa la página
-  archivo: three-r186.cdfd958ed9.min.js
-  SHA-256: cdfd958ed948bd79c1b3c36bda24ecac170171a23edc8d5bc85c80cfc20bb19b
+  archivo: three-r186.8668290d9f.min.js
+  SHA-256: 8668290d9f22a6c255e4eeee2712f9320db7f64836bc7fdbcedbdc12f1458927
   licencia: MIT (texto completo en LICENSE-three.txt)
   origen: paquete npm three@0.186.1
 
