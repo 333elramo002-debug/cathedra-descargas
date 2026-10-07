@@ -18,7 +18,7 @@
    seguidas baja de nivel (sin sombras, sin halo, tinta más simple) y lo recuerda; se detiene
    con la pestaña oculta; tope de 60 cuadros; libera todo al irse. */
 
-import * as T from "./lib/three-r186.37b7d93c59.min.js";
+import * as T from "./lib/three-r186.cdfd958ed9.min.js";
 
 const PAGINA = window.CATHEDRA_PAGINA || (window.CATHEDRA_PAGINA = {});
 const avisar = (p) => PAGINA.cargando && PAGINA.cargando(p);
@@ -82,12 +82,22 @@ function materialOnix(i) {
 function materialCromoNegro() {
   return new T.MeshPhysicalMaterial({ color: 0x08090a, metalness: 1, roughness: 0.38, envMapIntensity: 0.6 });
 }
+/* Candy Blue en la materia, no sólo en la luz: cerámica mate (poro fino, sin brillo de plástico)
+   y titanio anodizado (metal con el color en la capa, reflejo suave) */
+// (el color va más hondo que el Candy de la marca: con la luz y el tono fílmico encima, sale Candy y no blanco)
+const CANDY_MATERIA = new T.Color().setHSL(0.552, 0.42, 0.56, T.SRGBColorSpace);
+function materialCeramicaCandy() {
+  return new T.MeshPhysicalMaterial({ color: CANDY_MATERIA, roughnessMap: texturaRugosidad(31), roughness: 0.66, metalness: 0, specularIntensity: 0.5 });
+}
+function materialAnodizado() {
+  return new T.MeshPhysicalMaterial({ color: new T.Color().setHSL(0.552, 0.4, 0.66, T.SRGBColorSpace), metalness: 1, roughness: 0.3, envMapIntensity: 0.9 });
+}
 /* la marca de luz grabada en la clave: la clase y el minuto, Candy, que brilla desde adentro */
-function grabadoDeLuz(texto) {
+function grabadoDeLuz(texto, enOnix) {
   const c = document.createElement("canvas"); c.width = 1024; c.height = 512;
   const g = c.getContext("2d");
-  g.fillStyle = "#000"; g.fillRect(0, 0, 1024, 512);
-  g.fillStyle = "#b2d5e5"; g.shadowColor = "#b2d5e5"; g.shadowBlur = 14;
+  if (enOnix) { g.fillStyle = "#020202"; }   // grabado oscuro sobre la clave Candy (fondo transparente)
+  else { g.fillStyle = "#000"; g.fillRect(0, 0, 1024, 512); g.fillStyle = "#b2d5e5"; g.shadowColor = "#b2d5e5"; g.shadowBlur = 14; }
   g.font = '500 64px "IBM Plex Mono", monospace'; g.textAlign = "center"; g.textBaseline = "middle";
   g.fillText(texto, 512, 256);
   const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
@@ -102,7 +112,9 @@ function dovela(a0, a1, i) {
   // chaflanes en todas las aristas: nada de arista viva de caja
   const geo = new T.ExtrudeGeometry(f, { depth: PROF, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.035, bevelSegments: 3, curveSegments: 28 });
   geo.translate(0, 0, -PROF / 2);
-  const m = new T.Mesh(geo, i === 1 || i === 4 ? materialCromoNegro() : materialOnix(i));
+  // una de cada tres en Candy Blue: la de arriba a la derecha en cerámica, la de abajo a la izquierda anodizada
+  const mat = i === 1 || i === 4 ? materialCromoNegro() : i === 0 ? materialCeramicaCandy() : i === 3 ? materialAnodizado() : materialOnix(i);
+  const m = new T.Mesh(geo, mat);
   m.castShadow = m.receiveShadow = true;
   const am = (a0 + a1) / 2;
   m.userData.hacia = new T.Vector3(Math.cos(am), Math.sin(am), 0);
@@ -115,15 +127,17 @@ function clave() {
   f.moveTo(-0.34, 0.25); f.lineTo(0.34, 0.1); f.lineTo(0.34, -0.1); f.lineTo(-0.34, -0.25); f.closePath();
   const geo = new T.ExtrudeGeometry(f, { depth: PROF * 1.06, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.04, bevelSegments: 4 });
   geo.translate(0, 0, -PROF * 0.53);
-  const piedra = materialOnix(9);
-  piedra.roughness = 0.34;
+  // la clave en Candy Blue mate con el grabado en ónix; con ?clave=onix, al revés (ónix con la marca de luz)
+  const enOnix = !/clave=onix/.test(location.search);
+  const piedra = enOnix ? materialCeramicaCandy() : materialOnix(9);
+  if (!enOnix) piedra.roughness = 0.34;
   const m = new T.Mesh(geo, piedra);
   m.castShadow = true;
-  // la marca de luz va en una placa apenas delante de la cara frontal (la cara se ve tallada)
-  const placa = new T.Mesh(new T.PlaneGeometry(0.62, 0.31), new T.MeshBasicMaterial({
-    map: grabadoDeLuz("CLASE 4 · 00:51"), color: new T.Color(CANDY).multiplyScalar(1.6),
-    transparent: true, blending: T.AdditiveBlending, depthWrite: false,
-  }));
+  // el grabado va en una placa apenas delante de la cara frontal (la cara se ve tallada)
+  const placa = new T.Mesh(new T.PlaneGeometry(0.62, 0.31), enOnix
+    ? new T.MeshBasicMaterial({ map: grabadoDeLuz("CLASE 4 · 00:51", true), transparent: true, depthWrite: false })
+    : new T.MeshBasicMaterial({ map: grabadoDeLuz("CLASE 4 · 00:51"), color: new T.Color(CANDY).multiplyScalar(1.6),
+      transparent: true, blending: T.AdditiveBlending, depthWrite: false }));
   placa.position.z = PROF * 0.53 + 0.051;
   m.add(placa);
   return m;
@@ -252,31 +266,122 @@ function motas(cuantos) {
   return new T.Points(g, new T.PointsMaterial({ color: CANDY, size: 0.011, transparent: true, opacity: 0.32, blending: T.AdditiveBlending, depthWrite: false }));
 }
 
+/* ══════════════════════ los fondos de cada sección ══════════════════════ */
+/* El cronograma: un campo lejano de dovelas chicas puestas como un calendario (5 semanas × 7 días);
+   los días de clase, en cerámica Candy. Llegan desde atrás cuando la sección entra. */
+function campoDeDovelas(onix, candy) {
+  const f = new T.Shape();
+  const l = 0.19, rr = 0.05;
+  f.moveTo(-l + rr, -l); f.lineTo(l - rr, -l); f.quadraticCurveTo(l, -l, l, -l + rr); f.lineTo(l, l - rr);
+  f.quadraticCurveTo(l, l, l - rr, l); f.lineTo(-l + rr, l); f.quadraticCurveTo(-l, l, -l, l - rr); f.lineTo(-l, -l + rr);
+  f.quadraticCurveTo(-l, -l, -l + rr, -l);
+  const geo = new T.ExtrudeGeometry(f, { depth: 0.1, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 2, curveSegments: 4 });
+  const azar = azarCon(77);
+  const celdas = [];
+  for (let sem = 0; sem < 5; sem++) for (let dia = 0; dia < 7; dia++) {
+    celdas.push({ x: (dia - 3) * 0.5, y: (2 - sem) * 0.5, clase: dia === 1 || dia === 3, demora: azar(), lejos: 3 + azar() * 6 });
+  }
+  const deClase = celdas.filter((c) => c.clase), resto = celdas.filter((c) => !c.clase);
+  const mOnix = new T.InstancedMesh(geo, onix, resto.length), mCandy = new T.InstancedMesh(geo, candy, deClase.length);
+  const g = new T.Group(); g.add(mOnix, mCandy);
+  const m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), v = new T.Vector3(), esc = new T.Vector3(1, 1, 1);
+  g.userData.poner = (k, t) => {
+    [[mOnix, resto], [mCandy, deClase]].forEach(([malla, lista]) => {
+      lista.forEach((c, i) => {
+        const llega = Math.min(1, Math.max(0, k * 1.6 - c.demora * 0.6));
+        const s = llega * llega * (3 - 2 * llega);
+        v.set(c.x, c.y + Math.sin(t * 0.4 + c.demora * 6) * 0.02, -(1 - s) * c.lejos);
+        e.set((1 - s) * 1.2 + 0.08, (1 - s) * (c.demora - 0.5) * 2, 0); q.setFromEuler(e);
+        esc.setScalar(0.001 + s);
+        malla.setMatrixAt(i, m4.compose(v, q, esc));
+      });
+      malla.instanceMatrix.needsUpdate = true;
+    });
+  };
+  return g;
+}
+/* Leer: un plano de papel negro al fondo donde la tinta se vuelve renglones (palabras de largo
+   distinto que aparecen de izquierda a derecha) */
+function papel() {
+  const mat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    uniforms: { uColor: { value: new T.Color(CANDY) }, uP: { value: 0 }, uT: { value: 0 } },
+    vertexShader: "varying vec2 vU; void main(){ vU = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform vec3 uColor; uniform float uP, uT; varying vec2 vU;
+      float h(float x){ return fract(sin(x * 127.1) * 43758.5453); }
+      void main(){
+        vec2 p = vU * vec2(16.0, 9.0);
+        float fila = floor(p.y / 0.5), fy = fract(p.y / 0.5);
+        float linea = smoothstep(0.40, 0.47, fy) * smoothstep(0.62, 0.55, fy);
+        float x = p.x + h(fila) * 3.0, palabra = floor(x / 0.8), fx = fract(x / 0.8);
+        float enPalabra = step(fx, 0.25 + 0.6 * h(palabra + fila * 13.0));
+        float frente = uP * 1.25 - 0.1 - h(fila + 3.0) * 0.15;
+        float revela = smoothstep(frente, frente - 0.06, vU.x);
+        float borde = smoothstep(0.35, 0.6, vU.x) * smoothstep(1.0, 0.85, vU.x) * smoothstep(0.1, 0.3, vU.y) * smoothstep(0.95, 0.7, vU.y);
+        float a = linea * enPalabra * revela * borde * 0.085 * uP;
+        a *= 0.8 + 0.2 * sin(uT * 0.8 + fila);
+        gl_FragColor = vec4(uColor * a, 1.0);
+      }`,
+  });
+  return new T.Mesh(new T.PlaneGeometry(16, 9), mat);
+}
+/* La grilla: luz de ventana en la pared del fondo (paños con bordes blandos, en diagonal) y la
+   sombra de hojas que se mueve despacio sobre ellos */
+function ventana() {
+  const mat = new T.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: T.AdditiveBlending,
+    uniforms: { uColor: { value: new T.Color(CANDY) }, uV: { value: 0 }, uT: { value: 0 } },
+    vertexShader: "varying vec2 vU; void main(){ vU = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform vec3 uColor; uniform float uV, uT; varying vec2 vU;
+      float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+      float ruido(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f); return mix(mix(h(i), h(i+vec2(1,0)), f.x), mix(h(i+vec2(0,1)), h(i+vec2(1,1)), f.x), f.y); }
+      void main(){
+        vec2 p = vU - vec2(0.5, 0.5);
+        p.x += p.y * 0.45;                                   // la luz entra en diagonal
+        vec2 q = (p + vec2(0.18, 0.2)) * vec2(3.0, 2.0);     // 3 × 2 paños
+        vec2 c = fract(q); vec2 id = floor(q);
+        float dentro = step(0.0, id.x) * step(id.x, 2.0) * step(0.0, id.y) * step(id.y, 1.0);
+        float pano = smoothstep(0.0, 0.12, c.x) * smoothstep(1.0, 0.88, c.x) * smoothstep(0.0, 0.14, c.y) * smoothstep(1.0, 0.86, c.y);
+        float hojas = 0.55 + 0.45 * ruido(vU * 7.0 + vec2(uT * 0.11, uT * 0.07)) * ruido(vU * 3.0 - uT * 0.05);
+        float a = dentro * pano * hojas * 0.1 * uV;
+        a += (h(gl_FragCoord.xy + uT) - 0.5) / 255.0;
+        gl_FragColor = vec4(uColor * max(a, 0.0), 1.0);
+      }`,
+  });
+  return new T.Mesh(new T.PlaneGeometry(18, 10), mat);
+}
+
 /* ══════════════════════ el recorrido ══════════════════════ */
 /* Un estado por sección: dónde está la C (p, g, e), cuánto se abre, dónde va la clave (0 en su
    lugar, 1 afuera y adelante), cuánto orden tienen los hilos, el latido, y la fuerza de la tinta
    y del haz. Para pantallas apaisadas; en vertical se ajusta (ajustarVertical). */
+// lo que no se dice en un estado vale lo de acá: luz clave normal desde la izquierda, cámara en su lugar
+const LUZ_BLANCA = new T.Color(0xd8e9f0), LUZ_CANDY = new T.Color(CANDY);
+const BASE = { abre: 0, clave: 0, orden: 1, latido: 0, tinta: 1, haz: 1, campo: 0, papel: 0, ventana: 0,
+  expo: 1, luz: 1, luzX: -4.5, temp: 0, cx: 0, cy: 0, cz: 0 };
 const ESTADOS = [
   // 0 portada: la C a la derecha, bruma + haz + hilos entrando ordenados
-  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 1, haz: 1 },
-  // 1 grabar: la voz es la protagonista: los hilos llegan dispersos; la C se aleja arriba
-  { p: [-4.4, 3.3, -11.5], g: [0.5, 0.4, 0.1], e: 0.9, abre: 0.04, clave: 0, orden: 0.15, latido: 0, tinta: 0.5, haz: 0.4 },
-  // 2 la guía: la clave tallada sale, con la clase y el minuto
-  { p: [5.0, 3.7, -13.0], g: [0.6, -0.5, -0.1], e: 0.9, abre: 0.3, clave: 1, orden: 0.5, latido: 0, tinta: 0.3, haz: 0.3 },
-  // 3 preguntar: el hilo late
-  { p: [-5.0, 3.7, -13.0], g: [0.4, 0.9, 0.2], e: 0.9, abre: 0.08, clave: 0, orden: 0.8, latido: 1, tinta: 0.35, haz: 0.3 },
-  // 4 simulacro: las dovelas se reagrupan en la C, grande y lejos, detrás de la pantalla
-  { p: [5.4, 2.2, -9.5], g: [0.15, -0.6, 0.0], e: 1.5, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.6 },
-  // 5 lo distinto: la C se abre y se va arriba; la clave sale con lo grabado a la vista
-  { p: [0.0, 9.2, -14.0], g: [0.2, 0.3, 0.1], e: 1.0, abre: 1.0, clave: 1, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
-  // 6 las cuatro razones
-  { p: [0.0, 9.2, -14.0], g: [0.2, 0.5, 0.1], e: 1.0, abre: 1.0, clave: 0, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
-  // 7 descargar: la cámara llega a la C: el ojo enmarca la caja como un portal
-  { p: [0.0, 0.05, -1.05], g: [0.04, -0.16, 0.0], e: 4.3, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.8, haz: 0.5 },
-  // 8 pie: la cámara ya pasó por el ojo; el aro queda atrás, en los bordes
-  { p: [0.0, 0.05, -1.05], g: [0.02, -0.08, 0.0], e: 8.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.4 },
-];
-const CANALES = ["abre", "clave", "orden", "latido", "tinta", "haz"];
+  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95 },
+  // 1 el cronograma: la C chica arriba; al fondo, el calendario de dovelas (los días de clase en Candy); luz desde la derecha
+  { p: [4.8, 3.0, -10.5], g: [0.4, -0.9, 0.1], e: 0.9, orden: 0.6, tinta: 0.2, haz: 0.12, campo: 1, luz: 0.85, luzX: 4.5, temp: 0.3, cx: -0.6, cy: 0.3, expo: 0.95 },
+  // 2 grabar: la voz es la protagonista: el haz y las motas, los hilos llegan dispersos; la C se aleja arriba
+  { p: [-4.4, 3.3, -11.5], g: [0.5, 0.4, 0.1], e: 0.9, abre: 0.04, orden: 0.15, tinta: 0.3, haz: 1.7, luzX: -2, cx: 0.5, cy: -0.2, expo: 1.0 },
+  // 3 leer: la clave tallada sale; al fondo, el papel negro donde la tinta se vuelve renglones
+  { p: [5.0, 3.7, -13.0], g: [0.6, -0.5, -0.1], e: 0.9, abre: 0.3, clave: 1, orden: 0.5, tinta: 0.35, haz: 0.12, papel: 1, luz: 0.9, luzX: -5.5, temp: 0.6, cx: -0.4, cz: -0.6 },
+  // 4 preguntar: el hilo late; luz desde la derecha, más fría
+  { p: [-4.2, 2.4, -8.5], g: [0.35, 0.8, 0.15], e: 1.05, abre: 0.08, orden: 0.8, latido: 1, tinta: 0.6, haz: 0.25, luzX: 3, temp: 0.2, cx: 0.5, cy: 0.2 },
+  // 5 simulacro: las dovelas se reagrupan en la C, grande y lejos, detrás de la pantalla
+  { p: [5.4, 2.2, -9.5], g: [0.15, -0.6, 0.0], e: 1.5, abre: 0.45, tinta: 0.3, haz: 0.6, luz: 1.1, luzX: -3, cx: -0.3 },
+  // 6 repasar y «hoy»: la C abierta se va arriba; la clave afuera; luz cálida dentro del Candy
+  { p: [0.0, 9.2, -14.0], g: [0.2, 0.3, 0.1], e: 1.0, abre: 1.0, clave: 1, orden: 0.6, tinta: 0.2, haz: 0.2, temp: 0.8, expo: 0.95 },
+  // 7 todo lo demás (la grilla): luz de ventana en la pared del fondo, la C lejos a la derecha, casi sin bruma
+  { p: [6.5, -1.6, -16.0], g: [0.3, -1.1, 0.2], e: 1.0, abre: 0.2, tinta: 0.05, haz: 0, ventana: 1, luz: 0.7, luzX: 5, temp: 0.4, cx: 0.3, cy: 0.4 },
+  // 8 descargar: la cámara llega a la C: el ojo enmarca la caja como un portal
+  { p: [0.0, 0.05, -1.05], g: [0.04, -0.16, 0.0], e: 4.3, tinta: 0.8, haz: 0.5 },
+  // 9 pie: la cámara ya pasó por el ojo; el aro queda atrás, en los bordes
+  { p: [0.0, 0.05, -1.05], g: [0.02, -0.08, 0.0], e: 8.0, tinta: 0.6, haz: 0.4 },
+].map((e) => ({ ...BASE, ...e }));
+const CANALES = Object.keys(BASE);
 
 /* un resorte de segundo orden (frecuencia f, amortiguación z, respuesta r), como los de Lusion:
    cada cosa persigue a su objetivo con masa y un asentamiento natural */
@@ -383,6 +488,11 @@ export async function iniciar(lienzo, opciones = {}) {
   const curva = new Onda(new T.Vector3(-7.5, -0.05, -1.6), new T.Vector3(0, 0, 0), 0.32);
   const hilos = hilosDeLuz(curva, nivelInicial > 0 ? 260 : 80);
   escena.add(hilos);
+  /* los fondos por sección: el calendario de dovelas, el papel de los renglones, la luz de ventana */
+  const campo = campoDeDovelas(materialOnix(3), materialCeramicaCandy());
+  campo.position.set(3.4, -2.5, -8.0); campo.visible = false; escena.add(campo);
+  const elPapel = papel(); elPapel.position.set(-1.0, 0.4, -5.0); elPapel.visible = false; escena.add(elPapel);
+  const laVentana = ventana(); laVentana.position.set(-2.0, 0.6, -7.0); laVentana.visible = false; escena.add(laVentana);
 
   /* la luz: una clave suave, el borde Candy, relleno mínimo; las sombras con color (el entorno) */
   const luzClave = new T.SpotLight(0xd8e9f0, pal.clave, 0, 0.5, 0.95, 2);
@@ -419,10 +529,10 @@ export async function iniciar(lienzo, opciones = {}) {
   rctx.fillStyle = "#000"; rctx.fillRect(0, 0, rastro.width, rastro.height);
   const texRastro = new T.CanvasTexture(rastro);
   const lente = new T.ShaderPass({
-    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 }, uGrano: { value: 0.03 }, uVineta: { value: pal.vineta } },
+    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 }, uGrano: { value: 0.03 }, uVineta: { value: pal.vineta }, uDesenfoque: { value: 0 }, uDestello: { value: 0 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     fragmentShader: `
-      uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza, uGrano, uVineta; varying vec2 vUv;
+      uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza, uGrano, uVineta, uDesenfoque, uDestello; varying vec2 vUv;
       float h(vec2 p){ return texture2D(tRastro, p).r; }
       float granito(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453) + fract(sin(dot(p + 0.37, vec2(39.346, 11.135))) * 24634.6345) - 1.0; }
       void main(){
@@ -431,6 +541,17 @@ export async function iniciar(lienzo, opciones = {}) {
         // aberración cromática mínima, sólo hacia los bordes
         vec2 borde = (vUv - 0.5) * 0.0025 * dot(vUv - 0.5, vUv - 0.5) * 4.0;
         vec3 c = vec3(texture2D(tDiffuse, vUv + d * 1.25 + borde).r, texture2D(tDiffuse, vUv + d).g, texture2D(tDiffuse, vUv + d * 0.75 - borde).b);
+        // el cambio de foco entre secciones: ocho muestras en anillo, sólo mientras se viaja
+        if (uDesenfoque > 0.02) {
+          vec3 b = vec3(0.0);
+          for (int i = 0; i < 8; i++) { float a = float(i) * 0.785398; b += texture2D(tDiffuse, vUv + d + vec2(cos(a), sin(a) * 1.78) * uDesenfoque * 0.0022).rgb; }
+          c = mix(c, b / 8.0, min(uDesenfoque, 1.0) * 0.85);
+        }
+        // el destello de lente, mínimo: un fantasma de lo más brillante, espejado hacia el centro, en Candy
+        if (uDestello > 0.0) {
+          vec3 f = texture2D(tDiffuse, (0.5 - vUv) * 0.7 + 0.5).rgb;
+          c += max(f - 0.82, 0.0) * vec3(0.70, 0.84, 0.90) * uDestello;
+        }
         float v = smoothstep(1.15, 0.25, length((vUv - 0.5) * vec2(1.25, 1.0)));
         c *= mix(1.0 - uVineta, 1.0, v);
         c += granito(gl_FragCoord.xy) * uGrano;
@@ -508,7 +629,9 @@ export async function iniciar(lienzo, opciones = {}) {
     });
   }
   medirTramos();
+  const estadoFijo = (location.search.match(/estado=([\d.]+)/) || [])[1];   // para la dirección: ?estado=N
   function posicionScroll() {
+    if (estadoFijo !== undefined) return parseFloat(estadoFijo);
     // el estado de cada sección vale exacto cuando su centro pasa por el centro de la pantalla
     const c = window.scrollY + window.innerHeight * 0.5;
     if (!tramos.length) return 0;
@@ -524,7 +647,7 @@ export async function iniciar(lienzo, opciones = {}) {
   // en las secciones del medio el texto ocupa todo el ancho: la C, más chica y arriba, sin tapar títulos
   function ajustarVertical(e, i) {
     if (ancho >= alto) return e;
-    if (i >= 1 && i <= 6) return { ...e, p: [e.p[0] * 0.2, e.p[1] + 2.3, e.p[2] - 0.6], e: e.e * 0.55 };
+    if (i >= 1 && i <= 7) return { ...e, p: [2.7 + e.p[0] * 0.05, e.p[1] + 2.95, e.p[2] - 0.6], e: e.e * 0.46 };
     return { ...e, p: [e.p[0] * 0.25, e.p[1] + 0.95, e.p[2] - 0.6], e: e.e * 0.8 };
   }
   const suave = (t) => t * t * (3 - 2 * t);
@@ -564,6 +687,7 @@ export async function iniciar(lienzo, opciones = {}) {
   let scrollSuave = window.scrollY;
 
   const enLugar = new T.Vector3();
+  const enfoque = { valor: 0 };
   // el orden de los hilos al abrir: llegan dispersos y se ordenan en los primeros 3 segundos
   let ordenInicial = quieto || saltar ? 1 : 0;
   function aplicar(t) {
@@ -607,6 +731,28 @@ export async function iniciar(lienzo, opciones = {}) {
     elHaz.material.uniforms.uFuerza.value = actual.haz * pal.haz;
     lasMotas.material.opacity = 0.32 * actual.haz * pal.haz;
     luzHaz.intensity = 10 * actual.haz;
+    // los fondos de cada sección entran y salen con su canal (y no se dibujan cuando no están)
+    campo.visible = actual.campo > 0.01;
+    if (campo.visible) {
+      campo.userData.poner(actual.campo, t);
+      campo.rotation.set(-0.35 + py * 0.05, -0.3 + px * 0.08, 0.03);
+    }
+    elPapel.visible = actual.papel > 0.01;
+    elPapel.material.uniforms.uP.value = actual.papel; elPapel.material.uniforms.uT.value = t;
+    elPapel.position.x = -1.0 - px * 0.05;
+    laVentana.visible = actual.ventana > 0.01;
+    laVentana.material.uniforms.uV.value = actual.ventana; laVentana.material.uniforms.uT.value = t;
+    // la luz de cada sección: dirección, intensidad y temperatura (siempre dentro del Candy)
+    luzClave.position.set(actual.luzX, 5.5, 5.2);
+    luzClave.intensity = pal.clave * actual.luz;
+    luzClave.color.lerpColors(LUZ_BLANCA, LUZ_CANDY, Math.min(Math.max(actual.temp, 0), 1));
+    renderer.toneMappingExposure = pal.exposicion * actual.expo;
+    // la cámara viaja: un poco de dolly y una órbita leve hacia el centro de la escena
+    camara.position.set(actual.cx, 0.25 + actual.cy, 7.2 + actual.cz);
+    camara.lookAt(actual.cx * 0.4, 0.25 + actual.cy * 0.4, 0);
+    // el foco: entre una sección y la otra la imagen se desenfoca apenas y vuelve a enfocar al llegar
+    lente.uniforms.uDesenfoque.value = nivel > 0 ? enfoque.valor : 0;
+    lente.uniforms.uDestello.value = nivel > 1 && !pal.sinTono ? 0.35 : 0;
   }
 
   /* ── el bucle ── */
@@ -642,7 +788,10 @@ export async function iniciar(lienzo, opciones = {}) {
   function pasar(dt) {
     tiempo += dt;
     if (ordenInicial < 1) ordenInicial = Math.min(1, ordenInicial + dt / 2.8);
-    estadoEn(posicionScroll());
+    const sPos = posicionScroll();
+    estadoEn(sPos);
+    const fr = sPos - Math.floor(sPos);
+    enfoque.valor += ((saltar ? 0 : 4 * fr * (1 - fr)) - enfoque.valor) * (1 - Math.exp(-4 * dt));
     scrollSuave += (window.scrollY - scrollSuave) * (1 - Math.exp(-6 * dt));
     if (saltar) fijarActual();
     else {
@@ -701,7 +850,7 @@ export async function iniciar(lienzo, opciones = {}) {
   // en claro la tinta y los hilos oscurecen (restan luz al fondo); en oscuro, suman luz Candy
   function materiaSegunTema() {
     const claro = !!pal.sinTono;
-    for (const m of [laTinta.material, hilos.material]) {
+    for (const m of [laTinta.material, hilos.material, elPapel.material, laVentana.material]) {
       m.blending = claro ? RESTA : T.AdditiveBlending;
       m.premultipliedAlpha = claro;
       m.uniforms.uColor.value.set(claro ? 0xffffff : CANDY);
@@ -725,7 +874,9 @@ export async function iniciar(lienzo, opciones = {}) {
   claroMQ.addEventListener("change", repintarTema);
 
   // compilar todo antes de mostrar (sin tirones en el primer movimiento)
+  [campo, elPapel, laVentana].forEach((o) => { o.visible = true; });   // compilar también lo que está escondido
   renderer.compile(escena, camara);
+  [campo, elPapel, laVentana].forEach((o) => { o.visible = false; });
   unCuadro();
   avisar(1);
 

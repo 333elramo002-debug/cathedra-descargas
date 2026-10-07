@@ -65,8 +65,12 @@ const observador = "IntersectionObserver" in window ? new IntersectionObserver((
     if (e.isIntersecting) { e.target.classList.add("visto"); observador.unobserve(e.target); }
   }
 }, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }) : null;
-document.querySelectorAll(".sec-cab, .paso, .virtudes li, .descargar-caja, .pie").forEach((el) => {
+document.querySelectorAll(".sec-cab, .tramo-texto, .demo, .tarjeta, .descargar-caja, .pie").forEach((el) => {
   el.classList.add("entra");
+  if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
+});
+// los tramos sólo se marcan (la pieza de adelante de cada pantalla llega cuando el tramo entra)
+document.querySelectorAll(".tramo").forEach((el) => {
   if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
 });
 
@@ -216,23 +220,63 @@ PAGINA.nave = async (iniciar) => {
 if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, 20000);
 
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
-/* El marco se inclina hacia el puntero (hasta 6°) y el brillo del vidrio lo sigue. */
+/* El marco se inclina hacia el puntero (hasta 6°); en las tarjetas, además, la pieza de
+   adelante y la pantalla de atrás se corren en sentidos opuestos: la profundidad sigue al mouse. */
 if (!quieto && window.matchMedia("(pointer: fine)").matches) {
-  document.querySelectorAll(".pantalla").forEach((fig) => {
-    const marco = fig.querySelector(".pantalla-marco");
+  document.querySelectorAll(".profundidad").forEach((fig) => {
     fig.addEventListener("pointermove", (e) => {
       const r = fig.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
       fig.classList.add("mirando");
       fig.style.setProperty("--ry", ((x - 0.5) * 12).toFixed(2) + "deg");
       fig.style.setProperty("--rx", ((0.5 - y) * 8).toFixed(2) + "deg");
-      if (marco) { marco.style.setProperty("--mx", (x * 100).toFixed(1) + "%"); marco.style.setProperty("--my", (y * 100).toFixed(1) + "%"); }
     });
     fig.addEventListener("pointerleave", () => {
       fig.classList.remove("mirando");
       fig.style.removeProperty("--ry"); fig.style.removeProperty("--rx");
     });
   });
+  document.querySelectorAll(".tarjeta").forEach((t) => {
+    t.addEventListener("pointermove", (e) => {
+      const r = t.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      t.style.setProperty("--ry", (x * 10).toFixed(2) + "deg");
+      t.style.setProperty("--rx", (-y * 8).toFixed(2) + "deg");
+      t.style.setProperty("--fx", (x * 18).toFixed(1) + "px");
+      t.style.setProperty("--fy", (y * 14).toFixed(1) + "px");
+    });
+    t.addEventListener("pointerleave", () => { ["--rx", "--ry", "--fx", "--fy"].forEach((v) => t.style.removeProperty(v)); });
+  });
+}
+
+/* ══════════════════════ los enlaces de la misma página ══════════════════════ */
+/* Se deslizan hasta la sección (sólo al tocarlos: el resto del desplazamiento es nativo). */
+document.querySelectorAll('a[href^="#"]').forEach((a) => {
+  const id = a.getAttribute("href").slice(1);
+  if (!id) return;
+  a.addEventListener("click", (e) => {
+    const destino = document.getElementById(id);
+    if (!destino) return;
+    e.preventDefault();
+    destino.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
+    history.replaceState(null, "", "#" + id);
+  });
+});
+
+/* ══════════════════════ las demos ══════════════════════ */
+/* La interfaz de verdad con datos de una materia de ejemplo, sin servidor. Se piden cuando
+   la primera demo se acerca a la pantalla (no pesan en la carga). */
+const demos = document.querySelectorAll("[data-demo]");
+if (demos.length) {
+  let pedidas = false;
+  const pedirDemos = () => {
+    if (pedidas) return; pedidas = true;
+    import("./demos.js").then((m) => m.montar(document, { quieto })).catch(() => {});
+  };
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { io.disconnect(); pedirDemos(); } }, { rootMargin: "25% 0px" });
+    demos.forEach((d) => io.observe(d));
+  } else pedirDemos();
 }
 
 /* ══════════════════════ el sonido ══════════════════════ */
@@ -403,12 +447,28 @@ document.querySelectorAll("[data-quieto]").forEach((a) => {
 const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
+  const textoVisor = visor.querySelector(".visor-texto");
+  const abrirVisor = (src, alt, titulo, texto) => {
+    imgVisor.src = src; imgVisor.alt = alt || "";
+    visor.classList.toggle("con-texto", !!texto);
+    textoVisor.hidden = !texto;
+    textoVisor.innerHTML = "";
+    if (texto) {
+      const b = document.createElement("b"); b.textContent = titulo || ""; textoVisor.append(b, document.createTextNode(texto));
+    }
+    visor.showModal();
+  };
   document.querySelectorAll("[data-ampliar]").forEach((b) => {
     b.addEventListener("click", () => {
-      const img = b.closest(".pantalla").querySelector(".pantalla-marco img");
-      imgVisor.src = img.currentSrc || img.src;
-      imgVisor.alt = img.alt;
-      visor.showModal();
+      const img = b.closest(".profundidad").querySelector(".pf-fondo");
+      abrirVisor(b.dataset.ampliar || img.currentSrc || img.src, img.alt);
+    });
+  });
+  // las tarjetas crecen hasta pantalla completa, con lo que hace esa pantalla
+  document.querySelectorAll(".tarjeta").forEach((t) => {
+    t.addEventListener("click", () => {
+      const titulo = t.querySelector("b").textContent;
+      abrirVisor(t.dataset.grande, "La pantalla de Cathedra: " + titulo, titulo, t.dataset.texto);
     });
   });
   visor.addEventListener("click", (e) => { if (e.target === visor || e.target.closest("[data-cerrar]")) visor.close(); });
