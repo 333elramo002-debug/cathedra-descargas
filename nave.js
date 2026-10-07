@@ -257,7 +257,7 @@ class Onda extends T.Curve {
   }
 }
 function hilosDeLuz(curva, cuantos) {
-  const base = new T.TubeGeometry(curva, 150, 1.0, 3, false);   // radio 1: el grosor real va por instancia
+  const base = new T.TubeGeometry(curva, 96, 1.0, 3, false);   // radio 1: el grosor real va por instancia
   const geo = new T.InstancedBufferGeometry();
   geo.index = base.index;
   for (const k of ["position", "normal", "uv"]) geo.setAttribute(k, base.attributes[k]);
@@ -639,7 +639,7 @@ export async function iniciar(lienzo, opciones = {}) {
   const elHaz = haz(); elHaz.position.set(0, 3.4, -0.6); escena.add(elHaz);
   const lasMotas = motas(220); lasMotas.position.set(0, 0.85, -0.4); escena.add(lasMotas);
   const curva = new Onda(new T.Vector3(-7.5, -0.05, -1.6), new T.Vector3(0, 0, 0), 0.32);
-  const hilos = hilosDeLuz(curva, nivelInicial > 0 ? 260 : 80);
+  const hilos = hilosDeLuz(curva, nivelInicial > 0 ? 200 : 70);
   escena.add(hilos);
   // una copia que sólo escribe distancia, dibujada justo después: los hilos se ven todos (no se tapan
   // entre sí) y el foco sabe que están a la distancia de la C
@@ -807,6 +807,7 @@ export async function iniciar(lienzo, opciones = {}) {
     halo.enabled = nivel > 0;
     foco.enabled = nivel > 1 && !apagar.includes("foco");
     cercanos.visible = nivel > 1;
+    hilosProf.visible = nivel > 1;   // la copia de distancia sólo hace falta con el foco
     luzClave.castShadow = nivel > 1;
     lente.uniforms.uFuerza.value = conMouse && !quieto && nivel > 0 ? 1 : 0;
     suavizado.enabled = nivel > 0;

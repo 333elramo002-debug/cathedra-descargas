@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /direccion
+
+Sitemap: https://cathedra-beta.vercel.app/sitemap.xml
