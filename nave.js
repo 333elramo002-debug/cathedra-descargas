@@ -27,9 +27,11 @@ const ONYX = 0x020202, CANDY = 0xb2d5e5;
 // la letra del grabado de la clave tiene que estar antes de dibujar su textura
 try { await document.fonts.load('500 64px "IBM Plex Mono"'); } catch (e) { /* sigue con la de respaldo */ }
 const PALETAS = {
-  oscuro: { fondo: ONYX, exposicion: 0.92, entorno: 0.42, clave: 16, tinta: 1.0, haz: 1.0, sombra: 0.0 },
-  // tema claro: la pareja invertida (fondo Candy aclarado, materia Onyx); la luz pasa a ser sombra
-  claro: { fondo: 0xe8f2f6, exposicion: 0.95, entorno: 1.0, clave: 26, tinta: 0.55, haz: 0.35, sombra: 1.0 },
+  oscuro: { fondo: ONYX, exposicion: 0.92, entorno: 0.42, clave: 16, tinta: 1.0, haz: 1.0, sombra: 0.0, vineta: 0.5, umbral: 2.2, hilos: 1.0 },
+  // tema claro: la pareja invertida (fondo Candy aclarado, materia Onyx); la luz pasa a ser sombra:
+  // la tinta y los hilos restan en vez de sumar (trazos de Onyx sobre el claro) y el haz se apaga
+  // (sin tono fílmico: el fondo sale igual al de la página, #eef6f9, y la tinta oscurece sin virar de color)
+  claro: { fondo: 0xeef6f9, sinTono: true, exposicion: 1.0, entorno: 1.0, clave: 26, tinta: 1.7, haz: 0.0, sombra: 1.0, vineta: 0.1, umbral: 9, hilos: 2.4 },
 };
 
 /* ══════════════════════ los materiales ══════════════════════ */
@@ -266,13 +268,13 @@ const ESTADOS = [
   // 4 simulacro: las dovelas se reagrupan en la C, grande y lejos, detrás de la pantalla
   { p: [5.4, 2.2, -9.5], g: [0.15, -0.6, 0.0], e: 1.5, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.6 },
   // 5 lo distinto: la C se abre y se va arriba; la clave sale con lo grabado a la vista
-  { p: [0.0, 6.5, -12.0], g: [0.2, 0.3, 0.1], e: 1.0, abre: 1.0, clave: 1, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
+  { p: [0.0, 9.2, -14.0], g: [0.2, 0.3, 0.1], e: 1.0, abre: 1.0, clave: 1, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
   // 6 las cuatro razones
-  { p: [0.0, 6.5, -12.0], g: [0.2, 0.5, 0.1], e: 1.0, abre: 1.0, clave: 0, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
-  // 7 descargar: la cámara «entra» en la C (la C grande, el ojo en el centro, la caja adelante)
-  { p: [0.2, 0.1, -2.2], g: [0.0, -0.12, 0.0], e: 2.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.8, haz: 0.5 },
-  // 8 pie
-  { p: [0.2, 0.1, -2.6], g: [0.0, -0.08, 0.0], e: 2.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.4 },
+  { p: [0.0, 9.2, -14.0], g: [0.2, 0.5, 0.1], e: 1.0, abre: 1.0, clave: 0, orden: 0.6, latido: 0, tinta: 0.2, haz: 0.2 },
+  // 7 descargar: la cámara llega a la C: el ojo enmarca la caja como un portal
+  { p: [0.0, 0.05, -1.05], g: [0.04, -0.16, 0.0], e: 4.3, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.8, haz: 0.5 },
+  // 8 pie: la cámara ya pasó por el ojo; el aro queda atrás, en los bordes
+  { p: [0.0, 0.05, -1.05], g: [0.02, -0.08, 0.0], e: 8.0, abre: 0, clave: 0, orden: 1, latido: 0, tinta: 0.6, haz: 0.4 },
 ];
 const CANALES = ["abre", "clave", "orden", "latido", "tinta", "haz"];
 
@@ -293,7 +295,10 @@ class Resorte {
   fijar(x) { this.x = this.y = x; this.v = 0; }
 }
 
-export function iniciar(lienzo, opciones = {}) {
+// un respiro entre etapas: el hilo principal queda libre para el texto y el puntero
+const respiro = () => new Promise((r) => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 120 }) : setTimeout(r, 16)));
+
+export async function iniciar(lienzo, opciones = {}) {
   const quieto = !!opciones.quieto;
   const forzarAlta = /calidad=alta/.test(location.search);
   const forzarBaja = /calidad=baja/.test(location.search);
@@ -304,6 +309,11 @@ export function iniciar(lienzo, opciones = {}) {
     const prueba = document.createElement("canvas");
     const ctxPrueba = prueba.getContext("webgl2") || prueba.getContext("webgl");
     if (!ctxPrueba) return null;
+    // sin placa de verdad (dibujo por software), la escena traba la página: queda la imagen quieta
+    const datos = ctxPrueba.getExtension("WEBGL_debug_renderer_info");
+    const quien = datos ? String(ctxPrueba.getParameter(datos.UNMASKED_RENDERER_WEBGL)) : "";
+    const forzar3d = /calidad=|medir|saltar|[?&]3d/.test(location.search);
+    if (!forzar3d && /swiftshader|llvmpipe|softpipe|software|basic render/i.test(quien)) return null;
     const soltar = ctxPrueba.getExtension("WEBGL_lose_context");
     if (soltar) soltar.loseContext();
   } catch (e) {
@@ -330,7 +340,12 @@ export function iniciar(lienzo, opciones = {}) {
   renderer.shadowMap.type = T.PCFShadowMap;
 
   const escena = new T.Scene();
-  escena.background = new T.Color(pal.fondo);
+  escena.background = new T.Color();
+  const ponerFondo = () => {
+    escena.background.set(pal.fondo);
+    renderer.toneMapping = pal.sinTono ? 0 : T.ACESFilmicToneMapping;   // 0 = NoToneMapping
+  };
+  ponerFondo();
   const pmrem = new T.PMREMGenerator(renderer);
   const entorno = pmrem.fromScene(new T.RoomEnvironment(), 0.04).texture;
   escena.environment = entorno;
@@ -355,6 +370,7 @@ export function iniciar(lienzo, opciones = {}) {
   grupo.add(laClave);
   escena.add(grupo);
   avisar(0.45);
+  await respiro();
   // la clave, cuando sale, viene adelante con la cara grabada hacia la cámara
   const claveAfuera = { p: new T.Vector3(1.1, -0.72, 0.6), g: new T.Vector3(0.12, -0.72, 0.16), e: 1.55 };
 
@@ -386,12 +402,13 @@ export function iniciar(lienzo, opciones = {}) {
   if (apagar.includes("haz")) { elHaz.visible = false; }
   if (apagar.includes("entorno")) escena.environmentIntensity = 0;
   avisar(0.6);
+  await respiro();
 
   /* ── el dibujo: escena → halo contenido (sólo la marca de luz) → tono → suavizado → lente, viñeta,
      aberración mínima en los bordes y granito ── */
   const composer = new T.EffectComposer(renderer);
   composer.addPass(new T.RenderPass(escena, camara));
-  const halo = new T.UnrealBloomPass(new T.Vector2(256, 256), 0.12, 0.3, 2.2);
+  const halo = new T.UnrealBloomPass(new T.Vector2(256, 256), 0.12, 0.3, pal.umbral);
   composer.addPass(halo);
 
   /* el cursor como lente: el puntero deja una estela invisible (un lienzo chico que se borra
@@ -402,7 +419,7 @@ export function iniciar(lienzo, opciones = {}) {
   rctx.fillStyle = "#000"; rctx.fillRect(0, 0, rastro.width, rastro.height);
   const texRastro = new T.CanvasTexture(rastro);
   const lente = new T.ShaderPass({
-    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 }, uGrano: { value: 0.03 }, uVineta: { value: 0.5 } },
+    uniforms: { tDiffuse: { value: null }, tRastro: { value: texRastro }, uPaso: { value: new T.Vector2(1 / 192, 1 / 108) }, uFuerza: { value: 1 }, uGrano: { value: 0.03 }, uVineta: { value: pal.vineta } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
     fragmentShader: `
       uniform sampler2D tDiffuse, tRastro; uniform vec2 uPaso; uniform float uFuerza, uGrano, uVineta; varying vec2 vUv;
@@ -504,8 +521,10 @@ export function iniciar(lienzo, opciones = {}) {
     return tramos[tramos.length - 1].i;
   }
   // en vertical (teléfono): la C arriba y al centro, más chica
-  function ajustarVertical(e) {
+  // en las secciones del medio el texto ocupa todo el ancho: la C, más chica y arriba, sin tapar títulos
+  function ajustarVertical(e, i) {
     if (ancho >= alto) return e;
+    if (i >= 1 && i <= 6) return { ...e, p: [e.p[0] * 0.2, e.p[1] + 2.3, e.p[2] - 0.6], e: e.e * 0.55 };
     return { ...e, p: [e.p[0] * 0.25, e.p[1] + 0.95, e.p[2] - 0.6], e: e.e * 0.8 };
   }
   const suave = (t) => t * t * (3 - 2 * t);
@@ -516,7 +535,7 @@ export function iniciar(lienzo, opciones = {}) {
     const n = ESTADOS.length - 1;
     const i = Math.min(Math.max(Math.floor(s), 0), n), j = Math.min(i + 1, n);
     const f = suave(Math.min(Math.max(s - i, 0), 1));
-    const a = ajustarVertical(ESTADOS[i]), b = ajustarVertical(ESTADOS[j]);
+    const a = ajustarVertical(ESTADOS[i], i), b = ajustarVertical(ESTADOS[j], j);
     objetivo.p.set(...a.p).lerp(tmp.set(...b.p), f);
     objetivo.g.set(...a.g).lerp(tmp.set(...b.g), f);
     objetivo.e = a.e + (b.e - a.e) * f;
@@ -678,9 +697,26 @@ export function iniciar(lienzo, opciones = {}) {
     entorno.dispose(); pmrem.dispose(); texRastro.dispose(); renderer.dispose();
   });
 
+  const RESTA = 3;   // SubtractiveBlending de three (la biblioteca recortada no lo exporta)
+  // en claro la tinta y los hilos oscurecen (restan luz al fondo); en oscuro, suman luz Candy
+  function materiaSegunTema() {
+    const claro = !!pal.sinTono;
+    for (const m of [laTinta.material, hilos.material]) {
+      m.blending = claro ? RESTA : T.AdditiveBlending;
+      m.premultipliedAlpha = claro;
+      m.uniforms.uColor.value.set(claro ? 0xffffff : CANDY);
+      m.needsUpdate = true;
+    }
+    hilos.material.uniforms.uFuerza.value = pal.hilos;
+  }
+  materiaSegunTema();
+
   function repintarTema() {
     pal = esClaro() ? PALETAS.claro : PALETAS.oscuro;
-    escena.background.set(pal.fondo);
+    ponerFondo();
+    materiaSegunTema();
+    lente.uniforms.uVineta.value = pal.vineta;
+    halo.threshold = pal.umbral;
     escena.environmentIntensity = pal.entorno;
     luzClave.intensity = pal.clave;
     renderer.toneMappingExposure = pal.exposicion;

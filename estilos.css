@@ -149,6 +149,19 @@ img { display: block; max-width: 100%; height: auto; }
   :root:not([data-tema="oscuro"]).sin-3d .escena-quieta,
   :root:not([data-tema="oscuro"]).esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-claro.webp); }
 }
+@media (orientation: portrait) {
+  .sin-3d .escena-quieta, .esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical.webp); background-position: center top; }
+}
+@media (orientation: portrait) and (prefers-color-scheme: light) {
+  :root:not([data-tema="oscuro"]).sin-3d .escena-quieta,
+  :root:not([data-tema="oscuro"]).esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical-claro.webp); }
+}
+
+:root[data-tema="claro"].sin-3d .escena-quieta, :root[data-tema="claro"].esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-claro.webp); }
+@media (orientation: portrait) {
+  :root[data-tema="claro"].sin-3d .escena-quieta, :root[data-tema="claro"].esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical-claro.webp); }
+}
+
 /* el velo: oscurece lo justo detrás del texto, más en los bordes (viñeta) */
 .escena-velo {
   position: absolute; inset: 0;
@@ -173,14 +186,15 @@ img { display: block; max-width: 100%; height: auto; }
   filter: drop-shadow(0 0 6px var(--oro-halo));
 }
 .cs-clave { fill: var(--oro); opacity: .12; transition: opacity .4s var(--curva), filter .6s var(--curva); }
+.solo-lector { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
 .carga-cifra {
   position: absolute; left: var(--gutter); bottom: clamp(20px, 5vh, 48px);
   font: 500 clamp(56px, 8vw, 120px)/.8 var(--mono);
   letter-spacing: -.04em;
-  color: color-mix(in srgb, var(--oro) 60%, var(--fondo));
-  opacity: .55;
+  color: var(--texto);
 }
 .abriendo .carga, .abierta .carga { opacity: 0; visibility: hidden; }
+.abriendo .carga-cifra, .abierta .carga-cifra { visibility: hidden; }
 .abriendo .cs-clave, .abierta .cs-clave { opacity: 1; filter: drop-shadow(0 0 12px var(--oro)); }
 .abriendo .carga-signo { transform: var(--viaje, none); }
 

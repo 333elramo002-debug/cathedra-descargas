@@ -41,8 +41,11 @@ document.querySelectorAll("[data-contacto-texto]").forEach((el) => { el.textCont
    sigue siendo uno solo para quien lee con lector de pantalla. */
 document.querySelectorAll(".palabras").forEach((el) => {
   const texto = el.textContent.trim();
-  el.setAttribute("aria-label", texto);
   el.textContent = "";
+  const lector = document.createElement("span");
+  lector.className = "solo-lector";
+  lector.textContent = texto;
+  el.appendChild(lector);
   texto.split(/\s+/).forEach((p, i) => {
     const caja = document.createElement("span");
     caja.className = "pal";
@@ -87,15 +90,17 @@ const carga = document.getElementById("carga");
 const cifra = document.getElementById("carga-cifra");
 const trazo = carga && carga.querySelector(".cs-trazo");
 const inicio = performance.now();
-let medidoLetras = 0, medidoNave = 0, mostrado = 0, abierta = false, naveLista = false, sinNave = false;
+let medidoLetras = 0, medidoNave = 0, medidoPagina = 0, mostrado = 0, abierta = false, naveLista = false, sinNave = false;
 PAGINA.cargando = (p) => { medidoNave = Math.max(medidoNave, p); };
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { medidoLetras = 1; });
 else medidoLetras = 1;
 setTimeout(() => { medidoLetras = 1; }, 2500);
+if (document.readyState === "complete") medidoPagina = 1; else window.addEventListener("load", () => { medidoPagina = 1; });
 
 function pasoCarga(ahora) {
   if (abierta) return;
-  const medido = medidoLetras * 0.3 + medidoNave * 0.7;
+  // la carga mide las letras y la página; la escena llega después, encima de la imagen quieta
+  const medido = medidoLetras * 0.7 + medidoPagina * 0.3;
   const dt = 1 / 60;
   mostrado += (medido - mostrado) * (1 - Math.exp(-7 * dt));
   // nunca más rápido que 1 por segundo: la carga mínima es de un segundo
@@ -103,9 +108,9 @@ function pasoCarga(ahora) {
   if (medido >= 0.999 && mostrado > 0.985) mostrado = 1;
   if (trazo) trazo.style.strokeDashoffset = String(100 - mostrado * 100);
   if (cifra) cifra.textContent = String(Math.round(mostrado * 100)).padStart(3, "0");
-  // tope: a los 2,5 s se abre igual; si la nave no llegó, mientras tanto se ve la imagen quieta
-  if (mostrado >= 1 || ahora - inicio > 2500) {
-    if (mostrado < 1 && !naveLista) raiz.classList.add("esperando-nave");
+  // tope: a los 1,8 s se abre igual; si la nave no llegó, mientras tanto se ve la imagen quieta
+  if (mostrado >= 1 || ahora - inicio > 1800) {
+    if (!naveLista && !sinNave) raiz.classList.add("esperando-nave");
     abrir();
     return;
   }
@@ -157,8 +162,24 @@ function quedarseQuieta() {
 }
 PAGINA.sinNave = quedarseQuieta;
 const hayLienzo = !!document.getElementById("nave");
+// sin placa de verdad (dibujo por software) la escena traba la página: ni se pide la biblioteca
+function placaDeVerdad() {
+  if (/calidad=|medir|saltar|[?&]3d/.test(location.search)) return true;
+  try {
+    const c = document.createElement("canvas").getContext("webgl");
+    if (!c) return false;
+    const d = c.getExtension("WEBGL_debug_renderer_info");
+    const quien = d ? String(c.getParameter(d.UNMASKED_RENDERER_WEBGL)) : "";
+    const soltar = c.getExtension("WEBGL_lose_context");
+    if (soltar) soltar.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(quien);
+  } catch (e) {
+    return false;
+  }
+}
 function pedirNave() {
   if (!hayLienzo || quieto || sinNave) return;
+  if (!placaDeVerdad()) { quedarseQuieta(); return; }
   medidoNave = Math.max(medidoNave, 0.1);
   import("./nave.js")
     .then((m) => { medidoNave = Math.max(medidoNave, 0.6); PAGINA.nave(m.iniciar); })
@@ -166,19 +187,21 @@ function pedirNave() {
 }
 if (hayLienzo && quieto) quedarseQuieta();
 else if (hayLienzo) {
-  // la biblioteca se pide recién después del primer dibujo con contenido (no compite con el texto)
+  // la escena se pide cuando la página ya está quieta (o con el primer gesto): no compite con el
+  // texto ni con la carga; mientras tanto se ve la imagen quieta de la misma escena
   let pedida = false;
   const pedirUnaVez = () => { if (!pedida) { pedida = true; pedirNave(); } };
-  try {
-    new PerformanceObserver((l) => { if (l.getEntriesByName("first-contentful-paint").length) pedirUnaVez(); })
-      .observe({ type: "paint", buffered: true });
-  } catch (e) { /* navegador sin el observador: el respaldo de abajo */ }
-  setTimeout(pedirUnaVez, 1200);
+  const cuandoQuieta = () => {
+    if ("requestIdleCallback" in window) requestIdleCallback(pedirUnaVez, { timeout: 2500 });
+    else setTimeout(pedirUnaVez, 600);
+  };
+  if (document.readyState === "complete") cuandoQuieta(); else window.addEventListener("load", cuandoQuieta, { once: true });
+  ["pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => window.addEventListener(ev, pedirUnaVez, { once: true, passive: true }));
 }
-PAGINA.nave = (iniciar) => {
+PAGINA.nave = async (iniciar) => {
   const lienzo = document.getElementById("nave");
   try {
-    const motor = iniciar(lienzo, { quieto: false });
+    const motor = await iniciar(lienzo, { quieto: false });
     if (!motor) { quedarseQuieta(); return; }
     PAGINA.motor = motor;
     naveLista = true;
@@ -190,7 +213,7 @@ PAGINA.nave = (iniciar) => {
   }
 };
 // si el módulo no llega (navegador viejo, archivo abierto sin servidor), la imagen quieta
-if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, 9000);
+if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, 20000);
 
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
 /* El marco se inclina hacia el puntero (hasta 6°) y el brillo del vidrio lo sigue. */
