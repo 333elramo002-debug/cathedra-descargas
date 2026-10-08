@@ -719,6 +719,11 @@ main, .pie { position: relative; z-index: 1; }
   0%, 100% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--candy) 30%, var(--onyx)), 0 0 0 3.5px var(--oro-claro); }
   50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--candy) 30%, var(--onyx)), 0 0 0 3.5px var(--oro-claro), 0 0 16px 4px var(--oro-halo); }
 }
+.tu-equipo { margin: 26px 0 0; padding: 18px 20px; border: 1px solid var(--borde); border-radius: 14px; }
+.tu-equipo .rotulo { margin: 0 0 8px; }
+.te-paquete { margin: 0; font-size: 16px; line-height: 1.5; color: var(--medio); }
+.te-paquete strong { color: var(--texto); font-weight: 600; }
+.te-nota { margin: 8px 0 0; font: 500 12.5px/1.5 var(--mono); color: var(--tenue); }
 .invitacion { margin: 26px 0 0; font: 500 13px/1.5 var(--mono); color: var(--tenue); }
 
 /* ═══════════════════════ el pie ═══════════════════════ */
