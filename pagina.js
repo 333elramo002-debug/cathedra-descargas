@@ -538,4 +538,33 @@ if (visor && typeof visor.showModal === "function") {
 } else {
   document.querySelectorAll("[data-ampliar]").forEach((b) => { b.hidden = true; });
 }
+/* ══════════════════════ tu computadora ══════════════════════
+   Estimación con lo que el navegador deja ver (memoria, núcleos, tarjeta de video);
+   el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
+   son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
+const PAQUETES = {
+  liviano: { nombre: "Liviano", lema: "Todo anda por conexión y casi no ocupa lugar." },
+  local_4b: { nombre: "Local", lema: "Preguntas y voz también sin conexión." }
+};
+function estimarPaquete() {
+  const memoria = navigator.deviceMemory || 0;        // el navegador la topa en 8
+  const nucleos = navigator.hardwareConcurrency || 0;
+  let video = "";
+  try {
+    const gl = document.createElement("canvas").getContext("webgl");
+    const info = gl && gl.getExtension("WEBGL_debug_renderer_info");
+    if (info) video = String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL) || "");
+  } catch (e) { video = ""; }
+  const aparte = /\b(GTX|RTX|Quadro|Radeon RX|Radeon Pro|Arc A)\b/i.test(video);
+  const alcanza = (memoria === 0 || memoria >= 8) && nucleos >= 4;
+  return aparte && alcanza ? "local_4b" : "liviano";
+}
+(function () {
+  const caja = document.getElementById("tu-equipo");
+  if (!caja || /Windows/.test(navigator.userAgent) === false) return;
+  const p = PAQUETES[estimarPaquete()];
+  document.getElementById("te-nombre").textContent = "Te conviene «" + p.nombre + "».";
+  document.getElementById("te-lema").textContent = p.lema;
+  caja.hidden = false;
+})();
 })();
