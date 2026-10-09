@@ -123,6 +123,8 @@ img { display: block; max-width: 100%; height: auto; }
   outline-offset: 3px;
   border-radius: 4px;
 }
+/* al tocar un enlace de la misma página el foco pasa a la sección (como el salto nativo): sin marco alrededor */
+main:focus, section:focus { outline: none; }
 .saltar {
   position: fixed; left: 16px; top: -60px; z-index: 300;
   padding: 10px 16px; border-radius: var(--radio-2);
@@ -723,7 +725,7 @@ main, .pie { position: relative; z-index: 1; }
 .tu-equipo .rotulo { margin: 0 0 8px; }
 .te-paquete { margin: 0; font-size: 16px; line-height: 1.5; color: var(--medio); }
 .te-paquete strong { color: var(--texto); font-weight: 600; }
-.te-nota { margin: 8px 0 0; font: 500 12.5px/1.5 var(--mono); color: var(--tenue); }
+.te-nota { margin: 8px auto 0; max-width: 62ch; font: 500 13px/1.5 var(--mono); color: var(--tenue); text-wrap: pretty; }
 .invitacion { margin: 26px 0 0; font: 500 13px/1.5 var(--mono); color: var(--tenue); }
 
 /* ═══════════════════════ el pie ═══════════════════════ */
@@ -770,6 +772,9 @@ main, .pie { position: relative; z-index: 1; }
   .descargar-caja { padding: 26px 18px; }
   .pie { flex-direction: column; align-items: flex-start; }
   .carga-cifra { font-size: 56px; }
+  /* a una columna, las doce tarjetas miden unos 4400px (medido a 390px): el alto estimado
+     de content-visibility tiene que parecerse, o la barra de desplazamiento salta */
+  .todo { contain-intrinsic-size: auto 4400px; }
 }
 
 /* ═══════════════════════ menos movimiento ═══════════════════════ */
@@ -778,12 +783,17 @@ main, .pie { position: relative; z-index: 1; }
 .quieto .carga, .quieto .apertura { display: none; }
 .quieto .marca span { opacity: 1; background-size: 100% 100%, 100% 100%; }
 .quieto .llega, .quieto .entra, .quieto .cabecera > * { opacity: 1 !important; translate: none !important; }
+.quieto .bajar { translate: -50% 0 !important; }   /* el «bajá» se centra con left: 50% + translate: sigue centrado */
 .quieto .pal > span { transform: none; }
 .quieto .profundidad, .quieto .tj-cuadro { transform: none !important; }
 .quieto .pf-frente { opacity: 1 !important; transform: none !important; }
 .quieto .dc-clases li { opacity: 1; translate: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  /* la preferencia se respeta desde el CSS, sin esperar al JS (y aunque no llegue a correr):
+     nada se anima ni transiciona. pagina.js pone «animada» sólo si el alumno eligió
+     «Ver con animaciones» a pesar de la preferencia del sistema. */
+  :root:not(.animada) *, :root:not(.animada) *::before, :root:not(.animada) *::after { animation: none !important; transition: none !important; }
 }
 
 /* ═══════════════════════ las páginas legales ═══════════════════════ */

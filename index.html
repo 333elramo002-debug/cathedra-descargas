@@ -24,6 +24,18 @@
 <link rel="apple-touch-icon" href="imagenes/icono-180.png">
 <link rel="preload" href="fuentes/IBMPlexSansCondensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos.css">
+<noscript><style>
+  /* sin JS: la página ya puesta y quieta (la carga no se abre sola; el fondo es la imagen quieta) */
+  .carga, .apertura, .escena canvas, .cab-sonido, [data-quieto] { display: none !important; }
+  .escena-quieta { opacity: 1; background-image: url(imagenes/nave-quieta.webp); }
+  @media (orientation: portrait) { .escena-quieta { background-image: url(imagenes/nave-quieta-vertical.webp); background-position: center top; } }
+  @media (prefers-color-scheme: light) { :root:not([data-tema="oscuro"]) .escena-quieta { background-image: url(imagenes/nave-quieta-claro.webp); } }
+  @media (orientation: portrait) and (prefers-color-scheme: light) { :root:not([data-tema="oscuro"]) .escena-quieta { background-image: url(imagenes/nave-quieta-vertical-claro.webp); } }
+  .cabecera > *, .llega, .entra, .marca span { opacity: 1 !important; translate: none !important; }
+  .bajar { translate: -50% 0 !important; }
+  .marca span { background-size: 100% 100%, 100% 100%; }
+  .bajar i, .marcado { animation: none !important; }
+</style></noscript>
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -73,7 +85,7 @@
       <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
       <p class="lema"><span class="palabras">Estudiá desde lo que dijo el profesor.</span></p>
       <div class="portada-acciones llega">
-      <a class="boton-descarga" data-descarga href="#descargar">
+      <a class="boton-descarga" href="#descargar">
         <span class="bd-punto" aria-hidden="true"></span>
         <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
         <span class="bd-texto">Descargar para Windows</span>
@@ -278,10 +290,11 @@
         <div><dt>La primera vez</dt><dd>Desde Ajustes › Módulos bajás la transcripción una sola vez y te muestra cuánto falta. Después, ya podés subir tus clases.</dd></div>
       </dl>
 
-      <div class="tu-equipo" id="tu-equipo" hidden aria-live="polite">
+      <!-- tu computadora: lo completa pagina.js (sólo en Windows) con una estimación; queda oculto si no hay JS -->
+      <div class="tu-equipo" id="tu-equipo" hidden>
         <p class="rotulo">Tu computadora</p>
         <p class="te-paquete"><strong id="te-nombre"></strong> <span id="te-lema"></span></p>
-        <p class="te-nota">Es una estimación con lo que el navegador deja ver. Al instalar, Cathedra mide la tuya de verdad y te propone el paquete justo.</p>
+        <p class="te-nota">Es una estimación con lo que el navegador deja ver. Al instalar, Cathedra mide tu computadora de verdad y te propone el paquete justo.</p>
       </div>
 
       <div class="aviso" aria-labelledby="aviso-tit">

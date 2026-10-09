@@ -13,7 +13,7 @@ const MATERIA = {
   nombre: "Biología Celular", docente: "Dra. Laura Méndez", dias: "Martes 14:00–18:00",
   clases: [
     ["04/08", "clase", "La célula como unidad · Procariotas y eucariotas"],
-    ["11/08", "clase", "Membrana plasmática · Modelo de mosaico fluido"],
+    ["11/08", "clase", "Membrana plasmática · Mosaico fluido"],
     ["18/08", "clase", "Transporte a través de membrana · Ósmosis y difusión"],
     ["25/08", "clase", "Mitocondria · Respiración celular"],
     ["01/09", "clase", "Ciclo celular · Mitosis"],

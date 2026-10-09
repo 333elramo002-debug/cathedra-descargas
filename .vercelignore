@@ -1,0 +1,4 @@
+# lo que no se publica en el sitio (el chequeo de la página y lo que deja Python al correrlo)
+tests_pagina.py
+__pycache__
+.pytest_cache

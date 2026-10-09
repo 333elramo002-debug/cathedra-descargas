@@ -23,7 +23,9 @@ let quietoElegido = null;
 try { quietoElegido = localStorage.getItem("cathedra-quieto"); } catch (e) { quietoElegido = null; }
 const quieto = quietoElegido === "1" || /quieto/.test(location.search) ||
   (quietoElegido !== "0" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-if (quieto) raiz.classList.add("quieto");
+// «animada» le dice al CSS que el JS decidió animar (si el sistema pide menos movimiento, el CSS
+// solo ya frena todo; así la preferencia se respeta aunque este archivo no llegue a correr)
+raiz.classList.add(quieto ? "quieto" : "animada");
 // vistas para fabricar las imágenes de la página (la nave sola, la tarjeta para compartir)
 const vista = (location.search.match(/vista=(nave|compartir)/) || [])[1];
 if (vista) raiz.classList.add("vista-" + vista);
@@ -313,7 +315,32 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
 }
 
 /* ══════════════════════ los enlaces de la misma página ══════════════════════ */
-/* Se deslizan hasta la sección (sólo al tocarlos: el resto del desplazamiento es nativo). */
+/* Se deslizan hasta la sección (sólo al tocarlos: el resto del desplazamiento es nativo).
+   El viaje es propio y no el del navegador: el destino se vuelve a medir en cada cuadro, porque
+   mientras se llega las secciones lejanas se maquetan (content-visibility: auto, con un alto
+   estimado) y las demos se montan y crecen; con el desplazamiento suave nativo, que mide una sola
+   vez al salir, «Descargar» caía en las tarjetas en celular. Un gesto del alumno corta el viaje. */
+let viaje = 0;
+function deslizarHasta(destino) {
+  cancelAnimationFrame(viaje);
+  // la sección puede pedir aire arriba (scroll-margin-top: en las legales, para no quedar bajo la cabecera)
+  const aire = parseFloat(getComputedStyle(destino).scrollMarginTop) || 0;
+  const arriba = () => destino.getBoundingClientRect().top + window.scrollY - aire;
+  const desde = window.scrollY, salida = performance.now(), dura = quieto ? 0 : 900;
+  let asentando = 0;
+  const paso = (ahora) => {
+    const t = dura ? Math.min(1, (ahora - salida) / dura) : 1;
+    const meta = arriba();
+    if (t < 1) { window.scrollTo(0, desde + (meta - desde) * curva(t)); viaje = requestAnimationFrame(paso); return; }
+    // al llegar, unos cuadros más midiendo: lo que se maqueta recién al acercarse corre el destino
+    // en ese mismo cuadro, y ahí el anclaje del navegador no lo compensa
+    if (Math.abs(window.scrollY - meta) > 1) window.scrollTo(0, meta);
+    if (asentando++ < 10) viaje = requestAnimationFrame(paso);
+  };
+  if (!dura) window.scrollTo(0, arriba());
+  viaje = requestAnimationFrame(paso);
+}
+["wheel", "touchstart", "keydown"].forEach((ev) => window.addEventListener(ev, () => cancelAnimationFrame(viaje), { passive: true }));
 document.querySelectorAll('a[href^="#"]').forEach((a) => {
   const id = a.getAttribute("href").slice(1);
   if (!id) return;
@@ -321,8 +348,11 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
     const destino = document.getElementById(id);
     if (!destino) return;
     e.preventDefault();
-    destino.scrollIntoView({ behavior: quieto ? "auto" : "smooth", block: "start" });
+    deslizarHasta(destino);
     history.replaceState(null, "", "#" + id);
+    // como el salto nativo: el foco (y el Tab siguiente) siguen desde la sección; vale para «Saltar al contenido»
+    if (!destino.hasAttribute("tabindex")) destino.setAttribute("tabindex", "-1");
+    destino.focus({ preventScroll: true });
   });
 });
 
@@ -543,7 +573,7 @@ if (visor && typeof visor.showModal === "function") {
    el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
    son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
 const PAQUETES = {
-  liviano: { nombre: "Liviano", lema: "Todo anda por conexión y casi no ocupa lugar." },
+  liviano: { nombre: "Liviano", lema: "Todo anda por conexión; casi no ocupa lugar." },
   local_4b: { nombre: "Local", lema: "Preguntas y voz también sin conexión." }
 };
 function estimarPaquete() {
@@ -563,7 +593,8 @@ function estimarPaquete() {
   const caja = document.getElementById("tu-equipo");
   if (!caja || /Windows/.test(navigator.userAgent) === false) return;
   const p = PAQUETES[estimarPaquete()];
-  document.getElementById("te-nombre").textContent = "Te conviene «" + p.nombre + "».";
+  // la misma frase que la tarjeta de Ajustes › Módulos de la app (paquetes.json › textos › titulo)
+  document.getElementById("te-nombre").textContent = "Te recomendamos el paquete «" + p.nombre + "».";
   document.getElementById("te-lema").textContent = p.lema;
   caja.hidden = false;
 })();
