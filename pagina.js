@@ -280,7 +280,8 @@ PAGINA.nave = async (iniciar) => {
   }
 };
 // si el módulo no llega (navegador viejo, archivo abierto sin servidor), la imagen quieta
-if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, 20000);
+// (en los modos de captura y medición, que pueden correr por software, se espera más)
+if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, /saltar|medir/.test(location.search) ? 120000 : 20000);
 
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
 /* El marco se inclina hacia el puntero (hasta 6°); en las tarjetas, además, la pieza de
@@ -479,6 +480,7 @@ if (cortina && !quieto) {
     raiz.style.setProperty("--cx", e.clientX ? e.clientX + "px" : "50%");
     raiz.style.setProperty("--cy", e.clientY ? e.clientY + "px" : "50%");
     raiz.classList.add("saliendo");
+    if (window.CATHEDRA_PAGINA && window.CATHEDRA_PAGINA.pausar) window.CATHEDRA_PAGINA.pausar();
     try { sessionStorage.setItem("cathedra-cortina", "1"); } catch (err) { /* nada */ }
     setTimeout(() => { location.href = a.href; }, 720);
   });
@@ -511,7 +513,26 @@ const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
   const textoVisor = visor.querySelector(".visor-texto");
-  const abrirVisor = (src, alt, titulo, texto) => {
+  /* La imagen tocada SE TRANSFORMA en la pantalla grande (FLIP): sale de su lugar, con su escala,
+     y llega con un resorte de segundo orden (amortiguación 0,9, unos 760 ms); al cerrar hace el
+     camino inverso hasta su lugar. Mientras se mueve no toma otros toques, salvo cerrar, que la
+     da vuelta desde donde esté. */
+  const resorte = (() => {
+    const z = 0.9, dur = 0.76, w = 4.6 / (z * dur), wd = w * Math.sqrt(1 - z * z), pts = [];
+    for (let k = 0; k <= 48; k++) {
+      const t = (k / 48) * dur;
+      pts.push((1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t))).toFixed(4));
+    }
+    pts[48] = "1";
+    return CSS.supports && CSS.supports("animation-timing-function", "linear(0, 1)") ? `linear(${pts.join(", ")})` : "cubic-bezier(.22, .68, 0, 1)";
+  })();
+  let origen = null, animacion = null;
+  const transformDesde = (el) => {
+    const o = el.getBoundingClientRect(), f = visor.getBoundingClientRect();
+    return `translate(${o.left - f.left}px, ${o.top - f.top}px) scale(${o.width / f.width}, ${o.height / f.height})`;
+  };
+  const abrirVisor = (src, alt, titulo, texto, desde) => {
+    if (animacion) return;                                   // bloqueo: una a la vez
     imgVisor.src = src; imgVisor.alt = alt || "";
     visor.classList.toggle("con-texto", !!texto);
     textoVisor.hidden = !texto;
@@ -519,22 +540,40 @@ if (visor && typeof visor.showModal === "function") {
     if (texto) {
       const b = document.createElement("b"); b.textContent = titulo || ""; textoVisor.append(b, document.createTextNode(texto));
     }
+    origen = desde || null;
+    visor.classList.toggle("flip", !!origen && !quieto);
     visor.showModal();
+    if (!origen || quieto || !visor.animate) return;
+    visor.style.transformOrigin = "0 0";
+    animacion = visor.animate([{ transform: transformDesde(origen), borderRadius: "14px" }, { transform: "none", borderRadius: "14px" }],
+      { duration: 760, easing: resorte, fill: "both" });
+    if (texto) textoVisor.animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: 380, easing: "cubic-bezier(.22,.68,0,1)", fill: "both" });
+    animacion.onfinish = () => { animacion.cancel(); animacion = null; };
   };
+  const cerrarVisor = () => {
+    if (!visor.open) return;
+    if (!origen || quieto || !visor.animate) { visor.close(); return; }
+    if (animacion) { animacion.reverse(); animacion.onfinish = () => { animacion = null; visor.close(); }; return; }   // interrumpible
+    animacion = visor.animate([{ transform: "none" }, { transform: transformDesde(origen) }], { duration: 620, easing: resorte, fill: "both" });
+    animacion.onfinish = () => { visor.close(); animacion.cancel(); animacion = null; };
+    setTimeout(() => { if (visor.open && animacion) { animacion.cancel(); animacion = null; visor.close(); } }, 900);   // por si el cuadro se atrasa
+  };
+  // Escape cierra en el acto (el teclado no espera una animación); el toque y el botón hacen la vuelta
+  visor.addEventListener("cancel", () => { if (animacion) { animacion.cancel(); animacion = null; } });
   document.querySelectorAll("[data-ampliar]").forEach((b) => {
     b.addEventListener("click", () => {
       const img = b.closest(".profundidad").querySelector(".pf-fondo");
-      abrirVisor(b.dataset.ampliar || img.currentSrc || img.src, img.alt);
+      abrirVisor(b.dataset.ampliar || img.currentSrc || img.src, img.alt, "", "", img);
     });
   });
   // las tarjetas crecen hasta pantalla completa, con lo que hace esa pantalla
   document.querySelectorAll(".tarjeta").forEach((t) => {
     t.addEventListener("click", () => {
       const titulo = t.querySelector("b").textContent;
-      abrirVisor(t.dataset.grande, "La pantalla de Cathedra: " + titulo, titulo, t.dataset.texto);
+      abrirVisor(t.dataset.grande, "La pantalla de Cathedra: " + titulo, titulo, t.dataset.texto, t.querySelector(".tj-cuadro"));
     });
   });
-  visor.addEventListener("click", (e) => { if (e.target === visor || e.target.closest("[data-cerrar]")) visor.close(); });
+  visor.addEventListener("click", (e) => { if (e.target === visor || e.target.closest("[data-cerrar]")) cerrarVisor(); });
 } else {
   document.querySelectorAll("[data-ampliar]").forEach((b) => { b.hidden = true; });
 }

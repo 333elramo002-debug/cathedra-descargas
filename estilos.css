@@ -898,6 +898,9 @@ main, .pie { position: relative; z-index: 1; }
 }
 .visor::backdrop { background: color-mix(in srgb, var(--fondo) 82%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .visor[open] { animation: visorEntra .5s var(--curva); }
+.visor.flip[open] { animation: none; }   /* con la imagen que se transforma, sin el fundido */
+.visor::backdrop { animation: fondoEntra .45s var(--curva); }
+@keyframes fondoEntra { from { opacity: 0; } }
 @keyframes visorEntra { from { opacity: 0; transform: scale(.96); } }
 .visor img { display: block; width: 100%; height: auto; max-height: calc(94vh - 2px); object-fit: contain; }
 .visor.con-texto img { max-height: calc(94vh - 150px); }

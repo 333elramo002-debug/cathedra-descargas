@@ -18,7 +18,7 @@
    si un cuadro pasa 20 ms tres veces seguidas baja de nivel y lo recuerda; se detiene con la pestaña
    oculta; tope de 60 cuadros; libera todo al irse. */
 
-import * as T from "./lib/three-r186.8668290d9f.min.js";
+import * as T from "./lib/three-r186.1bb6664351.min.js";
 
 const PAGINA = window.CATHEDRA_PAGINA || (window.CATHEDRA_PAGINA = {});
 const avisar = (p) => PAGINA.cargando && PAGINA.cargando(p);
@@ -39,98 +39,24 @@ function azarCon(semilla) {
   let s = semilla * 9301 + 49297;
   return () => ((s = (s * 9301 + 49297) % 233280) / 233280);
 }
-/* el ónix: casi negro, nubes de tono y vetas en capas apenas más claras (frías) */
-function texturaOnix(semilla) {
-  const c = document.createElement("canvas"); c.width = c.height = 512;
-  const g = c.getContext("2d"); const azar = azarCon(semilla);
-  g.fillStyle = "#050506"; g.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 24; i++) {
-    const x = azar() * 512, y = azar() * 512, r = 45 + azar() * 130;
-    const gr = g.createRadialGradient(x, y, 0, x, y, r);
-    gr.addColorStop(0, `rgba(${14 + azar() * 6},${15 + azar() * 6},${17 + azar() * 6},.5)`); gr.addColorStop(1, "rgba(0,0,0,0)");
-    g.fillStyle = gr; g.fillRect(0, 0, 512, 512);
-  }
-  for (let i = 0; i < 7; i++) {
-    let x = -10, y = azar() * 512, ang = (azar() - 0.5) * 0.6;
-    g.beginPath(); g.moveTo(x, y);
-    for (let k = 0; k < 60; k++) { ang += (azar() - 0.5) * 0.18; x += Math.cos(ang) * 9; y += Math.sin(ang) * 9; g.lineTo(x, y); }
-    g.strokeStyle = `rgba(150,175,186,${0.05 + azar() * 0.09})`;
-    g.lineWidth = 0.6 + azar() * 2.6; g.stroke();
-  }
-  const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace; t.anisotropy = 4; return t;
-}
-/* ── los mapas de superficie, hechos en el arranque (nada se descarga) ──
-   Una altura en un lienzo → normales por diferencias (Sobel) y rugosidad. Tres familias:
-   micro-rayas para el ónix pulido, grano fino con poros para la cerámica, cepillado para el
-   titanio. Se hacen una vez y las comparten todas las piezas. */
+/* ── los mapas de superficie: fotos reales (ambientCG, CC0), nada dibujado ──
+   Mármol negro con vetas de calcita (Marble016) para el ónix, porcelana (Porcelain001) para el esmalte
+   de la cerámica y metal cepillado (Metal009) para el aluminio y el titanio. A 1K en alto y 512 en
+   liviano (scripts/blender/preparar_materiales.py); llegan después del primer dibujo y las comparten
+   todas las piezas. */
 let LADO = 512;
-function alturaDe(dibujar, semilla) {
-  const c = document.createElement("canvas"); c.width = c.height = LADO;
-  const g = c.getContext("2d"); dibujar(g, azarCon(semilla), LADO);
-  const d = g.getImageData(0, 0, LADO, LADO).data;
-  const h = new Float32Array(LADO * LADO);
-  for (let k = 0; k < h.length; k++) h[k] = d[k * 4] / 255;
-  return h;
-}
-function normalesDe(h, fuerza) {
-  const n = LADO, c = document.createElement("canvas"); c.width = c.height = n;
-  const g = c.getContext("2d"), img = g.createImageData(n, n), o = img.data;
-  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
-    const xa = (x + n - 1) % n, xb = (x + 1) % n, ya = ((y + n - 1) % n) * n, yb = ((y + 1) % n) * n, yc = y * n;
-    const dx = (h[ya + xb] + 2 * h[yc + xb] + h[yb + xb]) - (h[ya + xa] + 2 * h[yc + xa] + h[yb + xa]);
-    const dy = (h[yb + xa] + 2 * h[yb + x] + h[yb + xb]) - (h[ya + xa] + 2 * h[ya + x] + h[ya + xb]);
-    let nx = -dx * fuerza, ny = -dy * fuerza, nz = 1; const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
-    const k = (yc + x) * 4; o[k] = (nx * 0.5 + 0.5) * 255; o[k + 1] = (ny * 0.5 + 0.5) * 255; o[k + 2] = (nz * 0.5 + 0.5) * 255; o[k + 3] = 255;
-  }
-  g.putImageData(img, 0, 0);
-  return repetir(new T.CanvasTexture(c));
-}
-function rugosidadDe(h, base, amp) {
-  const n = LADO, c = document.createElement("canvas"); c.width = c.height = n;
-  const g = c.getContext("2d"), img = g.createImageData(n, n), o = img.data;
-  for (let k = 0; k < h.length; k++) { const v = Math.max(0, Math.min(255, (base + (h[k] - 0.5) * amp) * 255)); o[k * 4] = o[k * 4 + 1] = o[k * 4 + 2] = v; o[k * 4 + 3] = 255; }
-  g.putImageData(img, 0, 0);
-  return repetir(new T.CanvasTexture(c));
-}
-function repetir(t) { t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = 8; t.repeat.set(1.6, 1.6); return t; }
-const DIBUJOS = {
-  // ónix: casi liso, con micro-rayas finas en todas direcciones (de pulido y de uso)
-  rayas(g, azar, n) {
-    g.fillStyle = "#808080"; g.fillRect(0, 0, n, n);
-    for (let k = 0; k < 900; k++) {
-      const x = azar() * n, y = azar() * n, a = azar() * Math.PI, l = 6 + azar() * azar() * n * 0.22;
-      g.strokeStyle = `rgba(${azar() < 0.5 ? "255,255,255" : "0,0,0"},${0.05 + azar() * 0.16})`;
-      g.lineWidth = 0.4 + azar() * 0.9;
-      g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke();
-    }
-  },
-  // cerámica: grano fino y algún poro
-  grano(g, azar, n) {
-    const img = g.createImageData(n, n), o = img.data;
-    for (let k = 0; k < n * n; k++) { const v = 118 + (azar() + azar() + azar() - 1.5) * 34; o[k * 4] = o[k * 4 + 1] = o[k * 4 + 2] = v; o[k * 4 + 3] = 255; }
-    g.putImageData(img, 0, 0);
-    g.filter = "blur(1.4px)"; g.drawImage(g.canvas, 0, 0); g.filter = "none";
-    for (let k = 0; k < 420; k++) { const x = azar() * n, y = azar() * n, r = 1.2 + azar() * 2.8; g.fillStyle = `rgba(0,0,0,${0.25 + azar() * 0.4})`; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill(); }
-  },
-  // titanio: cepillado en una sola dirección (líneas largas y finas, de intensidad variable)
-  cepillado(g, azar, n) {
-    g.fillStyle = "#808080"; g.fillRect(0, 0, n, n);
-    for (let y = 0; y < n; y += 0.7) {
-      g.strokeStyle = `rgba(${azar() < 0.5 ? "255,255,255" : "0,0,0"},${0.04 + azar() * 0.12})`;
-      g.lineWidth = 0.5 + azar() * 0.8;
-      const x0 = azar() * n * 0.3 - n * 0.15;
-      g.beginPath(); g.moveTo(x0, y); g.lineTo(x0 + n * (0.6 + azar() * 0.7), y + (azar() - 0.5) * 0.6); g.stroke();
-    }
-  },
-};
 const MAPAS = {};
+function fotoDe(nombre, srgb, rep) {
+  const t = new T.TextureLoader().load(new URL(`./texturas/materiales/${LADO === 1024 ? "1k" : "512"}/${nombre}.webp`, import.meta.url).href);
+  t.wrapS = t.wrapT = T.RepeatWrapping; t.anisotropy = 8; t.repeat.set(rep, rep);
+  if (srgb) t.colorSpace = T.SRGBColorSpace;
+  return t;
+}
 function mapas() {
   if (MAPAS.listo) return MAPAS;
-  const ra = alturaDe(DIBUJOS.rayas, 3), gr = alturaDe(DIBUJOS.grano, 5), ce = alturaDe(DIBUJOS.cepillado, 7);
-  MAPAS.rayasN = normalesDe(ra, 2.2); MAPAS.rayasR = rugosidadDe(ra, 0.5, 0.5);
-  MAPAS.granoN = normalesDe(gr, 2.2); MAPAS.granoR = rugosidadDe(gr, 0.62, 0.4);
-  MAPAS.granoN.repeat.set(0.7, 0.7); MAPAS.granoR.repeat.set(0.7, 0.7);
-  MAPAS.cepilladoN = normalesDe(ce, 1.6); MAPAS.cepilladoR = rugosidadDe(ce, 0.42, 0.45);
+  MAPAS.onixC = fotoDe("marble016_color", true, 1.2); MAPAS.onixN = fotoDe("marble016_normalgl", false, 1.2); MAPAS.onixR = fotoDe("marble016_roughness", false, 1.2);
+  MAPAS.porcelanaN = fotoDe("porcelain001_normalgl", false, 0.8); MAPAS.porcelanaR = fotoDe("porcelain001_roughness", false, 0.8);
+  MAPAS.cepilladoN = fotoDe("metal009_normalgl", false, 1.6); MAPAS.cepilladoR = fotoDe("metal009_roughness", false, 1.6);
   MAPAS.listo = true;
   return MAPAS;
 }
@@ -151,16 +77,17 @@ function conDetalle(mat) {
 function materialOnix(i) {
   // pulido sin barniz (la capa cortaba el dibujo en placas modestas): el pulido sale de la rugosidad baja y las micro-rayas
   const M = mapas();
+  // la foto del mármol, oscurecida al Onyx (las vetas quedan): rugosidad de la foto bajada a pulido
   return new T.MeshPhysicalMaterial({
-    color: 0xffffff, map: texturaOnix(i + 1),
-    normalMap: M.rayasN, normalScale: new T.Vector2(0.5, 0.5), roughnessMap: M.rayasR,
-    roughness: 0.22 + (i % 3) * 0.05, metalness: 0, specularIntensity: 1, ior: 1.6,
+    color: new T.Color(0.32, 0.32, 0.34), map: M.onixC,
+    normalMap: M.onixN, normalScale: new T.Vector2(0.25, 0.25), roughnessMap: M.onixR,
+    roughness: 0.32 + (i % 3) * 0.04, metalness: 0, specularIntensity: 1, ior: 1.57,
   });
 }
 function materialCromoNegro() {
   const M = mapas();
   return new T.MeshPhysicalMaterial({ color: 0x0a0b0c, metalness: 1, roughness: 0.34, envMapIntensity: 0.7,
-    normalMap: M.rayasN, normalScale: new T.Vector2(0.1, 0.1), roughnessMap: M.rayasR });
+    normalMap: M.cepilladoN, normalScale: new T.Vector2(0.3, 0.3), roughnessMap: M.cepilladoR });
 }
 /* Candy Blue en la materia, no sólo en la luz: cerámica mate con capa de esmalte fina (poro y grano
    en las normales) y titanio anodizado cepillado (reflejo estirado en una dirección) */
@@ -168,14 +95,14 @@ function materialCromoNegro() {
 const CANDY_MATERIA = new T.Color().setHSL(0.552, 0.38, 0.66, T.SRGBColorSpace);
 function materialCeramicaCandy() {
   const M = mapas();
-  return new T.MeshPhysicalMaterial({ color: CANDY_MATERIA, normalMap: M.granoN, normalScale: new T.Vector2(0.9, 0.9),
-    roughnessMap: M.granoR, roughness: 0.7, metalness: 0, specularIntensity: 0.55,
-    ...(/apagar=[^&]*barniz/.test(location.search) ? {} : { clearcoat: 0.45, clearcoatRoughness: 0.32 }) });
+  return new T.MeshPhysicalMaterial({ color: CANDY_MATERIA, normalMap: M.porcelanaN, normalScale: new T.Vector2(0.5, 0.5),
+    roughnessMap: M.porcelanaR, roughness: 0.9, metalness: 0, specularIntensity: 0.55,
+    ...(/apagar=[^&]*barniz/.test(location.search) ? {} : { clearcoat: 1, clearcoatRoughness: 0.06, clearcoatNormalMap: M.porcelanaN, clearcoatNormalScale: new T.Vector2(0.35, 0.35) }) });
 }
 function materialAnodizado() {
   const M = mapas();
   return new T.MeshPhysicalMaterial({ color: new T.Color().setHSL(0.552, 0.4, 0.66, T.SRGBColorSpace), metalness: 1, roughness: 0.32,
-    envMapIntensity: 1.0, normalMap: M.cepilladoN, normalScale: new T.Vector2(0.6, 0.6), roughnessMap: M.cepilladoR,
+    envMapIntensity: 1.0, normalMap: M.cepilladoN, normalScale: new T.Vector2(0.5, 0.5), roughnessMap: M.cepilladoR,
     ...(/apagar=[^&]*cepillo/.test(location.search) ? {} : { anisotropy: 0.75, anisotropyRotation: 0 }) });
 }
 /* la marca de luz grabada en la clave: la clase y el minuto, Candy, que brilla desde adentro */
@@ -499,18 +426,18 @@ function ventana() {
 // lo que no se dice en un estado vale lo de acá: luz clave normal desde la izquierda, cámara en su lugar
 const LUZ_BLANCA = new T.Color(0xd8e9f0), LUZ_CANDY = new T.Color(CANDY);
 const BASE = { abre: 0, clave: 0, orden: 1, latido: 0, tinta: 1, haz: 1, campo: 0, papel: 0, ventana: 0,
-  expo: 1, luz: 1, luzX: -4.5, temp: 0, cx: 0, cy: 0, cz: 0, cerca: 1, lejos: 0.25 };
+  expo: 1, luz: 1, luzX: -4.5, luzY: 5.5, temp: 0, cx: 0, cy: 0, cz: 0, cerca: 1, lejos: 0.25, racimo: 0 };
 const ESTADOS = [
   // 0 portada: la C a la derecha, bruma + haz + hilos entrando ordenados
-  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95, lejos: 1 },
+  { p: [1.75, 0.3, 0], g: [0.16, -0.58, 0.04], e: 0.95, lejos: 1, racimo: 1, haz: 0.35, tinta: 0.3 },   // V6: menos velo (el haz y la niebla aplanaban el contraste)
   // 1 el cronograma: la C chica arriba; al fondo, el calendario de dovelas (los días de clase en Candy); luz desde la derecha
   { p: [4.8, 3.0, -10.5], g: [0.4, -0.9, 0.1], e: 0.9, orden: 0.6, tinta: 0.2, haz: 0.12, campo: 1, luz: 0.85, luzX: 4.5, temp: 0.3, cx: -0.6, cy: 0.3, expo: 0.95 },
   // 2 grabar: la voz es la protagonista: el haz y las motas, los hilos llegan dispersos; la C se aleja arriba
-  { p: [-4.4, 3.3, -11.5], g: [0.5, 0.4, 0.1], e: 0.9, abre: 0.04, orden: 0.15, tinta: 0.3, haz: 1.7, luzX: -2, cx: 0.5, cy: -0.2, expo: 1.0 },
+  { p: [0.9, 3.1, -11.5], g: [0.5, 0.4, 0.1], e: 0.9, abre: 0.04, orden: 0.15, tinta: 0.3, haz: 1.7, luzX: -2, cx: 0.5, cy: -0.2, expo: 1.0 },
   // 3 leer: la clave tallada sale; al fondo, el papel negro donde la tinta se vuelve renglones
-  { p: [5.0, 3.7, -13.0], g: [0.6, -0.5, -0.1], e: 0.9, abre: 0.3, clave: 1, orden: 0.5, tinta: 0.35, haz: 0.12, papel: 1, luz: 0.9, luzX: -5.5, temp: 0.6, cx: -0.4, cz: -0.6 },
+  { p: [5.0, 3.7, -13.0], g: [0.6, -0.5, -0.1], e: 0.9, abre: 0.3, clave: 1, orden: 0.5, tinta: 0.35, haz: 0.12, papel: 0, luz: 0.9, luzX: -5.5, temp: 0.6, cx: -0.4, cz: -0.6 },
   // 4 preguntar: el hilo late; luz desde la derecha, más fría
-  { p: [-4.2, 2.4, -8.5], g: [0.35, 0.8, 0.15], e: 1.05, abre: 0.08, orden: 0.8, latido: 1, tinta: 0.6, haz: 0.25, luzX: 3, temp: 0.2, cx: 0.5, cy: 0.2 },
+  { p: [1.2, 2.3, -8.5], g: [0.35, 0.8, 0.15], e: 1.05, abre: 0.08, orden: 0.8, latido: 1, tinta: 0.6, haz: 0.25, luzX: 3, temp: 0.2, cx: 0.5, cy: 0.2 },
   // 5 simulacro: las dovelas se reagrupan en la C, grande y lejos, detrás de la pantalla
   { p: [5.4, 2.2, -9.5], g: [0.15, -0.6, 0.0], e: 1.5, abre: 0.45, tinta: 0.3, haz: 0.6, luz: 1.1, luzX: -3, cx: -0.3 },
   // 6 repasar y «hoy»: la C abierta se va arriba; la clave afuera; luz cálida dentro del Candy
@@ -591,7 +518,8 @@ export async function iniciar(lienzo, opciones = {}) {
     escena.background.set(pal.fondo);
     // una niebla mínima y neutra, del color del fondo: sólo separa los planos (no es bruma de color)
     if (!escena.fog) escena.fog = new T.FogExp2(pal.fondo, 0.02); else escena.fog.color.set(pal.fondo);
-    renderer.toneMapping = pal.sinTono ? 0 : T.ACESFilmicToneMapping;   // 0 = NoToneMapping
+    // el mismo tono que el render de Cycles (Khronos PBR Neutral: respeta el Candy; ACES lo agrisaba). 0 = sin tono, 7 = Neutral
+    renderer.toneMapping = pal.sinTono ? 0 : /tono=aces/.test(location.search) ? T.ACESFilmicToneMapping : 7;
   };
   ponerFondo();
   const pmrem = new T.PMREMGenerator(renderer);
@@ -603,7 +531,18 @@ export async function iniciar(lienzo, opciones = {}) {
 
   const nivelInicial = forzarBaja ? 0 : 2;
   LADO = nivelInicial > 0 ? 1024 : 512;   // los mapas de superficie: 1024 en alto, 512 en liviano
-  mapas(); await respiro();
+  mapas();
+  /* El entorno de los reflejos es el mismo HDRI fotografiado del render de Cycles (Poly Haven
+     studio_kontrast_02, CC0, a EXR de 16 bits): las caras pulidas reflejan las mismas cajas de luz que en
+     la foto objetivo. La escena de Blender usa Y arriba y su HDRI Z arriba: se gira -90° en X para que
+     coincidan. Hasta que llega, queda el estudio armado acá. (?estudio=codigo lo deja en el de código) */
+  let entornoFoto = null;
+  if (nivelInicial > 0 && !/estudio=codigo/.test(location.search)) {   // en liviano, el de código (armar el entorno de la foto cuesta)
+    new T.EXRLoader().loadAsync(new URL(`./texturas/entorno/estudio_1024.exr`, import.meta.url).href).then((hdr) => {
+      entornoFoto = pmrem.fromEquirectangular(hdr).texture; hdr.dispose();
+      escena.environment = entornoFoto; escena.environmentRotation.set(-Math.PI / 2, 0, 0);
+    }).catch(() => { /* queda el estudio de código */ });
+  }
 
   /* la C */
   const grupo = new T.Group();
@@ -620,6 +559,64 @@ export async function iniciar(lienzo, opciones = {}) {
   grupo.add(laClave);
   escena.add(grupo);
   avisar(0.45);
+  /* La C modelada y horneada en Blender (scripts/blender/escena_c.py): biseles reales con normales
+     ponderadas, UV por pieza y, por pieza, el color, la rugosidad, las normales y la oclusión
+     horneados a 1K (512 en liviano). Llega después del primer dibujo y reemplaza a la C armada acá;
+     si no llega, queda la de acá. 70/30: tres de ónix, una de cerámica esmaltada Candy, una de
+     aluminio anodizado negro cepillado; la clave en cerámica Candy. */
+  const MATERIA_HORNEADA = ["ceramica", "onix", "onix", "aluminio", "onix"];
+  async function cargarCHorneada() {
+    const lado = nivelInicial > 0 ? "1k" : "512";
+    const draco = new T.DRACOLoader(); draco.setDecoderPath(new URL("./lib/draco/", import.meta.url).href);
+    const cargador = new T.GLTFLoader(); cargador.setDRACOLoader(draco);
+    const gltf = await cargador.loadAsync(new URL("./modelos/c.glb", import.meta.url).href);
+    const tl = new T.TextureLoader();
+    const tex = (nombre, srgb) => tl.loadAsync(new URL(`./texturas/${lado}/${nombre}.webp`, import.meta.url).href).then((t) => {
+      t.flipY = false; if (srgb) t.colorSpace = T.SRGBColorSpace; t.anisotropy = 8; return t;
+    });
+    const piezas = [...dovelas.map((d, i) => [d, `dovela_${i}`, MATERIA_HORNEADA[i]]), [laClave, "clave", "ceramica"]];
+    for (const [malla, nombre, tipo] of piezas) {
+      const nodo = gltf.scene.getObjectByName(nombre);
+      if (!nodo || !nodo.geometry) continue;
+      const [color, rug, normal, ao] = await Promise.all([tex(`${nombre}_color`, true), tex(`${nombre}_rug`), tex(`${nombre}_normal`), tex(`${nombre}_ao`)]);
+      const base = { map: color, roughnessMap: rug, roughness: 1, normalMap: normal, normalScale: new T.Vector2(1, 1), aoMap: ao, aoMapIntensity: 1 };
+      const mat = tipo === "onix" ? new T.MeshPhysicalMaterial({ ...base, metalness: 0, ior: 1.57, specularIntensity: 1 })
+        : tipo === "aluminio" ? new T.MeshPhysicalMaterial({ ...base, metalness: 1, envMapIntensity: 1.1, anisotropy: 0.85 })
+        : new T.MeshPhysicalMaterial({ ...base, metalness: 0, clearcoat: 1, clearcoatRoughness: 0.05, specularIntensity: 0.6, envMapIntensity: 1.3,
+          clearcoatNormalMap: mapas().porcelanaN, clearcoatNormalScale: new T.Vector2(0.3, 0.3) });   // el esmalte con el relieve de la porcelana fotografiada
+      const viejo = malla.geometry, viejoMat = malla.material;
+      malla.geometry = nodo.geometry; malla.material = mat;
+      viejo.dispose(); if (viejoMat.dispose) viejoMat.dispose();
+      await respiro();
+    }
+    draco.dispose();
+    armarRacimo(piezas.slice(0, 5).map(([m]) => m));
+    PAGINA.cHorneada = true;
+  }
+  /* La composición de la portada (vuelta 4): como en la referencia, el cuadro no tiene un objeto solo sino
+     un racimo de piezas a distintas distancias, unas apoyadas contra la C, una adelante fuera de foco y otras
+     cortadas por el borde, que se hacen sombra entre sí. Son copias de las dovelas horneadas (comparten malla
+     y material: no se descarga nada más). 70/30: tres de ónix, dos de cerámica Candy, dos de aluminio. */
+  const racimo = new T.Group(); racimo.visible = false; escena.add(racimo);
+  const LUGARES = [
+    // [x, y, z del centro de la pieza, rot x, rot y, rot z, escala, de qué dovela (0 cerámica, 1/2/4 ónix, 3 aluminio)]
+    // V8: las tres primeras, apoyadas contra el canto de la C (antes flotaban al lado)
+    [2.72, -0.68, 0.05, 0.3, 0.7, 2.4, 0.85, 1], [2.68, 1.08, -0.3, 0.9, 0.4, 0.6, 0.75, 0], [0.95, -0.6, -0.28, 0.2, -0.5, 3.6, 0.6, 3],
+    [3.6, 0.3, -0.9, -0.4, 1.2, 0.3, 0.95, 2], [2.2, 1.55, 0.9, 0.8, -0.3, 4.1, 0.55, 4], [2.0, -1.55, -0.5, 1.3, 0.2, 1.1, 0.8, 0],
+    [3.9, -1.6, 0.7, 0.6, 0.9, 5.0, 1.1, 3], [3.7, 1.9, 0.4, 1.1, -0.6, 2.0, 0.9, 1],
+  ];
+  function armarRacimo(fuentes) {
+    for (const [x, y, z, rx, ry, rz, e, k] of LUGARES) {
+      // la malla horneada está sobre el arco de la C: se centra dentro de un pivote para ubicar su centro
+      const geo = fuentes[k].geometry; if (!geo.boundingBox) geo.computeBoundingBox();
+      const pieza = new T.Mesh(geo, fuentes[k].material); pieza.position.copy(geo.boundingBox.getCenter(new T.Vector3())).negate();
+      pieza.castShadow = pieza.receiveShadow = true;
+      const m = new T.Group(); m.add(pieza);
+      m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.scale.setScalar(e);
+      m.userData.base = m.position.clone(); m.userData.rot = m.rotation.clone();
+      racimo.add(m);
+    }
+  }
   await respiro();
   // la clave, cuando sale, viene adelante con la cara grabada hacia la cámara
   const claveAfuera = { p: new T.Vector3(1.1, -0.72, 0.6), g: new T.Vector3(0.12, -0.72, 0.16), e: 1.55 };
@@ -654,6 +651,125 @@ export async function iniciar(lienzo, opciones = {}) {
   onixEstante.envMapIntensity = 0.35; titanioEstante.envMapIntensity = 0.3; titanioEstante.color.multiplyScalar(0.55);   // las caras planas no espejan el softbox
   const elPapel = estante(onixEstante, titanioEstante); elPapel.position.set(2.6, -0.4, -6.0); elPapel.rotation.y = -0.75; elPapel.visible = false; escena.add(elPapel);
   const laVentana = ventana(); laVentana.position.set(-2.0, 0.6, -7.0); laVentana.visible = false; escena.add(laVentana);
+
+  /* Los objetos de estudio y tecnología, fotoescaneados (Poly Haven, CC0; scripts/blender/objetos_estudio.py):
+     uno por sección, en el hueco que deja el texto, con una animación que cuenta lo que hace esa parte.
+     Se piden cuando la sección está cerca (carga por etapas) y entran y salen con un resorte. El lugar
+     va en coordenadas de pantalla (a: apaisado, v: vertical) a una distancia d de la cámara. */
+  const OBJETOS = [
+    { s: [1], archivo: "clipboard", a: [-0.5, -0.38], v: [-0.55, 0.62], d: 5.2, tam: 1.1, giro: [1.0, 0.45, 0.15], tinte: 0x5c6168 },
+    // el micrófono de estudio (CC BY 4.0, acreditado en /creditos): en grabar y en preguntar por voz,
+    // sentado sobre el camino de los hilos, que entran por su cápsula
+    { s: [2, 4], archivo: "microfono", a: [-0.45, 0], v: [-0.5, 0.55], d: 5.0, tam: 1.25, giro: [0.05, 0.5, 0], enHilos: true },
+    { s: [3], archivo: "book_encyclopedia_set_01", a: [0.0, -0.5], v: [-0.5, 0.62], d: 5.4, tam: 0.85, giro: [0.12, -0.45, 0], tinte: 0x6f747a },
+    { s: [5], archivo: "stationery_supplies", a: [-0.5, -0.42], v: [-0.5, 0.62], d: 5.0, tam: 1.35, giro: [0.85, 0.4, 0] },
+    { s: [6], archivo: "desk_lamp_arm_01", a: [-0.5, -0.3], v: [0.52, 0.6], d: 5.4, tam: 1.55, giro: [0.1, -1.0, 0], candy: true },
+    { s: [7], archivo: "classic_laptop", a: [0.55, -0.45], v: [0.5, 0.62], d: 5.6, tam: 1.3, giro: [0.32, -0.6, 0], tinte: 0x3c4044 },
+  ];
+  const cargaObjetos = { cargador: null };
+  let etapaObjetos = false;   // los objetos se piden después de la C (primero lo que se ve al abrir)
+  const objetos = OBJETOS.map((o, i) => ({ ...o, i, grupo: null, pidiendo: false, k: new Resorte(0.5, 0.92, 0.2, 0), partes: [] }));
+  PAGINA.objetos = objetos;
+  function cargadorObjetos() {
+    if (cargaObjetos.cargador) return cargaObjetos.cargador;
+    const draco = new T.DRACOLoader(); draco.setDecoderPath(new URL("./lib/draco/", import.meta.url).href);
+    const c = new T.GLTFLoader(); c.setDRACOLoader(draco);
+    return (cargaObjetos.cargador = c);
+  }
+  async function pedirObjeto(o) {
+    o.pidiendo = true;
+    const gltf = await cargadorObjetos().loadAsync(new URL(`./modelos/${o.archivo}.glb`, import.meta.url).href);
+    const raiz = gltf.scene;
+    // a la medida: el lado mayor del objeto mide «tam» (el GLB ya viene con Y arriba)
+    const caja = new T.Box3().setFromObject(raiz), lado = caja.getSize(new T.Vector3());
+    const escala = o.tam / Math.max(lado.x, lado.y, lado.z);
+    raiz.scale.setScalar(escala);
+    const centro = new T.Box3().setFromObject(raiz).getCenter(new T.Vector3());
+    raiz.position.sub(centro);
+    raiz.traverse((m) => {
+      if (!m.isMesh) return;
+      m.castShadow = m.receiveShadow = true;
+      if (m.material.map) m.material.map.anisotropy = 8;
+      m.material.envMapIntensity = 0.9;
+      // 70/30: el plástico beige de la computadora pasa a grafito (la foto sigue dando el desgaste y el relieve)
+      if (o.tinte !== undefined) m.material.color.setHex(o.tinte);
+      // la lámpara, en aluminio anodizado Candy: se va el naranja de la foto, quedan su relieve y su rugosidad
+      if (o.candy) { m.material.map = null; m.material.color.copy(CANDY_MATERIA); m.material.metalness = 0.85; m.material.needsUpdate = true; }
+    });
+    const g = new T.Group(); g.add(raiz); g.visible = false; escena.add(g);
+    // las partes que se mueven: cada tomo, cada lápiz, la tapa de la computadora
+    raiz.traverse((m) => { if (m.isMesh && m !== raiz) o.partes.push({ m, base: m.position.clone(), rot: m.rotation.clone() }); });
+    if (o.archivo === "desk_lamp_arm_01") {
+      // la lámpara se prende: una luz cálida y chica en la pantalla (arriba del brazo)
+      const foco = new T.PointLight(0xfff1dc, 0, 3.2, 2); foco.position.set(0.3 * o.tam, 0.25 * o.tam, 0.1); g.add(foco); o.foco = foco;
+    }
+    o.grupo = g;
+  }
+  const ndc = new T.Vector3();
+  function ponerObjetos(t, s) {
+    camara.updateMatrixWorld();
+    const apaisado = ancho >= alto;
+    for (const o of objetos) {
+      const cerca = Math.min(...o.s.map((x) => Math.abs(s - x)));
+      const propia = o.s.reduce((m, x) => (Math.abs(s - x) < Math.abs(s - m) ? x : m), o.s[0]);
+      // en el nivel liviano, sólo la C: los objetos son para los equipos que la mueven con soltura
+      if (!o.pidiendo && cerca < 1.6 && etapaObjetos && nivel > 0) pedirObjeto(o).catch(() => { o.pidiendo = true; });
+      const objetivoK = cerca < 0.55 ? 1 : 0;
+      const k = saltar ? objetivoK : Math.min(Math.max(o.k.paso(dtObjetos, objetivoK), -0.2), 1.2);
+      if (saltar) o.k.fijar(objetivoK);
+      if (!o.grupo) continue;
+      o.grupo.visible = k > 0.01;
+      if (!o.grupo.visible) continue;
+      const [nx, ny] = apaisado ? o.a : o.v;
+      ndc.set(nx, ny, 0.5).unproject(camara).sub(camara.position).normalize();
+      const d = o.d * (apaisado ? 1 : 1.35);
+      // entra desde abajo y desde el costado, girando hacia la cámara; sale por arriba (scroll que sigue)
+      const lado = Math.sign(nx) || 1, sal = s > propia ? 1 : -1, f = 1 - Math.min(Math.max(k, 0), 1);
+      o.grupo.position.copy(camara.position).addScaledVector(ndc, d);
+      if (o.enHilos) sobreLosHilos(o, nx, apaisado);
+      o.grupo.position.x += lado * f * 1.1 + vaiven(t, 200 + o.i, 0.08) * 0.04;
+      o.grupo.position.y += sal * f * 1.6 + vaiven(t, 210 + o.i, 0.067) * 0.05;
+      o.grupo.rotation.set(o.giro[0] + f * 0.6 * sal + vaiven(t, 220 + o.i, 0.05) * 0.05,
+        o.giro[1] + f * 1.2 * lado + vaiven(t, 230 + o.i, 0.043) * 0.09, o.giro[2] + vaiven(t, 240 + o.i, 0.061) * 0.03);
+      o.grupo.scale.setScalar((apaisado ? 1 : 0.7) * (o.escalaHilos || 1));
+      animarObjeto(o, t, Math.min(Math.max(k, 0), 1));
+    }
+  }
+  /* el micrófono va sobre la curva de los hilos: se busca el punto de la curva que cae más cerca del
+     lugar pedido en pantalla (y dentro de ella); la cápsula queda sobre ese punto, a la escala que da
+     la misma medida aparente que a la distancia d */
+  const enCurva = new T.Vector3(), enPantalla = new T.Vector3();
+  function sobreLosHilos(o, nx, apaisado) {
+    hilos.updateMatrixWorld();
+    let mejor = Infinity, u0 = -1;
+    const cEnPantalla = grupo.position.clone().project(camara);
+    for (let k = 0; k <= 24; k++) {
+      const u = 0.1 + 0.85 * k / 24;
+      hilos.localToWorld(curva.getPoint(u, enCurva));
+      enPantalla.copy(enCurva).project(camara);
+      if (Math.abs(enPantalla.x) > 0.85 || Math.abs(enPantalla.y) > 0.8 || enPantalla.z > 1) continue;
+      if (Math.abs(enPantalla.x - cEnPantalla.x) < 0.4) continue;    // que no se encime con la C
+      const dist = Math.abs(enPantalla.x - nx);
+      if (dist < mejor) { mejor = dist; u0 = u; }
+    }
+    if (u0 < 0) { o.escalaHilos = 1; return; }    // la curva no se ve: queda en su lugar de pantalla
+    hilos.localToWorld(curva.getPoint(u0, enCurva));
+    o.escalaHilos = camara.position.distanceTo(enCurva) / (o.d * (apaisado ? 1 : 1.35));
+    o.grupo.position.copy(enCurva);
+    o.grupo.position.y -= o.tam * 0.28 * o.escalaHilos * (apaisado ? 1 : 0.7);   // la cápsula, no la base, sobre el hilo
+  }
+  /* lo que cuenta cada objeto: los tomos salen del estante de a uno (leer), los lápices salen del
+     vaso (el simulacro), la lámpara se prende con el latido de la pregunta */
+  function animarObjeto(o, t, k) {
+    const sub = (i, n) => Math.min(Math.max(k * (1 + n * 0.18) - i * 0.18, 0), 1);
+    if (o.archivo === "book_encyclopedia_set_01") {
+      o.partes.forEach((p, i) => { const e = sub(i % 8, 8); const salir = (i % 8 === 2 || i % 8 === 5) ? e * 0.08 : e * 0.012; p.m.position.copy(p.base); p.m.position.y -= salir; });
+    } else if (o.archivo === "stationery_supplies") {
+      o.partes.forEach((p, i) => { p.m.position.copy(p.base); if (/pencil_new|pen_fancy/.test(p.m.name)) p.m.position.z += sub(i, o.partes.length) * 0.05 + vaiven(t, 250 + i, 0.2) * 0.002; });
+    } else if (o.foco) {
+      o.foco.intensity = k * (2.4 + actual.latido * 1.4 * (0.5 + 0.5 * Math.sin(t * 2.1)));
+    }
+  }
 
   /* la luz: una clave suave, el borde Candy, relleno mínimo; las sombras con color (el entorno) */
   const luzClave = new T.SpotLight(0xd8e9f0, pal.clave, 0, 0.5, 0.95, 2);
@@ -914,6 +1030,7 @@ export async function iniciar(lienzo, opciones = {}) {
   }
   // el orden de los hilos al abrir: llegan dispersos y se ordenan en los primeros 3 segundos
   let ordenInicial = quieto || saltar ? 1 : 0;
+  let sObjetos = 0, dtObjetos = 1 / 60;
   function aplicar(t) {
     // cinco planos con parallax distinto al puntero y al scroll: tinta, haz, C, hilos, motas
     const desp = (scrollSuave / Math.max(window.innerHeight, 1));
@@ -925,6 +1042,16 @@ export async function iniciar(lienzo, opciones = {}) {
       m.rotation.set(m.userData.rot.x + vaiven(t, 80 + i, 0.05) * 0.12, m.userData.rot.y + vaiven(t, 90 + i, 0.043) * 0.12, m.userData.rot.z);
     });
     cercanos.scale.setScalar(Math.max(0.0001, actual.cerca));
+    // el racimo deriva despacio, cada pieza con su fase; entra y sale con su canal (sólo en la portada)
+    racimo.visible = actual.racimo > 0.01 && racimo.children.length > 0;
+    if (racimo.visible) {
+      racimo.children.forEach((m, i) => {
+        const b = m.userData.base, q = m.userData.rot, fuera = 1 - actual.racimo;
+        m.position.set(b.x + px * 0.1 * (1 + b.z * 0.3) + vaiven(t, 300 + i, 0.06) * 0.06 + fuera * (b.x - 1.75) * 2.5,
+          b.y - py * 0.06 + vaiven(t, 310 + i, 0.05) * 0.05 + fuera * (b.y - 0.3) * 2.5, b.z);
+        m.rotation.set(q.x + vaiven(t, 320 + i, 0.04) * 0.08, q.y + vaiven(t, 330 + i, 0.037) * 0.1, q.z);
+      });
+    }
     elHaz.position.set(actual.p.x * 0.6 + px * 0.12, 3.4 + actual.p.y * 0.4 - py * 0.06, -0.6 + actual.p.z * 0.4);
     lasMotas.position.set(elHaz.position.x + px * 0.1, 0.85 + actual.p.y * 0.4 - py * 0.1 - desp * 0.08, elHaz.position.z + 0.2);
     luzHaz.position.set(elHaz.position.x + 0.2, 7.5, 0.2 + actual.p.z * 0.4); luzHaz.target.position.copy(actual.p);
@@ -963,7 +1090,10 @@ export async function iniciar(lienzo, opciones = {}) {
     uh.uTiempo.value = t; uh.uLatido.value = actual.latido;
     // la niebla neutra, más o menos densa según la sección (nunca dos seguidas iguales)
     escena.fog.density = 0.014 + 0.014 * actual.tinta;
-    foco.uniforms.uFoco.value = camara.position.distanceTo(grupo.position);
+    // el foco va a la C, o al objeto de la sección cuando está (el objeto manda: es lo que se cuenta)
+    let focoObjeto = 0, kObjeto = 0;
+    for (const o of objetos) if (o.grupo && o.grupo.visible && o.k.y > kObjeto) { kObjeto = Math.min(o.k.y, 1); focoObjeto = camara.position.distanceTo(o.grupo.position); }
+    foco.uniforms.uFoco.value = T.MathUtils.lerp(camara.position.distanceTo(grupo.position), focoObjeto || 0, kObjeto);
     elHaz.material.uniforms.uT.value = t;
     elHaz.material.uniforms.uFuerza.value = actual.haz * pal.haz;
     lasMotas.material.opacity = 0.32 * actual.haz * pal.haz;
@@ -980,7 +1110,7 @@ export async function iniciar(lienzo, opciones = {}) {
     laVentana.visible = actual.ventana > 0.01;
     laVentana.material.uniforms.uV.value = actual.ventana; laVentana.material.uniforms.uT.value = t;
     // la luz de cada sección: dirección, intensidad y temperatura (siempre dentro del Candy)
-    luzClave.position.set(actual.luzX, 5.5, 5.2);
+    luzClave.position.set(actual.luzX, actual.luzY, 5.2);
     luzClave.intensity = pal.clave * actual.luz * (1 + vaiven(t, 50, 0.11) * 0.06);   // la luz respira
     luzClave.color.lerpColors(LUZ_BLANCA, LUZ_CANDY, Math.min(Math.max(actual.temp, 0), 1));
     renderer.toneMappingExposure = pal.exposicion * actual.expo;
@@ -988,6 +1118,7 @@ export async function iniciar(lienzo, opciones = {}) {
     // con un temblor de mano mínimo (la cámara la lleva alguien)
     camara.position.set(actual.cx + vaiven(t, 40, 0.7) * 0.01, 0.25 + actual.cy + vaiven(t, 41, 0.63) * 0.008, 7.2 + actual.cz);
     camara.lookAt(actual.cx * 0.4 + vaiven(t, 42, 0.5) * 0.006, 0.25 + actual.cy * 0.4 + vaiven(t, 43, 0.55) * 0.005, 0);
+    ponerObjetos(t, sObjetos);
     // el destello que recorre un canto
     if (eventos.destello >= 0) {
       const f = Math.min(1, (t - eventos.destello) / 1.4);
@@ -1023,9 +1154,10 @@ export async function iniciar(lienzo, opciones = {}) {
     intervalos.push(intervalo); if (intervalos.length > 240) intervalos.shift();
     PAGINA.medida = { cuadros, ms: sumaMs / cuadros, max: maxMs, nivel, ultimo: ms, intervalo: sumaIntervalo / cuadros,
       llamadas: renderer.info.render.calls, triangulos: renderer.info.render.triangles, intervalos };
-    // el nivel baja si el envío o el intervalo real pasa 20 ms (22 por el ritmo de la pantalla) tres veces seguidas
-    if (!forzarAlta && cuadros > 30 && (ms > 20 || intervalo > 22)) {
-      if (++lentos >= 3 && nivel > 0) {
+    // el nivel baja si el envío pasa 14 ms o el intervalo real 20 ms, dos veces
+    // más prudente desde la v5 (objetos, racimo, entorno de foto): baja antes en placas integradas
+    if (!forzarAlta && cuadros > 20 && (ms > 14 || intervalo > 20)) {
+      if (++lentos >= 2 && nivel > 0) {
         nivel--; lentos = 0; medir();
         try { localStorage.setItem("cathedra-nivel", String(nivel)); } catch (e) { /* sin almacenamiento */ }
       }
@@ -1036,6 +1168,7 @@ export async function iniciar(lienzo, opciones = {}) {
     pasarEventos(dt);
     if (ordenInicial < 1) ordenInicial = Math.min(1, ordenInicial + dt / 2.8);
     const sPos = posicionScroll();
+    sObjetos = sPos; dtObjetos = dt;
     estadoEn(sPos);
     const fr = sPos - Math.floor(sPos);
     enfoque.valor += ((saltar ? 0 : 4 * fr * (1 - fr)) - enfoque.valor) * (1 - Math.exp(-4 * dt));
@@ -1065,6 +1198,9 @@ export async function iniciar(lienzo, opciones = {}) {
   }
 
   document.addEventListener("visibilitychange", () => (document.hidden ? parar() : arrancar()));
+  // bajo la cortina de salida no se dibuja (el cambio de página no espera un cuadro); al volver con «atrás», sigue
+  PAGINA.pausar = parar;
+  window.addEventListener("pageshow", (e) => { if (e.persisted) arrancar(); });
   let esperaResize = 0;
   window.addEventListener("resize", () => {
     clearTimeout(esperaResize);
@@ -1090,7 +1226,7 @@ export async function iniciar(lienzo, opciones = {}) {
         o.material.dispose();
       }
     });
-    entorno.dispose(); pmrem.dispose(); texRastro.dispose(); renderer.dispose();
+    entorno.dispose(); if (entornoFoto) entornoFoto.dispose(); pmrem.dispose(); texRastro.dispose(); renderer.dispose();
   });
 
   const RESTA = 3;   // SubtractiveBlending de three (la biblioteca recortada no lo exporta)
@@ -1123,6 +1259,9 @@ export async function iniciar(lienzo, opciones = {}) {
   // compilar todo antes de mostrar (sin tirones en el primer movimiento)
   [campo, elPapel, laVentana, cercanos].forEach((o) => { o.visible = true; });   // compilar también lo que está escondido
   renderer.compile(escena, camara);
+  // la C horneada se pide recién ahora (lo crítico ya está); con ?procedural se queda la armada acá
+  if (!/procedural/.test(location.search)) setTimeout(() => { cargarCHorneada().catch(() => { /* queda la C de acá */ }).finally(() => { etapaObjetos = true; }); }, 300);
+  else etapaObjetos = true;
   [campo, elPapel, laVentana].forEach((o) => { o.visible = false; });
   cercanos.visible = nivel > 1;
   unCuadro();
