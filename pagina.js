@@ -83,16 +83,28 @@ if (quieto || !("IntersectionObserver" in window)) {
   revelables.forEach((el) => el.style.setProperty("--v", "1"));
 } else {
   const activos = new Set();
-  let pedido = 0;
-  const actualizar = () => {
+  let pedido = 0, antes = 0;
+  /* el scroll da el objetivo; cada elemento lo persigue con un resorte de segundo orden (amortiguación 0,9,
+     unos 2,2 Hz): entra y sale con peso, sin seguir la barra de desplazamiento al pie de la letra ni cortarse */
+  const resortes = new WeakMap();
+  const W = 2 * Math.PI * 2.2, Z = 0.9;
+  const actualizar = (ahora) => {
     pedido = 0;
+    const dt = antes ? Math.min((ahora - antes) / 1000, 1 / 30) : 1 / 60; antes = ahora;
     const vh = window.innerHeight;
+    let moviendo = false;
     activos.forEach((el) => {
       const r = el.getBoundingClientRect();
       const entra = el.dataset.rev === "salida" ? 1 : curva((vh - r.top) / (vh * 0.3));
       const sale = curva((r.bottom - vh * 0.04) / (vh * 0.26));
-      el.style.setProperty("--v", Math.min(entra, sale).toFixed(3));
+      const objetivo = Math.min(entra, sale);
+      let st = resortes.get(el);
+      if (!st) { st = { v: el.dataset.rev === "salida" ? 1 : 0, d: 0 }; resortes.set(el, st); }
+      st.d += (W * W * (objetivo - st.v) - 2 * Z * W * st.d) * dt; st.v += st.d * dt;
+      if (Math.abs(objetivo - st.v) < 0.001 && Math.abs(st.d) < 0.002) { st.v = objetivo; st.d = 0; } else moviendo = true;
+      el.style.setProperty("--v", Math.min(1, Math.max(0, st.v)).toFixed(3));
     });
+    if (moviendo) pedir(); else antes = 0;
   };
   const pedir = () => { if (!pedido) pedido = requestAnimationFrame(actualizar); };
   // se observa cada sección (no cada elemento: un título recortado por su máscara no «se ve» y no avisaría)

@@ -57,6 +57,7 @@ function mapas() {
   MAPAS.onixC = fotoDe("marble016_color", true, 1.2); MAPAS.onixN = fotoDe("marble016_normalgl", false, 1.2); MAPAS.onixR = fotoDe("marble016_roughness", false, 1.2);
   MAPAS.porcelanaN = fotoDe("porcelain001_normalgl", false, 0.8); MAPAS.porcelanaR = fotoDe("porcelain001_roughness", false, 0.8);
   MAPAS.cepilladoN = fotoDe("metal009_normalgl", false, 1.6); MAPAS.cepilladoR = fotoDe("metal009_roughness", false, 1.6);
+  MAPAS.arcillaC = fotoDe("clay004_color", true, 1.0); MAPAS.arcillaN = fotoDe("clay004_normalgl", false, 1.0); MAPAS.arcillaR = fotoDe("clay004_roughness", false, 1.0);
   MAPAS.listo = true;
   return MAPAS;
 }
@@ -83,6 +84,14 @@ function materialOnix(i) {
     normalMap: M.onixN, normalScale: new T.Vector2(0.25, 0.25), roughnessMap: M.onixR,
     roughness: 0.32 + (i % 3) * 0.04, metalness: 0, specularIntensity: 1, ior: 1.57,
   });
+}
+/* v6: arcilla fina mate (ambientCG Clay004, teñida a bizcocho cálido): rugosidad alta de la foto y un brillo de
+   borde muy leve (el polvo fino de la arcilla agarra la luz rasante) */
+function materialArcilla() {
+  const M = mapas();
+  return new T.MeshPhysicalMaterial({ color: new T.Color(0.86, 0.80, 0.74), map: M.arcillaC, normalMap: M.arcillaN,
+    normalScale: new T.Vector2(0.8, 0.8), roughnessMap: M.arcillaR, roughness: 1, metalness: 0,
+    sheen: 0.35, sheenRoughness: 0.8, sheenColor: new T.Color(0.95, 0.9, 0.85) });
 }
 function materialCromoNegro() {
   const M = mapas();
@@ -313,7 +322,7 @@ function estante(onix, candy) {
   const g = new T.Group(); g.add(mO, mC);
   const m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), v = new T.Vector3(), esc = new T.Vector3();
   g.userData.poner = (k) => {
-    [[mO, resto], [mC, deCandy]].forEach(([malla, ls]) => {
+    [[mO, resto], [mC, deCandy], [mA, deArcilla]].forEach(([malla, ls]) => {
       ls.forEach((l, i) => {
         const llega = Math.min(1, Math.max(0, k * 1.5 - l.demora * 0.5)), s = llega * llega * (3 - 2 * llega);
         v.set(l.x, (l.alto * 1.5) / 2 - 0.75 - (1 - s) * 2.2, 0); e.set(0, 0, l.inc * s); q.setFromEuler(e);
@@ -334,21 +343,22 @@ function piezaGeo() {
   geo.translate(-0.65, -0.33, -PROF / 2);
   return geo;
 }
-function campoLejano(onix, candy, cuantas) {
+function campoLejano(onix, candy, cuantas, arcilla) {
   const geo = piezaGeo(), azar = azarCon(123);
   const lista = [];
   for (let k = 0; k < cuantas; k++) lista.push({
     p: new T.Vector3((azar() - 0.5) * 40, (azar() - 0.5) * 20, -20 - azar() * 16),
     rot: new T.Vector3(azar() * 6.28, azar() * 6.28, azar() * 6.28),
     vel: new T.Vector3((azar() - 0.5) * 0.11, (azar() - 0.5) * 0.09, (azar() - 0.5) * 0.07),
-    esc: 1.1 + azar() * 1.3, semilla: k * 7.3, candy: k % 3 === 0,
+    esc: 1.1 + azar() * 1.3, semilla: k * 7.3, candy: k % 3 === 0, arcilla: !!arcilla && k % 3 === 1,
   });
-  const deCandy = lista.filter((l) => l.candy), resto = lista.filter((l) => !l.candy);
+  const deCandy = lista.filter((l) => l.candy), deArcilla = lista.filter((l) => l.arcilla), resto = lista.filter((l) => !l.candy && !l.arcilla);
   const mO = new T.InstancedMesh(geo, onix, resto.length), mC = new T.InstancedMesh(geo, candy, deCandy.length);
-  const g = new T.Group(); g.add(mO, mC);
+  const mA = new T.InstancedMesh(geo, arcilla || onix, Math.max(1, deArcilla.length));
+  const g = new T.Group(); g.add(mO, mC, mA);
   const m4 = new T.Matrix4(), q = new T.Quaternion(), e = new T.Euler(), v = new T.Vector3(), esc = new T.Vector3();
   g.userData.poner = (t, cuanto = 1) => {
-    [[mO, resto], [mC, deCandy]].forEach(([malla, ls]) => {
+    [[mO, resto], [mC, deCandy], [mA, deArcilla]].forEach(([malla, ls]) => {
       malla.count = Math.round(ls.length * Math.min(1, Math.max(0, cuanto)));
       ls.forEach((l, i) => {
         v.set(l.p.x + vaiven(t, l.semilla, 0.031) * 0.6, l.p.y + vaiven(t, l.semilla + 1, 0.027) * 0.5, l.p.z);
@@ -513,11 +523,45 @@ export async function iniciar(lienzo, opciones = {}) {
   renderer.shadowMap.type = T.PCFShadowMap;
 
   const escena = new T.Scene();
-  escena.background = new T.Color();
+  const fondoLiso = new T.Color();
+  /* v6 (el dueño: «más llamativa y viva»; el claro deja de ser secundario): en claro el fondo es un gradiente de
+     estudio, blanco cálido arriba a la izquierda que baja a Candy Blue, con un halo Candy detrás de la escultura.
+     En oscuro sigue el Onyx liso. */
+  let fondoClaro = null;
+  function gradienteClaro() {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 288;
+    const g = c.getContext("2d");
+    const lin = g.createLinearGradient(0, 0, 512, 288);
+    lin.addColorStop(0, "#fbf8f2"); lin.addColorStop(0.45, "#e9f3f7"); lin.addColorStop(1, "#c4e0ec");
+    g.fillStyle = lin; g.fillRect(0, 0, 512, 288);
+    const halo = g.createRadialGradient(360, 130, 10, 360, 130, 230);
+    halo.addColorStop(0, "rgba(178,213,229,.75)"); halo.addColorStop(1, "rgba(178,213,229,0)");
+    g.fillStyle = halo; g.fillRect(0, 0, 512, 288);
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+    return t;
+  }
+  /* v6 vuelta 3: el oscuro también con vida: Onyx hondo con halos Candy (uno detrás de la escultura, otro bajo a la
+     izquierda), como el halo del telón en los renders de Cycles. Sin velo gris: el centro del halo es Candy puro y suave. */
+  let fondoOscuro = null;
+  function gradienteOscuro() {
+    const c = document.createElement("canvas"); c.width = 512; c.height = 288;
+    const g = c.getContext("2d");
+    g.fillStyle = "#020304"; g.fillRect(0, 0, 512, 288);
+    for (const [x, y, r, a] of [[372, 120, 220, 0.2], [70, 260, 200, 0.09], [250, -20, 260, 0.06]]) {
+      const h = g.createRadialGradient(x, y, 4, x, y, r);
+      h.addColorStop(0, `rgba(178,213,229,${a})`); h.addColorStop(0.55, `rgba(120,170,196,${a * 0.35})`); h.addColorStop(1, "rgba(178,213,229,0)");
+      g.fillStyle = h; g.fillRect(0, 0, 512, 288);
+    }
+    const t = new T.CanvasTexture(c); t.colorSpace = T.SRGBColorSpace;
+    return t;
+  }
   const ponerFondo = () => {
-    escena.background.set(pal.fondo);
-    // una niebla mínima y neutra, del color del fondo: sólo separa los planos (no es bruma de color)
-    if (!escena.fog) escena.fog = new T.FogExp2(pal.fondo, 0.02); else escena.fog.color.set(pal.fondo);
+    if (pal.sinTono) { fondoClaro = fondoClaro || gradienteClaro(); escena.background = fondoClaro; }
+    else if (/fondo=liso/.test(location.search)) { fondoLiso.set(pal.fondo); escena.background = fondoLiso; }
+    else { fondoOscuro = fondoOscuro || gradienteOscuro(); escena.background = fondoOscuro; }
+    // una niebla mínima, del tono medio del fondo: sólo separa los planos (no es bruma de color)
+    const tonoNiebla = pal.sinTono ? 0xdcecf3 : pal.fondo;
+    if (!escena.fog) escena.fog = new T.FogExp2(tonoNiebla, 0.02); else escena.fog.color.set(tonoNiebla);
     // el mismo tono que el render de Cycles (Khronos PBR Neutral: respeta el Candy; ACES lo agrisaba). 0 = sin tono, 7 = Neutral
     renderer.toneMapping = pal.sinTono ? 0 : /tono=aces/.test(location.search) ? T.ACESFilmicToneMapping : 7;
   };
@@ -605,11 +649,13 @@ export async function iniciar(lienzo, opciones = {}) {
     [3.6, 0.3, -0.9, -0.4, 1.2, 0.3, 0.95, 2], [2.2, 1.55, 0.9, 0.8, -0.3, 4.1, 0.55, 4], [2.0, -1.55, -0.5, 1.3, 0.2, 1.1, 0.8, 0],
     [3.9, -1.6, 0.7, 0.6, 0.9, 5.0, 1.1, 3], [3.7, 1.9, 0.4, 1.1, -0.6, 2.0, 0.9, 1],
   ];
+  const ARCILLA_EN = new Set([3, 6]);   // v6: dos piezas del racimo en arcilla mate (arcilla + piedra + esmalte)
   function armarRacimo(fuentes) {
-    for (const [x, y, z, rx, ry, rz, e, k] of LUGARES) {
+    const arcilla = materialArcilla();
+    for (const [i, [x, y, z, rx, ry, rz, e, k]] of LUGARES.entries()) {
       // la malla horneada está sobre el arco de la C: se centra dentro de un pivote para ubicar su centro
       const geo = fuentes[k].geometry; if (!geo.boundingBox) geo.computeBoundingBox();
-      const pieza = new T.Mesh(geo, fuentes[k].material); pieza.position.copy(geo.boundingBox.getCenter(new T.Vector3())).negate();
+      const pieza = new T.Mesh(geo, ARCILLA_EN.has(i) ? arcilla : fuentes[k].material); pieza.position.copy(geo.boundingBox.getCenter(new T.Vector3())).negate();
       pieza.castShadow = pieza.receiveShadow = true;
       const m = new T.Group(); m.add(pieza);
       m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.scale.setScalar(e);
@@ -625,7 +671,7 @@ export async function iniciar(lienzo, opciones = {}) {
   /* la profundidad por planos de objetos: el campo lejano fuera de foco, la C en foco y dos piezas
      cercanas, grandes y desenfocadas, en las esquinas (sólo en alto, donde hay profundidad de campo) */
   const ceramicaLejana = materialCeramicaCandy(); ceramicaLejana.color.multiplyScalar(0.55);
-  const lejano = campoLejano(materialOnix(5), ceramicaLejana, nivelInicial > 0 ? 26 : 12);
+  const lejano = campoLejano(materialOnix(5), ceramicaLejana, nivelInicial > 0 ? 26 : 12, materialArcilla());   // v6: piedra, arcilla y cerámica
   escena.add(lejano);
   const cercanos = new T.Group();
   [[-1.95, 1.08, 3.1, 0.9, 0.3, 2.2, materialOnix(6)], [2.05, -1.02, 3.5, -0.5, 0.8, 0.5, materialAnodizado()]].forEach(([x, y, z, rx, ry, rz, mat]) => {
