@@ -93,6 +93,13 @@ function materialArcilla() {
     normalScale: new T.Vector2(0.8, 0.8), roughnessMap: M.arcillaR, roughness: 1, metalness: 0,
     sheen: 0.35, sheenRoughness: 0.8, sheenColor: new T.Color(0.95, 0.9, 0.85) });
 }
+/* v6: el color nuevo, Cherry Red (#D2042D, a confirmar por el dueño), como laca en piezas chicas: muy brillante, con el
+   relieve fino de la pintura (la porcelana fotografiada, apenas) */
+function materialCherry() {
+  const M = mapas();
+  return new T.MeshPhysicalMaterial({ color: new T.Color().setStyle("#D2042D", T.SRGBColorSpace), roughness: 0.32, metalness: 0,
+    normalMap: M.porcelanaN, normalScale: new T.Vector2(0.15, 0.15), clearcoat: 1, clearcoatRoughness: 0.04 });
+}
 function materialCromoNegro() {
   const M = mapas();
   return new T.MeshPhysicalMaterial({ color: 0x0a0b0c, metalness: 1, roughness: 0.34, envMapIntensity: 0.7,
@@ -647,15 +654,16 @@ export async function iniciar(lienzo, opciones = {}) {
     // V8: las tres primeras, apoyadas contra el canto de la C (antes flotaban al lado)
     [2.72, -0.68, 0.05, 0.3, 0.7, 2.4, 0.85, 1], [2.68, 1.08, -0.3, 0.9, 0.4, 0.6, 0.75, 0], [0.95, -0.6, -0.28, 0.2, -0.5, 3.6, 0.6, 3],
     [3.6, 0.3, -0.9, -0.4, 1.2, 0.3, 0.95, 2], [2.2, 1.55, 0.9, 0.8, -0.3, 4.1, 0.55, 4], [2.0, -1.55, -0.5, 1.3, 0.2, 1.1, 0.8, 0],
-    [3.9, -1.6, 0.7, 0.6, 0.9, 5.0, 1.1, 3], [3.7, 1.9, 0.4, 1.1, -0.6, 2.0, 0.9, 1],
+    [3.9, -1.6, 0.7, 0.6, 0.9, 5.0, 1.1, 3], [3.7, 1.9, 0.4, 1.1, -0.6, 2.0, 0.9, 0],   // v6 vuelta 5: la última pasa a cerámica Candy
   ];
   const ARCILLA_EN = new Set([3, 6]);   // v6: dos piezas del racimo en arcilla mate (arcilla + piedra + esmalte)
+  const CHERRY_EN = new Set([4]);       // v6 vuelta 5: la pieza chica de adelante, en laca Cherry Red (≈ 5 %)
   function armarRacimo(fuentes) {
-    const arcilla = materialArcilla();
+    const arcilla = materialArcilla(), cherry = materialCherry();
     for (const [i, [x, y, z, rx, ry, rz, e, k]] of LUGARES.entries()) {
       // la malla horneada está sobre el arco de la C: se centra dentro de un pivote para ubicar su centro
       const geo = fuentes[k].geometry; if (!geo.boundingBox) geo.computeBoundingBox();
-      const pieza = new T.Mesh(geo, ARCILLA_EN.has(i) ? arcilla : fuentes[k].material); pieza.position.copy(geo.boundingBox.getCenter(new T.Vector3())).negate();
+      const pieza = new T.Mesh(geo, CHERRY_EN.has(i) ? cherry : ARCILLA_EN.has(i) ? arcilla : fuentes[k].material); pieza.position.copy(geo.boundingBox.getCenter(new T.Vector3())).negate();
       pieza.castShadow = pieza.receiveShadow = true;
       const m = new T.Group(); m.add(pieza);
       m.position.set(x, y, z); m.rotation.set(rx, ry, rz); m.scale.setScalar(e);
