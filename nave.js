@@ -57,7 +57,7 @@ function mapas() {
   MAPAS.onixC = fotoDe("marble016_color", true, 1.2); MAPAS.onixN = fotoDe("marble016_normalgl", false, 1.2); MAPAS.onixR = fotoDe("marble016_roughness", false, 1.2);
   MAPAS.porcelanaN = fotoDe("porcelain001_normalgl", false, 0.8); MAPAS.porcelanaR = fotoDe("porcelain001_roughness", false, 0.8);
   MAPAS.cepilladoN = fotoDe("metal009_normalgl", false, 1.6); MAPAS.cepilladoR = fotoDe("metal009_roughness", false, 1.6);
-  MAPAS.arcillaC = fotoDe("clay004_color", true, 1.0); MAPAS.arcillaN = fotoDe("clay004_normalgl", false, 1.0); MAPAS.arcillaR = fotoDe("clay004_roughness", false, 1.0);
+  MAPAS.arcillaC = fotoDe("clay002_color", true, 1.0); MAPAS.arcillaN = fotoDe("clay004_normalgl", false, 1.0); MAPAS.arcillaR = fotoDe("clay004_roughness", false, 1.0);
   MAPAS.listo = true;
   return MAPAS;
 }
@@ -89,7 +89,7 @@ function materialOnix(i) {
    borde muy leve (el polvo fino de la arcilla agarra la luz rasante) */
 function materialArcilla() {
   const M = mapas();
-  return new T.MeshPhysicalMaterial({ color: new T.Color(0.86, 0.80, 0.74), map: M.arcillaC, normalMap: M.arcillaN,
+  return new T.MeshPhysicalMaterial({ color: new T.Color(1.0, 0.93, 0.86), map: M.arcillaC, normalMap: M.arcillaN,
     normalScale: new T.Vector2(0.8, 0.8), roughnessMap: M.arcillaR, roughness: 1, metalness: 0,
     sheen: 0.35, sheenRoughness: 0.8, sheenColor: new T.Color(0.95, 0.9, 0.85) });
 }
