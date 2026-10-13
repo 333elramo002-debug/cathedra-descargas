@@ -28,11 +28,8 @@
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
-<!-- la nave: el lienzo fijo detrás de todo. Si no hay 3D o se pidió menos movimiento, queda la imagen quieta. -->
-<div class="escena" aria-hidden="true">
-  <canvas id="nave"></canvas>
-  <div class="escena-quieta"></div>
-  <div class="escena-velo"></div>
+<!-- v7 (paso 0): sin escena 3D. El fondo es Onyx con una luz Candy suave, en CSS. -->
+<div class="escena" aria-hidden="true"><div class="escena-luz"></div></div>
 </div>
 
 <!-- la carga: la C de dovelas se arma con lo que va llegando y termina siendo la marca -->
@@ -64,12 +61,9 @@
 <main id="contenido">
 
   <section class="portada" id="portada" data-tramo="0" aria-labelledby="marca">
+    <img class="signo signo-marca" id="signo" src="imagenes/marca.svg" width="256" height="256" alt="" decoding="async">
     <div class="portada-caja">
-      <svg class="signo" id="signo" viewBox="-4 -4 108 108" aria-hidden="true">
-        <path class="signo-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
-        <path class="signo-junta" d="M52.3 93.9 51 70M24.1 85.6 38.2 66.2M24.1 14.4 38.2 33.8M52.3 6.1 51 30"/>
-        <path class="signo-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
-      </svg>
+      
       <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
       <p class="lema"><span class="palabras">Estudiá desde lo que dijo el profesor.</span></p>
       <div class="portada-acciones llega">
@@ -108,7 +102,6 @@
     </div>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/cronograma.webp" width="1280" height="720" loading="lazy" decoding="async" alt="«Materias» en Cathedra: la zona para arrastrar el cronograma de una materia nueva y la lista de materias armadas, con sus profesores, días y horarios.">
-      <img class="pf-frente" src="imagenes/app/cronograma-sint-frente.webp" width="900" height="145" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/cronograma-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -127,7 +120,6 @@
     </div>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/subir.webp" width="1280" height="720" loading="lazy" decoding="async" alt="Las clases de Cálculo II en Cathedra: qué hay de cada una, cuáles ya tienen texto y cuáles no, y los botones para estudiar la clase, verla explicada o leer lo que se dijo.">
-      <img class="pf-frente" src="imagenes/app/subir-sint-frente.webp" width="900" height="88" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/subir-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -159,7 +151,6 @@
     </div>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/guia.webp" width="1280" height="720" loading="lazy" decoding="async" alt="La materia Cálculo II en Cathedra: «Lo importante de esta materia, según el profesor», con los temas que más pesan, cuántas veces habló de cada uno y cómo vas practicándolos.">
-      <img class="pf-frente" src="imagenes/app/guia-sint-frente.webp" width="900" height="212" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/guia-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -183,7 +174,6 @@
     </div>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/chat.webp" width="1280" height="720" loading="lazy" decoding="async" alt="El panel «Preguntar» de Cathedra abierto sobre Cálculo II, con sugerencias como explicar un tema con una analogía o armar una pregunta de examen.">
-      <img class="pf-frente" src="imagenes/app/chat-sint-frente.webp" width="460" height="340" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/chat-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -220,7 +210,6 @@
     </form>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/simulacro.webp" width="1280" height="720" loading="lazy" decoding="async" alt="«Cómo lo va a tomar»: el formato del parcial que anunció la profesora y los temas que entran, cada uno con la marca «Dijo que lo toma» y su frase.">
-      <img class="pf-frente" src="imagenes/app/nota-frente.webp" width="1100" height="333" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/simulacro.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -234,7 +223,6 @@
     </div>
     <figure class="profundidad" data-profundidad>
       <img class="pf-fondo" src="imagenes/app/panel.webp" width="1280" height="720" loading="lazy" decoding="async" alt="El panel de Cathedra: las materias del cuatrimestre con su tira de clases, lo que falta, las entregas y las fichas para hoy.">
-      <img class="pf-frente" src="imagenes/app/panel-sint-frente.webp" width="380" height="426" loading="lazy" decoding="async" alt="" aria-hidden="true">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/panel-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>

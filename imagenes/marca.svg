@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-label="Cathedra">
+<title>Cathedra</title>
+<defs>
+<linearGradient id="losa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0D1012"/><stop offset="1" stop-color="#020202"/></linearGradient>
+<linearGradient id="onix" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b4247"/><stop offset="1" stop-color="#101315"/></linearGradient>
+<linearGradient id="candy" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#DCEEF5"/><stop offset="1" stop-color="#8FB7CB"/></linearGradient>
+</defs>
+<rect width="256" height="256" rx="54" fill="url(#losa)"/>
+<rect x=".75" y=".75" width="254.5" height="254.5" rx="53.25" fill="none" stroke="#1C2327" stroke-width="1.5"/>
+<g stroke-linejoin="round" stroke-width="1.5">
+<path d="M196.58 66.68A92 92 0 0 0 146.81 37.94L138.22 79.06A50 50 0 0 1 165.27 94.67Z" fill="url(#onix)" stroke="#B2D5E5" stroke-opacity="0.36"/>
+<path d="M141.12 36.94A92 92 0 0 0 84.53 46.92L104.37 83.93A50 50 0 0 1 135.13 78.51Z" fill="url(#candy)" stroke="#5D8499" stroke-opacity="0.5"/>
+<path d="M79.52 49.81A92 92 0 0 0 42.58 93.83L81.58 109.43A50 50 0 0 1 101.65 85.51Z" fill="url(#onix)" stroke="#B2D5E5" stroke-opacity="0.36"/>
+<path d="M40.6 99.27A92 92 0 0 0 40.6 156.73L80.5 143.62A50 50 0 0 1 80.5 112.38Z" fill="url(#candy)" stroke="#5D8499" stroke-opacity="0.5"/>
+<path d="M42.58 162.17A92 92 0 0 0 79.52 206.19L101.65 170.49A50 50 0 0 1 81.58 146.57Z" fill="url(#onix)" stroke="#B2D5E5" stroke-opacity="0.36"/>
+<path d="M84.53 209.08A92 92 0 0 0 141.12 219.06L135.13 177.49A50 50 0 0 1 104.37 172.07Z" fill="url(#candy)" stroke="#5D8499" stroke-opacity="0.5"/>
+<path d="M146.81 218.06A92 92 0 0 0 196.58 189.32L165.27 161.33A50 50 0 0 1 138.22 176.94Z" fill="url(#onix)" stroke="#B2D5E5" stroke-opacity="0.36"/>
+</g></svg>

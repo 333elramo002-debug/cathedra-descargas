@@ -1,30 +1,6 @@
-Bibliotecas y recursos de terceros que viajan con la página, con su versión fija y su huella.
+Recursos de terceros que viajan con la página, con su licencia.
 
-three.js r186 (0.186.1), recortado con esbuild 0.25.10 a lo que usa la página
-  archivo: three-r186.1bb6664351.min.js
-  SHA-256: 1bb66643513932345a3bc6432ff6530c5c24fd7d76f2c430713710c7d7c1e101
-  licencia: MIT (texto completo en LICENSE-three.txt)
-  origen: paquete npm three@0.186.1
+v7 (paso 0, 13/10/2026): la página ya no tiene escena 3D; no viajan three.js, Draco, modelos ni texturas.
 
-IBM Plex Sans, IBM Plex Sans Condensed, IBM Plex Mono (subconjunto latino, woff2)
-  carpeta: ../fuentes/
-  licencia: SIL Open Font License 1.1 (https://openfontlicense.org)
-  Copyright © 2017 IBM Corp. con el nombre reservado «Plex».
-
-Decodificador Draco (Google), de three.js r186 (examples/jsm/libs/draco/gltf/)
-  archivos: draco/draco_decoder.wasm, draco/draco_wasm_wrapper.js
-  licencia: Apache 2.0 (https://github.com/google/draco)
-
-HDRI «studio» de Poly Haven (polyhaven.com), reducido a 512 px por pmndrs (@pmndrs/assets 1.7.0, hdri/studio.exr)
-  licencia: CC0 1.0 (dominio público), sin atribución obligatoria
-
-Poly Haven (https://polyhaven.com), licencia CC0 1.0 (dominio público):
-  HDRI studio_kontrast_02 (reflejos del render de Blender de la C; los mapas horneados viajan en texturas/)
-  modelos fotoescaneados, pasados a GLB con Draco y WebP (scripts/blender/objetos_estudio.py):
-  clipboard, classic_laptop, book_encyclopedia_set_01 (tomos 1 a 8), desk_lamp_arm_01,
-  stationery_supplies → modelos/*.glb
-
-Sketchfab, licencia CC BY 4.0 (hay que acreditar al autor; crédito en /creditos):
-  "MXL 770 microphone" (https://sketchfab.com/3d-models/mxl-770-microphone-91df30cb2cd44f8083aaec05168b94d9)
-  de drei.lu (https://sketchfab.com/drei.lu; el pedido de la sesión técnica lo nombra Shapernode)
-  → modelos/microfono.glb (sin filtro, pie ni cable; de 807 mil a 59 mil triángulos; scripts/blender/microfono.py)
+IBM Plex Sans, IBM Plex Sans Condensed e IBM Plex Mono (fuentes/): SIL Open Font License 1.1.
+La marca (imagenes/marca.svg): de Cathedra.

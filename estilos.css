@@ -133,39 +133,25 @@ img { display: block; max-width: 100%; height: auto; }
 
 /* ═══════════════════════ la escena ═══════════════════════ */
 .escena { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.escena canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.2s var(--curva); }
-.con-3d .escena canvas { opacity: 1; }
-.esperando-nave .escena-quieta { opacity: 1; }
-.escena-quieta {
+/* v7 (paso 0): sin 3D. Onyx con una luz Candy suave (dos halos y un barrido), en CSS; en claro, estudio cálido a Candy */
+.escena-luz {
   position: absolute; inset: 0;
-  background: var(--fondo) center 30% / cover no-repeat;
-  opacity: 0; transition: opacity .8s var(--curva);
+  background:
+    radial-gradient(55% 60% at 72% 45%, color-mix(in srgb, var(--candy) 30%, transparent), transparent 70%),
+    radial-gradient(45% 50% at 8% 95%, color-mix(in srgb, var(--candy) 12%, transparent), transparent 70%),
+    linear-gradient(160deg, #04070a 0%, var(--onyx) 55%, #030506 100%);
 }
-.sin-3d .escena-quieta { opacity: 1; }
-/* la imagen quieta se pide sólo cuando hace falta (sin 3D, sin animaciones o mientras llega la nave) */
-.sin-3d .escena-quieta, .esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta.webp); }
-.sin-3d .escena canvas { display: none; }
 @media (prefers-color-scheme: light) {
-  :root:not([data-tema="oscuro"]).sin-3d .escena-quieta,
-  :root:not([data-tema="oscuro"]).esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-claro.webp); }
+  :root:not([data-tema="oscuro"]) .escena-luz {
+    background:
+      radial-gradient(60% 55% at 70% 38%, color-mix(in srgb, var(--candy) 70%, transparent), transparent 72%),
+      linear-gradient(135deg, #fbf8f2 0%, #e9f3f7 45%, #c4e0ec 100%);
+  }
 }
-@media (orientation: portrait) {
-  .sin-3d .escena-quieta, .esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical.webp); background-position: center top; }
-}
-@media (orientation: portrait) and (prefers-color-scheme: light) {
-  :root:not([data-tema="oscuro"]).sin-3d .escena-quieta,
-  :root:not([data-tema="oscuro"]).esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical-claro.webp); }
-}
-
-:root[data-tema="claro"].sin-3d .escena-quieta, :root[data-tema="claro"].esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-claro.webp); }
-@media (orientation: portrait) {
-  :root[data-tema="claro"].sin-3d .escena-quieta, :root[data-tema="claro"].esperando-nave .escena-quieta { background-image: url(imagenes/nave-quieta-vertical-claro.webp); }
-}
-
-/* el velo: oscurece lo justo detrás del texto, más en los bordes (viñeta) */
-.escena-velo {
-  position: absolute; inset: 0;
-  background: radial-gradient(120% 90% at 50% 45%, transparent 35%, var(--velo) 100%);
+:root[data-tema="claro"] .escena-luz {
+  background:
+    radial-gradient(60% 55% at 70% 38%, color-mix(in srgb, var(--candy) 70%, transparent), transparent 72%),
+    linear-gradient(135deg, #fbf8f2 0%, #e9f3f7 45%, #c4e0ec 100%);
 }
 
 /* ═══════════════════════ la carga ═══════════════════════ */
@@ -301,6 +287,10 @@ main, .pie { position: relative; z-index: 1; }
 /* el signo de la portada no se ve: marca el lugar donde aparece la C de piedra, para que la
    C de la carga viaje hasta ahí y la luz se abra desde la escultura */
 .signo { position: absolute; left: 65vw; top: 46vh; width: 30vh; height: auto; translate: -50% -50%; overflow: visible; opacity: 0; pointer-events: none; }
+/* v7: la marca de la aplicación (SVG) en el lugar de la escena; entra cuando se abre la página */
+.portada { position: relative; }
+.signo-marca { left: 72%; top: 50%; width: min(38vh, 30vw); border-radius: 22%; filter: drop-shadow(0 30px 60px rgba(0,0,0,.55)) drop-shadow(0 0 70px color-mix(in srgb, var(--candy) 30%, transparent)); transition: opacity 1s var(--curva), scale 1.2s var(--curva); scale: .94; }
+:root:not(.cargando) .signo-marca { opacity: 1; scale: 1; }
 .portada-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: clamp(26px, 4.4vh, 40px); }
 .portada-acciones .boton-descarga { margin-top: 0; }
 .pildora {
@@ -823,9 +813,9 @@ main, .pie { position: relative; z-index: 1; }
 }
 
 /* ═══════════════════════ 404 ═══════════════════════ */
-.escena-404 { background: var(--fondo) url(/imagenes/nave-quieta.webp) center 30% / cover no-repeat; filter: saturate(.7) brightness(.55); }
+.escena-404 { background: radial-gradient(60% 55% at 70% 38%, color-mix(in srgb, var(--candy) 14%, transparent), transparent 70%), var(--fondo); }
 @media (prefers-color-scheme: light) {
-  :root:not([data-tema="oscuro"]) .escena-404 { background-image: url(/imagenes/nave-quieta-claro.webp); filter: saturate(.7) brightness(1.05); }
+  :root:not([data-tema="oscuro"]) .escena-404 { background: linear-gradient(135deg, #fbf8f2 0%, #e9f3f7 45%, #c4e0ec 100%); }
 }
 .perdida {
   position: relative; z-index: 1;

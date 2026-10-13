@@ -1,14 +1,14 @@
-/* La página de Cathedra: lo que no es la nave.
+/* La página de Cathedra.
 
    Las dos constantes que hay que tocar al publicar están arriba. El resto:
      · la carga: la C de dovelas se arma con lo que va llegando (las letras y la
-       nave) y, al cerrarse, la luz se abre en un círculo desde el signo;
+       página) y, al cerrarse, la luz se abre en un círculo desde el signo;
      · las entradas: los títulos llegan palabra por palabra y los bloques suben
        con la curva de la casa cuando entran en pantalla (y vuelven a su lugar
        quietos con «reducir movimiento»);
      · la cabecera, que cambia de fondo apenas se deja la portada;
-     · el arranque de la nave (nave.js) o, si no hay 3D, la imagen quieta.
-   Todo funciona sin la nave: el texto, los enlaces y los botones son HTML. */
+     · desde la v7 no hay escena 3D: el fondo es luz en CSS y las capturas son reales.
+   El texto, los enlaces y los botones son HTML. */
 
 const ENLACE_INSTALADOR = "https://github.com/333elramo002-debug/cathedra-descargas/releases/latest/download/Cathedra-Setup.exe";
 const CONTACTO = "[EMAIL DE CONTACTO]";
@@ -183,13 +183,12 @@ function pasoCarga(ahora) {
   const dt = 1 / 60;
   mostrado += (medido - mostrado) * (1 - Math.exp(-7 * dt));
   // nunca más rápido que 1 por segundo: la carga mínima es de un segundo
-  mostrado = Math.min(mostrado, (ahora - inicio) / 1000);
+  mostrado = Math.min(mostrado, (ahora - inicio) / 550);
   if (medido >= 0.999 && mostrado > 0.985) mostrado = 1;
   if (trazo) trazo.style.strokeDashoffset = String(100 - mostrado * 100);
   if (cifra) cifra.textContent = String(Math.round(mostrado * 100)).padStart(3, "0");
   // tope: a los 1,8 s se abre igual; si la nave no llegó, mientras tanto se ve la imagen quieta
-  if (mostrado >= 1 || ahora - inicio > 1800) {
-    if (!naveLista && !sinNave) raiz.classList.add("esperando-nave");
+  if (mostrado >= 1 || ahora - inicio > 900) {
     abrir();
     return;
   }
@@ -228,72 +227,9 @@ if (quieto || !carga) {
   requestAnimationFrame(pasoCarga);
 }
 
-/* ══════════════════════ la nave ══════════════════════ */
-/* Por etapas (lo de Bruno, bi-03 / bm-70): 1, la marca y el texto (ya están: son HTML);
-   2, la biblioteca 3D, pedida recién después del primer dibujo; 3, la nave, que es sólo
-   geometría (no baja archivos); 4, las capturas, por tramo con lazy; 5, el sonido, con el
-   primer gesto. Sin animaciones o sin 3D: la imagen quieta, sin pedir la biblioteca. */
-function quedarseQuieta() {
-  sinNave = true;
-  raiz.classList.add("sin-3d");
-  raiz.classList.remove("con-3d");
-  medidoNave = 1;
-}
-PAGINA.sinNave = quedarseQuieta;
-const hayLienzo = !!document.getElementById("nave");
-// sin placa de verdad (dibujo por software) la escena traba la página: ni se pide la biblioteca
-function placaDeVerdad() {
-  if (/calidad=|medir|saltar|[?&]3d/.test(location.search)) return true;
-  try {
-    const c = document.createElement("canvas").getContext("webgl");
-    if (!c) return false;
-    const d = c.getExtension("WEBGL_debug_renderer_info");
-    const quien = d ? String(c.getParameter(d.UNMASKED_RENDERER_WEBGL)) : "";
-    const soltar = c.getExtension("WEBGL_lose_context");
-    if (soltar) soltar.loseContext();
-    return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(quien);
-  } catch (e) {
-    return false;
-  }
-}
-function pedirNave() {
-  if (!hayLienzo || quieto || sinNave) return;
-  if (!placaDeVerdad()) { quedarseQuieta(); return; }
-  medidoNave = Math.max(medidoNave, 0.1);
-  import("./nave.js")
-    .then((m) => { medidoNave = Math.max(medidoNave, 0.6); PAGINA.nave(m.iniciar); })
-    .catch(() => quedarseQuieta());
-}
-if (hayLienzo && quieto) quedarseQuieta();
-else if (hayLienzo) {
-  // la escena se pide cuando la página ya está quieta (o con el primer gesto): no compite con el
-  // texto ni con la carga; mientras tanto se ve la imagen quieta de la misma escena
-  let pedida = false;
-  const pedirUnaVez = () => { if (!pedida) { pedida = true; pedirNave(); } };
-  const cuandoQuieta = () => {
-    if ("requestIdleCallback" in window) requestIdleCallback(pedirUnaVez, { timeout: 2500 });
-    else setTimeout(pedirUnaVez, 600);
-  };
-  if (document.readyState === "complete") cuandoQuieta(); else window.addEventListener("load", cuandoQuieta, { once: true });
-  ["pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => window.addEventListener(ev, pedirUnaVez, { once: true, passive: true }));
-}
-PAGINA.nave = async (iniciar) => {
-  const lienzo = document.getElementById("nave");
-  try {
-    const motor = await iniciar(lienzo, { quieto: false });
-    if (!motor) { quedarseQuieta(); return; }
-    PAGINA.motor = motor;
-    naveLista = true;
-    raiz.classList.add("con-3d");
-    setTimeout(() => raiz.classList.remove("esperando-nave"), 1300);
-    if (abierta) motor.arrancar();
-  } catch (e) {
-    quedarseQuieta();
-  }
-};
-// si el módulo no llega (navegador viejo, archivo abierto sin servidor), la imagen quieta
-// (en los modos de captura y medición, que pueden correr por software, se espera más)
-if (hayLienzo) setTimeout(() => { if (!naveLista && !sinNave) quedarseQuieta(); }, /saltar|medir/.test(location.search) ? 120000 : 20000);
+/* ══════════════════════ sin escena 3D (v7, paso 0) ══════════════════════ */
+/* La escena en tiempo real se sacó: la página es texto, capturas reales y luz en CSS. Los visuales que vienen
+   (prerrenderizados, recorridos con el scroll) se cargan aparte cuando estén aprobados. */
 
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
 /* El marco se inclina hacia el puntero (hasta 6°); en las tarjetas, además, la pieza de
