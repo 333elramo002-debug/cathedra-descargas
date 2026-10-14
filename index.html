@@ -40,13 +40,9 @@
 <div class="escena" aria-hidden="true"><div class="escena-luz"></div></div>
 </div>
 
-<!-- la carga: la C de dovelas se arma con lo que va llegando y termina siendo la marca -->
+<!-- la carga: una línea fina que se llena con lo que va llegando (la C queda sólo en la marca chica) -->
 <div class="carga" id="carga" aria-hidden="true">
-  <svg class="carga-signo" viewBox="-4 -4 108 108">
-    <path class="cs-fondo" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
-    <path class="cs-trazo" pathLength="100" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/>
-    <path class="cs-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/>
-  </svg>
+  <span class="carga-linea"><i id="carga-linea"></i></span>
   <span class="carga-cifra"><span id="carga-cifra">0</span></span>
 </div>
 <div class="apertura" id="apertura" aria-hidden="true"></div>
@@ -69,12 +65,28 @@
 <main id="contenido">
 
   <section class="portada" id="portada" data-tramo="0" aria-labelledby="marca">
-    <!-- boceto 3: el primer cuadro del libro en lugar de la C grande (la marca queda sólo en la cabecera) -->
+    <!-- etapa 1: el libro que se abre con el scroll. La pista es alta y la escena queda fija mientras se recorre;
+         el póster (primer cuadro) va primero y los cuadros se piden después, de a poco. Sin JS o con menos
+         movimiento queda el póster quieto. -->
+    <div class="portada-fija">
     <div class="portada-foto" aria-hidden="true">
       <img class="pf-onix" src="imagenes/portada/libro1-onix-1920.webp" srcset="imagenes/portada/libro1-onix-960.webp 960w, imagenes/portada/libro1-onix-1920.webp 1920w" sizes="100vw" width="1920" height="1080" alt="" decoding="async">
       <img class="pf-marmol" src="imagenes/portada/libro1-marmol-1920.webp" srcset="imagenes/portada/libro1-marmol-960.webp 960w, imagenes/portada/libro1-marmol-1920.webp 1920w" sizes="100vw" width="1920" height="1080" alt="" decoding="async">
+      <canvas class="portada-lienzo" width="1920" height="1080"></canvas>
     </div>
     <span class="signo" id="signo" aria-hidden="true"></span>
+    <!-- etapa 2: lo que dice el libro mientras se abre. Títulos que entran palabra por palabra con resorte y rótulos
+         con una línea fina que señala la parte del render; cada uno vive en un tramo del recorrido (data-desde/hasta). -->
+    <div class="heroe-capas" aria-hidden="true">
+      <svg class="hc-lineas"></svg>
+      <p class="hc-titulo" data-desde=".13" data-hasta=".40"><span class="hc-num">01</span><span class="hc-txt">Abrís la clase.</span><span class="hc-sub">Lo que dijo el profesor, entero y ordenado.</span></p>
+      <p class="hc-titulo" data-desde=".44" data-hasta=".80"><span class="hc-num">02</span><span class="hc-txt">Cathedra arma la guía.</span><span class="hc-sub">Resumen, conceptos y fichas, página por página.</span></p>
+      <p class="hc-titulo" data-desde=".84" data-hasta="1.2"><span class="hc-num">03</span><span class="hc-txt">Llegás al examen con todo.</span><span class="hc-sub">Simulacros con las preguntas de tu materia.</span></p>
+      <span class="hc-rotulo" data-desde=".16" data-hasta=".40" data-ancla="1180,470" data-lado="arriba">la clase</span>
+      <span class="hc-rotulo" data-desde=".48" data-hasta=".80" data-ancla="1330,430" data-lado="arriba">la guía</span>
+      <span class="hc-rotulo" data-desde=".86" data-hasta="1.2" data-ancla="1060,760" data-lado="abajo">tu examen</span>
+    </div>
+    <div class="heroe-marcas" aria-hidden="true"><i>+</i><i>+</i><span>Bajá para abrirlo</span><i>+</i><i>+</i></div>
     <div class="portada-caja">
       
       <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
@@ -90,12 +102,13 @@
       <p class="requisito llega">Windows 10 u 11 · 64 bits</p>
     </div>
     <p class="bajar llega" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
+    </div>
   </section>
 
   <!-- ═══ 1 · el cronograma ═══ -->
   <section class="tramo" id="cronograma" data-nombre="01 · Empezás" data-tramo="1" aria-labelledby="crono-tit">
     <div class="tramo-texto">
-      <p class="paso-num">01 · Empezás</p>
+      <p class="paso-num"><span data-cuenta="1" data-cifras="2">01</span> · Empezás</p>
       <h2 id="crono-tit" class="titular"><span class="palabras">Empezás con tu cronograma.</span></h2>
       <p class="tramo-bajada">Soltás el cronograma de cada materia (PDF, Word, una foto o texto) y Cathedra arma tus materias y tus clases: los días y el horario, los docentes, las fechas de cada clase y de cada parcial. Lo que el cronograma no dice queda marcado; no se inventa.</p>
     </div>
@@ -114,7 +127,7 @@
       <div class="dc-ficha" data-ficha hidden aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/cronograma.webp" width="1280" height="720" loading="lazy" decoding="async" alt="«Materias» en Cathedra: la zona para arrastrar el cronograma de una materia nueva y la lista de materias armadas, con sus profesores, días y horarios.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/cronograma-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/cronograma-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con «Materias» de Cathedra y, adelante, una tablilla de arcilla con el calendario grabado y un día marcado con una bolita Cherry."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/cronograma-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -122,17 +135,17 @@
   <!-- ═══ 2 · subir la clase ═══ -->
   <section class="tramo tramo-der" id="subir" data-nombre="02 · Subís" data-tramo="2" aria-labelledby="subir-tit">
     <div class="tramo-texto">
-      <p class="paso-num">02 · Subís</p>
+      <p class="paso-num"><span data-cuenta="2" data-cifras="2">02</span> · Subís</p>
       <h2 id="subir-tit" class="titular"><span class="palabras">Subís la clase.</span></h2>
       <p class="tramo-bajada">Soltás el audio o el video de la clase sobre la ventana, o tocás «Importar clase». Si le das permiso, mira tu carpeta de descargas: cuando aparece una clase grabada la transcribe sola y la guarda en la materia que corresponde. El material de la cátedra (PDF, Word, PowerPoint) va a su materia.</p>
       <ul class="datos">
         <li><b>Transcribe en tu computadora</b>, con el módulo que bajás una sola vez: rápido, o preciso para nombres propios y aulas ruidosas.</li>
-        <li><b>Te dice cuánto falta</b>: «transcribiendo: va por el minuto 40 de 112 · faltan unos 9 minutos».</li>
+        <li><b>Te dice cuánto falta</b>: «transcribiendo: va por el minuto <span data-cuenta="40">40</span> de 112 · faltan unos <span data-cuenta="9">9</span> minutos».</li>
         <li><b>Sin conexión</b> también transcribe.</li>
       </ul>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/subir.webp" width="1280" height="720" loading="lazy" decoding="async" alt="Las clases de Cálculo II en Cathedra: qué hay de cada una, cuáles ya tienen texto y cuáles no, y los botones para estudiar la clase, verla explicada o leer lo que se dijo.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/subir-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/subir-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con la lista de clases y, adelante, una tablilla de arcilla con la onda de la voz grabada; al lado, un lápiz Cherry."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/subir-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -140,7 +153,7 @@
   <!-- ═══ 3 · la lee y arma la guía ═══ -->
   <section class="tramo" id="lee" data-nombre="03 · La lee" data-tramo="3" aria-labelledby="lee-tit">
     <div class="tramo-texto">
-      <p class="paso-num">03 · La lee</p>
+      <p class="paso-num"><span data-cuenta="3" data-cifras="2">03</span> · La lee</p>
       <h2 id="lee-tit" class="titular"><span class="palabras">Cathedra la lee y arma la guía.</span></h2>
       <p class="tramo-bajada">De la clase cruda saca la guía por clase y por tema. Separa lo que es contenido de lo que dijo sobre el examen, sobre el práctico o sobre la cursada, y marca lo que el profesor dijo que toma. Cada bloque guarda la frase y el minuto en que se dijo.</p>
     </div>
@@ -163,7 +176,7 @@
       </div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/guia.webp" width="1280" height="720" loading="lazy" decoding="async" alt="La materia Cálculo II en Cathedra: «Lo importante de esta materia, según el profesor», con los temas que más pesan, cuántas veces habló de cada uno y cómo vas practicándolos.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/lee-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/lee-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con lo importante de la materia y, adelante, el libro abierto con la cinta Cherry."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/guia-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -171,7 +184,7 @@
   <!-- ═══ 4 · preguntar ═══ -->
   <section class="tramo tramo-der" id="preguntar" data-nombre="04 · Preguntás" data-tramo="4" aria-labelledby="preg-tit">
     <div class="tramo-texto">
-      <p class="paso-num">04 · Preguntás</p>
+      <p class="paso-num"><span data-cuenta="4" data-cifras="2">04</span> · Preguntás</p>
       <h2 id="preg-tit" class="titular"><span class="palabras">Preguntás, y te contesta con la clase y el minuto.</span></h2>
       <p class="tramo-bajada">Le preguntás como a un compañero que tomó todos los apuntes. Contesta desde lo que dijo el profesor y te muestra cómo lo dijo, de qué clase sale y desde qué minuto leerlo o escucharlo. Si suma un ejemplo propio, te avisa que no lo dijo el profesor.</p>
       <p class="nota-al-pie">Por chat, en cualquier pantalla. Por voz (habla y escucha), según tu plan.</p>
@@ -186,7 +199,7 @@
       <div class="dp-hilo" data-hilo aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/chat.webp" width="1280" height="720" loading="lazy" decoding="async" alt="El panel «Preguntar» de Cathedra abierto sobre Cálculo II, con sugerencias como explicar un tema con una analogía o armar una pregunta de examen.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/preguntar-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/preguntar-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con la conversación y, adelante, un globo de diálogo de cerámica esmaltada Candy y otro de arcilla con una bolita Cherry."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/chat-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -194,14 +207,14 @@
   <!-- ═══ 5 · el simulacro ═══ -->
   <section class="tramo" id="simulacro" data-nombre="05 · Rendís" data-tramo="5" aria-labelledby="sim-tit">
     <div class="tramo-texto">
-      <p class="paso-num">05 · Rendís</p>
+      <p class="paso-num"><span data-cuenta="5" data-cifras="2">05</span> · Rendís</p>
       <h2 id="sim-tit" class="titular"><span class="palabras">Te toma un simulacro con el formato que anunció.</span></h2>
       <p class="tramo-bajada">Si el profesor dijo «un verdadero o falso, dos minicasos y una a desarrollar, veinticinco puntos cada una», el simulacro sale así, y con lo que dijo que toma. Lo corrige con lo que se dio en clase, te pone la nota y te dice qué no dijiste y de dónde sale cada consigna.</p>
     </div>
     <form class="demo demo-sim" data-demo="sim" novalidate>
       <p class="demo-rotulo">Contestá dos consignas</p>
       <fieldset class="ds-consigna">
-        <legend><span class="ds-tipo">Verdadero o falso</span> <span class="ds-pts">25 pts</span></legend>
+        <legend><span class="ds-tipo">Verdadero o falso</span> <span class="ds-pts"><span data-cuenta="25">25</span> pts</span></legend>
         <p class="ds-enunciado">Un glóbulo rojo en una solución hipertónica gana agua y se hincha.</p>
         <div class="ds-vf">
           <label><input type="radio" name="vf" value="v"> Verdadero</label>
@@ -211,7 +224,7 @@
         <div class="ds-corr" data-corr="vf" aria-live="polite"></div>
       </fieldset>
       <fieldset class="ds-consigna">
-        <legend><span class="ds-tipo">Minicaso</span> <span class="ds-pts">25 pts</span></legend>
+        <legend><span class="ds-tipo">Minicaso</span> <span class="ds-pts"><span data-cuenta="25">25</span> pts</span></legend>
         <p class="ds-enunciado">Una célula muscular se queda sin oxígeno durante un esfuerzo intenso. ¿Qué etapas de la respiración siguen funcionando y qué pasa con la producción de ATP?</p>
         <label class="ds-just"><span>Escribilo como lo escribirías en el parcial.</span><textarea name="caso" rows="3"></textarea></label>
         <div class="ds-corr" data-corr="caso" aria-live="polite"></div>
@@ -222,7 +235,7 @@
       </div>
     </form>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/simulacro.webp" width="1280" height="720" loading="lazy" decoding="async" alt="«Cómo lo va a tomar»: el formato del parcial que anunció la profesora y los temas que entran, cada uno con la marca «Dijo que lo toma» y su frase.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/simulacro-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/simulacro-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con el plan de la materia y, adelante, tablillas de arcilla apiladas con las respuestas tildadas y una marcada en Cherry."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/simulacro.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -230,12 +243,12 @@
   <!-- ═══ 6 · repasar y hoy ═══ -->
   <section class="tramo tramo-der" id="repaso" data-nombre="06 · Repasás" data-tramo="6" aria-labelledby="rep-tit">
     <div class="tramo-texto">
-      <p class="paso-num">06 · Repasás</p>
+      <p class="paso-num"><span data-cuenta="6" data-cifras="2">06</span> · Repasás</p>
       <h2 id="rep-tit" class="titular"><span class="palabras">Repasás lo que te costó, y «Hoy» te dice qué estudiar.</span></h2>
       <p class="tramo-bajada">Lo que erraste en el simulacro, en los juegos o en las fichas va a tu mazo de repaso, con la página de donde sale, y vuelve cuando toca. Al abrir, «Por dónde empezar» te da una tarea por materia, ordenada por los días que faltan para cada examen; «Cuánto por día» reparte lo que falta entre todas.</p>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/panel.webp" width="1280" height="720" loading="lazy" decoding="async" alt="El panel de Cathedra: las materias del cuatrimestre con su tira de clases, lo que falta, las entregas y las fichas para hoy.">
+      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/repaso-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/repaso-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con una ficha y, adelante, un abanico de fichas de arcilla; la de arriba, esmaltada Candy."></picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/panel-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
