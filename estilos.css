@@ -266,75 +266,66 @@ main, .pie { position: relative; z-index: 1; }
 .entra { opacity: 0; translate: 0 36px; transition: opacity 1s var(--curva), translate 1.1s var(--curva); }
 .entra.visto { opacity: 1; translate: none; }
 
-/* ═══════════════════════ la portada ═══════════════════════ */
+/* ═══════════════════════ la portada: el héroe por fases ═══════════════════════ */
+/* Cinco paradas. Base (teléfono, sin JS o con menos movimiento): las fases una debajo de la otra, la imagen arriba
+   y el texto abajo. Con .con-fases (escritorio, JS): la portada es una pista de cinco pantallas, la escena queda
+   fija y cada fase reemplaza a la anterior con un fundido y un zoom leve; el texto entra palabra por palabra. */
 .portada { position: relative; text-align: left; }
-.portada-fija {
-  position: relative;
-  min-height: 100vh; min-height: 100svh;
-  display: grid; place-items: end start;
-  padding: 96px var(--gutter) max(15vh, 110px);
-}
-/* etapa 1: con la secuencia, la portada es una pista alta y la escena queda fija mientras se recorre */
-.portada.con-secuencia { height: 380vh; }
-.portada.con-secuencia .portada-fija { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 0; overflow: hidden; }
-.portada-lienzo { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .6s var(--curva); }
-.portada-lienzo.listo { opacity: 1; }
-.con-secuencia .portada-caja { opacity: calc(1 - var(--salida, 0)); translate: 0 calc(var(--salida, 0) * -48px); }
-.con-secuencia .bajar { opacity: calc(1 - var(--salida, 0) * 3); }
-/* etapa 2: el cierre de la portada, como una tarjeta (el render se achica y redondea antes de soltar la pista) */
-.con-secuencia .portada-foto { clip-path: inset(calc(var(--cierre, 0) * 5vh) calc(var(--cierre, 0) * var(--gutter)) round calc(var(--cierre, 0) * 28px)); }
-
-/* etapa 2: los títulos y rótulos que acompañan al libro */
-.heroe-capas { display: none; position: absolute; inset: 0; pointer-events: none; }
-.con-secuencia .heroe-capas { display: block; }
-/* un velo suave a la izquierda (donde van los títulos) para que se lean sobre el render, sin tapar el libro */
-.heroe-capas::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--fondo) 70%, transparent) 0%, transparent 46%); opacity: calc(1 - var(--cierre, 0)); }
-.hc-lineas { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.hc-linea { fill: none; stroke: var(--candy); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .9; }
-.hc-punto { fill: var(--candy); opacity: 0; filter: drop-shadow(0 0 6px var(--oro-halo)); }
-.hc-aro { fill: none; stroke: var(--candy); stroke-width: 1; opacity: 0; }
-.hc-rotulo {
-  position: absolute; left: 0; top: 0;
-  font: 500 12px/1 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: var(--texto);
-  padding: 6px 10px; border: 1px solid var(--borde); border-radius: 999px;
-  background: color-mix(in srgb, var(--fondo) 55%, transparent); backdrop-filter: blur(8px);
-  opacity: 0; transition: opacity .5s var(--curva), clip-path .7s var(--curva);
-  clip-path: inset(0 100% 0 0 round 999px);
-}
-.hc-rotulo.activo { opacity: 1; clip-path: inset(0 0 0 0 round 999px); }
-.hc-titulo {
-  position: absolute; left: var(--gutter); top: max(17vh, 120px); margin: 0;
-  width: min(480px, 31vw); display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
-}
-.hc-num { font: 500 13px/1 var(--mono); letter-spacing: .2em; color: var(--oro); opacity: 0; transition: opacity .6s var(--curva); }
-.hc-txt { font: 600 clamp(34px, 3.7vw, 62px)/.98 var(--display); letter-spacing: -.01em; color: var(--texto); }
-.portada .hc-titulo .hc-txt .pal > span { transform: translateY(112%); transition: transform .9s cubic-bezier(.34, 1.42, .64, 1) calc(var(--n) * 70ms); }
-.hc-sub { font: 400 clamp(16px, 1.3vw, 20px)/1.4 var(--sans); color: var(--medio); opacity: 0; translate: 0 14px; transition: opacity .7s var(--curva) .25s, translate .9s var(--curva) .25s; }
-.portada .hc-titulo.activo .hc-txt .pal > span { transform: none; }
-.hc-titulo.activo .hc-num, .hc-titulo.activo .hc-sub { opacity: 1; translate: 0 0; }
-.portada .hc-titulo.ido .hc-txt .pal > span { transform: translateY(-112%); transition-timing-function: var(--curva); transition-duration: .6s; }
-/* las marcas de la grilla, como en las páginas de estudio: cruces finas y la invitación a bajar */
-.heroe-marcas { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 22px; display: none; justify-content: space-between; align-items: center; font: 500 11px/1 var(--mono); letter-spacing: .24em; text-transform: uppercase; color: var(--medio); opacity: calc(1 - var(--salida, 0)); pointer-events: none; }
-.heroe-marcas i { font-style: normal; font-size: 16px; color: var(--tenue); }
-.con-secuencia .heroe-marcas { display: flex; }
-.con-secuencia .bajar { display: none; }
-.portada-caja { display: flex; flex-direction: column; align-items: flex-start; width: min(100%, 860px); }
-/* el signo de la portada no se ve: marca el lugar donde aparece la C de piedra, para que la
-   C de la carga viaje hasta ahí y la luz se abra desde la escultura */
-.signo { position: absolute; left: 65vw; top: 46vh; width: 30vh; height: auto; translate: -50% -50%; overflow: visible; opacity: 0; pointer-events: none; }
-/* v7: la marca de la aplicación (SVG) en el lugar de la escena; entra cuando se abre la página */
-.portada { position: relative; }
-/* boceto 3: el primer cuadro del libro (Cycles) ocupa la portada; el texto va a la izquierda, sobre la mesa vacía.
-   El signo queda invisible encima del libro: la C de la carga viaja hasta ahí y se apaga. */
+.portada-fija { position: relative; }
+.fases { list-style: none; margin: 0; padding: 0; }
+.fase { position: relative; padding: 0 0 clamp(56px, 9vh, 96px); }
+.fase-foto { margin: 0; position: relative; overflow: hidden; }
+.fase-foto img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; object-position: 70% 50%; background: var(--capa-1); }
+.fase-texto { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px var(--gutter) 0; max-width: 640px; }
+.fase:first-child { padding-top: 64px; }
+.fase-num { margin: 0; font: 500 13px/1 var(--mono); letter-spacing: .22em; color: var(--oro); }
+.fase-titulo { margin: 0; font: 600 clamp(34px, 4vw, 66px)/.98 var(--display); letter-spacing: -.01em; color: var(--texto); }
+.fase-linea { margin: 0; font: 400 clamp(17px, 1.35vw, 21px)/1.45 var(--sans); color: var(--medio); max-width: 34em; }
+.fase .marca { font-size: clamp(22px, 2.2vw, 34px); letter-spacing: .3em; margin: 0 0 6px; }
+.fase .portada-acciones { margin-top: 10px; }
+.fase-rotulo, .fases-lienzo, .fases-lineas, .fases-marcas { display: none; }
 .portada-fija > .signo { left: 74%; top: 46%; width: 26vh; aspect-ratio: 1; }
-.portada-foto { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
-.portada-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 70% 50%; opacity: 0; scale: 1.04; transition: opacity 1.4s var(--curva), scale 2.4s var(--curva); }
-.portada-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--fondo) 0%, transparent 28%); }
-:root:not(.cargando) .portada-foto img { opacity: 1; scale: 1; }
-.pf-marmol { display: none; }
-@media (prefers-color-scheme: light) { :root:not([data-tema="oscuro"]) .pf-onix { display: none; } :root:not([data-tema="oscuro"]) .pf-marmol { display: block; } }
-:root[data-tema="claro"] .pf-onix { display: none; } :root[data-tema="claro"] .pf-marmol { display: block; }
-.portada-caja, .portada .bajar { position: relative; }
+
+.con-fases { height: 500vh; }
+.con-fases .portada-fija { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+.con-fases .fase { position: absolute; inset: 0; padding: 0; pointer-events: none; }
+.con-fases .fase.activa { pointer-events: auto; }
+.con-fases .fase-foto { position: absolute; inset: 0; opacity: 0; transition: opacity 1s var(--curva); }
+.con-fases .fase-foto img { width: 100%; height: 100%; aspect-ratio: auto; scale: calc(1.035 - var(--avance, 0) * 0.035); transition: scale .25s linear; }
+.con-fases .fase.activa .fase-foto { opacity: 1; }
+/* sólo la fase activa y sus vecinas tienen la foto en el documento: las demás (loading="lazy") no se piden todavía */
+.con-fases .fase:not(.activa):not(.cerca) .fase-foto { display: none; }
+.con-fases .fase-foto::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, color-mix(in srgb, var(--fondo) 72%, transparent) 0%, transparent 48%), linear-gradient(to top, var(--fondo) 0%, transparent 22%); }
+.con-fases .fase-texto { position: absolute; left: var(--gutter); top: 50%; translate: 0 -50%; padding: 0; width: min(520px, 34vw); }
+.con-fases .fase-titulo .pal > span, .con-fases .fase-linea, .con-fases .fase-num, .con-fases .fase .portada-acciones, .con-fases .fase .requisito, .con-fases .fase .marca { transition: transform .9s cubic-bezier(.34, 1.42, .64, 1) calc(var(--n, 0) * 70ms + .15s), opacity .7s var(--curva) .3s, translate .9s var(--curva) .3s; }
+.con-fases .fase-titulo .pal > span { transform: translateY(112%); }
+.con-fases .fase.activa .fase-titulo .pal > span { transform: none; }
+.con-fases .fase:not(.activa) .fase-linea, .con-fases .fase:not(.activa) .fase-num, .con-fases .fase:not(.activa) .portada-acciones, .con-fases .fase:not(.activa) .requisito, .con-fases .fase:not(.activa) .marca { opacity: 0; translate: 0 16px; }
+/* el plano con la profundidad (paralaje del puntero), encima de las fotos cuando está listo */
+.con-fases .fases-lienzo { display: block; position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .6s var(--curva); pointer-events: none; }
+.con-fases .fases-lienzo.listo { opacity: 1; }
+.con-fases .fases-lienzo.listo ~ .fases .fase-foto img { visibility: hidden; }
+.con-fases .fases-lienzo.listo ~ .fases .fase-foto { background: none; }
+/* los rótulos finos que señalan lo que muestra la imagen */
+.con-fases .fases-lineas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
+.fl-linea { fill: none; stroke: var(--candy); stroke-width: 1; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .9s var(--curva) .5s; }
+.fl-punto { fill: var(--candy); opacity: 0; transition: opacity .4s var(--curva) .45s; filter: drop-shadow(0 0 6px var(--oro-halo)); }
+.fl-aro { fill: none; stroke: var(--candy); stroke-width: 1; opacity: 0; transition: opacity .4s var(--curva) .45s; }
+.fl-activa .fl-linea { stroke-dashoffset: 0; }
+.fl-activa .fl-punto, .fl-activa .fl-aro { opacity: 1; }
+.con-fases .fase-rotulo {
+  display: block; position: absolute; left: 0; top: 0; z-index: 3;
+  font: 500 12px/1 var(--mono); letter-spacing: .2em; text-transform: uppercase; color: var(--texto);
+  padding: 7px 11px; border: 1px solid var(--borde); border-radius: 999px;
+  background: color-mix(in srgb, var(--fondo) 55%, transparent); backdrop-filter: blur(8px);
+  opacity: 0; clip-path: inset(0 100% 0 0 round 999px); transition: opacity .5s var(--curva) .9s, clip-path .7s var(--curva) .9s;
+}
+.con-fases .fase.activa .fase-rotulo.visible { opacity: 1; clip-path: inset(0 0 0 0 round 999px); }
+/* el paso de fase y la invitación a bajar */
+.con-fases .fases-marcas { display: flex; position: absolute; left: var(--gutter); bottom: 26px; align-items: center; gap: 18px; font: 500 11px/1 var(--mono); letter-spacing: .24em; text-transform: uppercase; color: var(--medio); z-index: 2; }
+.fm-paso { display: inline-flex; gap: 6px; }
+.fm-paso i { width: 22px; height: 2px; background: color-mix(in srgb, var(--texto) 22%, transparent); transition: background .5s var(--curva); }
+.fm-paso i.hecho { background: var(--candy); }
 .portada-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: clamp(26px, 4.4vh, 40px); }
 .portada-acciones .boton-descarga { margin-top: 0; }
 .pildora {
@@ -790,17 +781,9 @@ main, .pie { position: relative; z-index: 1; }
   .cab-marca span { font-size: 13px; letter-spacing: .26em; }
   .marca { font-size: clamp(30px, 10vw, 46px); letter-spacing: .22em; }
   .signo { left: 50vw; top: 27vh; width: 26vh; }
-  /* en el teléfono la foto va arriba (el libro entero) y el texto abajo, sobre el fondo liso */
-  .portada-fija { padding-top: calc(44svh + 24px); }
-  .portada-foto { bottom: auto; height: 50svh; }
-  .portada-foto img { object-position: 93% 45%; }
-  .portada-foto::after { background: linear-gradient(to top, var(--fondo) 0%, transparent 40%); }
-  .portada-fija > .signo { left: 66%; top: 24%; width: 16vh; }
-  .hc-titulo { width: auto; right: var(--gutter); top: auto; bottom: 72px; }
-  .heroe-capas::before { display: none; }
-  .hc-txt { font-size: clamp(34px, 10vw, 46px); }
-  .heroe-marcas i:nth-child(2), .heroe-marcas i:nth-child(4) { display: none; }
-  .portada .bajar { display: none; }
+  /* en el teléfono las fases van apiladas: la imagen (el libro entero, recortado a la derecha) arriba y el texto abajo */
+  .fase-foto img { object-position: 80% 50%; }
+  .portada-fija > .signo { left: 66%; top: 18%; width: 16vh; }
   .portada-acciones { width: 100%; }
   .pildora { width: 100%; justify-content: center; min-height: 54px; }
   .lema { min-height: 2.5em; display: grid; align-items: center; }

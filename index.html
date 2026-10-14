@@ -65,43 +65,82 @@
 <main id="contenido">
 
   <section class="portada" id="portada" data-tramo="0" aria-labelledby="marca">
-    <!-- etapa 1: el libro que se abre con el scroll. La pista es alta y la escena queda fija mientras se recorre;
-         el póster (primer cuadro) va primero y los cuadros se piden después, de a poco. Sin JS o con menos
-         movimiento queda el póster quieto. -->
+    <!-- el héroe por fases (14/10): cinco paradas del scroll con una imagen quieta del libro cada una. En escritorio la
+         escena queda fija y las fases se reemplazan con un fundido; en el teléfono (o con menos movimiento) van una debajo
+         de la otra, con la imagen arriba. Sólo la primera imagen se pide de entrada. -->
     <div class="portada-fija">
-    <div class="portada-foto" aria-hidden="true">
-      <img class="pf-onix" src="imagenes/portada/libro1-onix-1920.webp" srcset="imagenes/portada/libro1-onix-960.webp 960w, imagenes/portada/libro1-onix-1920.webp 1920w" sizes="100vw" width="1920" height="1080" alt="" decoding="async">
-      <img class="pf-marmol" src="imagenes/portada/libro1-marmol-1920.webp" srcset="imagenes/portada/libro1-marmol-960.webp 960w, imagenes/portada/libro1-marmol-1920.webp 1920w" sizes="100vw" width="1920" height="1080" alt="" decoding="async">
-      <canvas class="portada-lienzo" width="1920" height="1080"></canvas>
-    </div>
     <span class="signo" id="signo" aria-hidden="true"></span>
-    <!-- etapa 2: lo que dice el libro mientras se abre. Títulos que entran palabra por palabra con resorte y rótulos
-         con una línea fina que señala la parte del render; cada uno vive en un tramo del recorrido (data-desde/hasta). -->
-    <div class="heroe-capas" aria-hidden="true">
-      <svg class="hc-lineas"></svg>
-      <p class="hc-titulo" data-desde=".13" data-hasta=".40"><span class="hc-num">01</span><span class="hc-txt">Abrís la clase.</span><span class="hc-sub">Lo que dijo el profesor, entero y ordenado.</span></p>
-      <p class="hc-titulo" data-desde=".44" data-hasta=".80"><span class="hc-num">02</span><span class="hc-txt">Cathedra arma la guía.</span><span class="hc-sub">Resumen, conceptos y fichas, página por página.</span></p>
-      <p class="hc-titulo" data-desde=".84" data-hasta="1.2"><span class="hc-num">03</span><span class="hc-txt">Llegás al examen con todo.</span><span class="hc-sub">Simulacros con las preguntas de tu materia.</span></p>
-      <span class="hc-rotulo" data-desde=".16" data-hasta=".40" data-ancla="1180,470" data-lado="arriba">la clase</span>
-      <span class="hc-rotulo" data-desde=".48" data-hasta=".80" data-ancla="1330,430" data-lado="arriba">la guía</span>
-      <span class="hc-rotulo" data-desde=".86" data-hasta="1.2" data-ancla="1060,760" data-lado="abajo">tu examen</span>
-    </div>
-    <div class="heroe-marcas" aria-hidden="true"><i>+</i><i>+</i><span>Bajá para abrirlo</span><i>+</i><i>+</i></div>
-    <div class="portada-caja">
-      
-      <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
-      <p class="lema"><span class="palabras">Estudiá desde lo que dijo el profesor.</span></p>
-      <div class="portada-acciones llega">
-      <a class="boton-descarga" href="#descargar">
-        <span class="bd-punto" aria-hidden="true"></span>
-        <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
-        <span class="bd-texto">Descargar para Windows</span>
-      </a>
-      <a class="pildora" href="#cronograma">Cómo funciona</a>
-      </div>
-      <p class="requisito llega">Windows 10 u 11 · 64 bits</p>
-    </div>
-    <p class="bajar llega" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
+    <canvas class="fases-lienzo" aria-hidden="true"></canvas>
+    <svg class="fases-lineas" aria-hidden="true"></svg>
+    <ol class="fases">
+      <li class="fase activa" data-fase="1">
+        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f1-marmol-1280.avif 1280w, imagenes/fases/f1-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f1-onix-1280.avif 1280w, imagenes/fases/f1-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f1-onix-1280.webp" width="1920" height="1080" alt="El libro cerrado sobre la mesa y, al lado, un teléfono grabando la clase; la onda de la voz, en arcos de luz celeste, entra al libro." fetchpriority="high" decoding="async"></picture></figure>
+        <div class="fase-texto">
+          <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
+          <p class="fase-num">01 / 05</p>
+          <h2 class="fase-titulo">Grabás la clase.</h2>
+          <p class="fase-linea">La grabás con el celular, como siempre, y se la das a Cathedra: todo sale de lo que dijo el profesor.</p>
+          <div class="portada-acciones">
+          <a class="boton-descarga" href="#descargar">
+            <span class="bd-punto" aria-hidden="true"></span>
+            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+            <span class="bd-texto">Descargar para Windows</span>
+          </a>
+          <a class="pildora" href="#cronograma">Cómo funciona</a>
+          </div>
+          <p class="requisito">Windows 10 u 11 · 64 bits</p>
+        </div>
+        <span class="fase-rotulo" data-ancla="783,600" aria-hidden="true">el teléfono graba</span>
+        <span class="fase-rotulo" data-ancla="1053,505" aria-hidden="true">la voz entra al libro</span>
+      </li>
+      <li class="fase" data-fase="2">
+        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f2-marmol-1280.avif 1280w, imagenes/fases/f2-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f2-onix-1280.avif 1280w, imagenes/fases/f2-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f2-onix-1280.webp" width="1920" height="1080" alt="El libro abierto en la guía de la clase: títulos de tema con el minuto de la clase al lado de cada uno." loading="lazy" decoding="async"></picture></figure>
+        <div class="fase-texto">
+          <p class="fase-num">02 / 05</p>
+          <h2 class="fase-titulo">Cathedra la lee y arma la guía.</h2>
+          <p class="fase-linea">Transcribe la clase y la ordena en una guía: los temas, los conceptos y el minuto exacto de cada cosa.</p>
+        </div>
+        <span class="fase-rotulo" data-ancla="1021,417" aria-hidden="true">la guía de la clase</span>
+        <span class="fase-rotulo" data-ancla="1351,385" aria-hidden="true">el minuto de cada tema</span>
+      </li>
+      <li class="fase" data-fase="3">
+        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f3-marmol-1280.avif 1280w, imagenes/fases/f3-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f3-onix-1280.avif 1280w, imagenes/fases/f3-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f3-onix-1280.webp" width="1920" height="1080" alt="Fichas de cerámica celeste que salen volando de las páginas y, adelante, una ficha de papel con una pregunta y la cita de la clase." loading="lazy" decoding="async"></picture></figure>
+        <div class="fase-texto">
+          <p class="fase-num">03 / 05</p>
+          <h2 class="fase-titulo">Practicás con preguntas y fichas.</h2>
+          <p class="fase-linea">Preguntas sobre tu materia, cada una con la cita de la clase de donde sale, y fichas para repasar.</p>
+        </div>
+        <span class="fase-rotulo" data-ancla="1530,445" aria-hidden="true">fichas para repasar</span>
+        <span class="fase-rotulo" data-ancla="865,854" aria-hidden="true">la pregunta, con su cita</span>
+      </li>
+      <li class="fase" data-fase="4">
+        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f4-marmol-1280.avif 1280w, imagenes/fases/f4-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f4-onix-1280.avif 1280w, imagenes/fases/f4-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f4-onix-1280.webp" width="1920" height="1080" alt="La hoja del simulacro con sus respuestas corregidas sobre el libro y, al lado, la devolución con fortalezas y qué repasar." loading="lazy" decoding="async"></picture></figure>
+        <div class="fase-texto">
+          <p class="fase-num">04 / 05</p>
+          <h2 class="fase-titulo">Rendís el simulacro.</h2>
+          <p class="fase-linea">Un examen como el de verdad, escrito u oral, y una devolución con tus fortalezas y lo que te conviene repasar.</p>
+        </div>
+        <span class="fase-rotulo" data-ancla="1539,467" aria-hidden="true">el simulacro, corregido</span>
+        <span class="fase-rotulo" data-ancla="1150,529" aria-hidden="true">fortalezas y qué repasar</span>
+      </li>
+      <li class="fase" data-fase="5">
+        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f5-marmol-1280.avif 1280w, imagenes/fases/f5-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f5-onix-1280.avif 1280w, imagenes/fases/f5-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f5-onix-1280.webp" width="1920" height="1080" alt="El libro cerrado con la cinta roja, listo para empezar." loading="lazy" decoding="async"></picture></figure>
+        <div class="fase-texto">
+          <p class="fase-num">05 / 05</p>
+          <h2 class="fase-titulo">Bajala y empezá.</h2>
+          <p class="fase-linea">Cathedra se instala en tu computadora y empieza con tu próxima clase.</p>
+          <div class="portada-acciones">
+          <a class="boton-descarga" href="#descargar">
+            <span class="bd-punto" aria-hidden="true"></span>
+            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+            <span class="bd-texto">Descargar Cathedra</span>
+          </a>
+          </div>
+          <p class="requisito">Windows 10 u 11 · 64 bits</p>
+        </div>
+      </li>
+    </ol>
+    <div class="fases-marcas" aria-hidden="true"><span class="fm-paso"><i></i><i></i><i></i><i></i><i></i></span><span>Bajá para seguir</span></div>
     </div>
   </section>
 

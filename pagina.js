@@ -79,7 +79,6 @@ TIPOS.forEach(([sel, clase]) => document.querySelectorAll(sel).forEach((el) => {
   el.dataset.rev = ""; el.classList.add(clase); revelables.push(el);
 }));
 // la portada ya entra con la apertura: sólo sale, en espejo, al bajar
-document.querySelectorAll("#portada .portada-caja, #portada .bajar").forEach((el) => { el.dataset.rev = "salida"; el.classList.add("rev-salida"); revelables.push(el); });
 const curva = (x) => { const t = Math.min(1, Math.max(0, x)); return 1 - Math.pow(1 - t, 3); };
 if (quieto || !("IntersectionObserver" in window)) {
   revelables.forEach((el) => el.style.setProperty("--v", "1"));
@@ -229,230 +228,150 @@ if (quieto || !carga) {
   requestAnimationFrame(pasoCarga);
 }
 
-/* ══════════════════════ la secuencia del héroe (etapas 1 y 2) ══════════════════════ */
-/* El libro que se abre con el scroll: cuadros prerrenderizados en Cycles (AVIF de calidad alta). Primero el póster (ya está en
-   el HTML); después los cuadros, de grueso a fino (cada 8, cada 4, cada 2, todos) para que el recorrido entero
-   funcione enseguida y se vaya afinando. En el teléfono, la mitad de los cuadros y a 1280. Con menos movimiento
-   no se monta: queda el póster quieto.
-   Etapa 2: se dibuja en un plano con shader (WebGL sólo para la imagen, ninguna geometría): con el mapa de
-   profundidad de cada cuadro (el pase de niebla de Blender) el puntero corre lo cercano más que lo lejano, una
-   profundidad falsa suave. Sin WebGL, el mismo cuadro en un canvas 2D. Encima, los títulos y los rótulos con
-   línea de cada tramo del recorrido. */
-(function secuencia() {
+/* ══════════════════════ el héroe por fases ══════════════════════ */
+/* Cinco paradas del scroll con una imagen quieta del libro cada una (Cycles, AVIF a 1280; 1920 sólo si la pantalla
+   lo pide). En escritorio la escena queda fija: la fase activa sale del recorrido y cambia con un fundido cruzado y
+   un zoom leve; el título entra palabra por palabra con resorte y los rótulos dibujan su línea hacia lo que la
+   imagen muestra. Con WebGL, un plano con shader suma el paralaje del puntero con el mapa de profundidad de cada
+   quieta (ninguna geometría). En el teléfono, o con menos movimiento, las fases van apiladas y sin nada de esto. */
+(function fases() {
   const pista = document.getElementById("portada");
-  const lienzo = pista && pista.querySelector(".portada-lienzo");
-  if (!pista || !lienzo || quieto || !lienzo.getContext) return;
-  const telefono = window.matchMedia("(max-width: 600px)");          // el encuadre del teléfono (la foto arriba)
-  const liviano = window.matchMedia("(max-width: 900px)");           // por debajo de 900 px: 1280 y uno de cada dos cuadros
+  const lista = pista && [...pista.querySelectorAll(".fase")];
+  const escritorio = window.matchMedia("(min-width: 901px)");
+  if (!pista || !lista.length || quieto || !escritorio.matches) return;
+  pista.classList.add("con-fases");
   const claroSistema = window.matchMedia("(prefers-color-scheme: light)");
-  const conPuntero = window.matchMedia("(pointer: fine)").matches;
-    const claro = () => raiz.dataset.tema === "claro" || (raiz.dataset.tema !== "oscuro" && claroSistema.matches);
-  let juego = null, actual = 0, objetivo = 0, pintado = -1, andando = false;
-  const raton = { x: 0, y: 0, ox: 0, oy: 0 };
+  const tema = () => (raiz.dataset.tema === "claro" || (raiz.dataset.tema !== "oscuro" && claroSistema.matches) ? "marmol" : "onix");
+  // las palabras de cada título, para que entren de a una
+  lista.forEach((f) => {
+    const t = f.querySelector(".fase-titulo");
+    t.innerHTML = t.textContent.split(" ").map((w, i) => `<span class="pal"><span style="--n:${i}">${w}</span></span>`).join(" ");
+  });
+  const pasos = [...pista.querySelectorAll(".fm-paso i")];
+  const svg = pista.querySelector(".fases-lineas");
+  const lienzo = pista.querySelector(".fases-lienzo");
+  let activa = 0, avance = 0;
 
-  // ── el plano con shader (o el canvas 2D si no hay WebGL) ──
-  let gl = null, prog = null, texColor = null, texProf = null, ctx = null, profPintada = -1;
-  try { gl = lienzo.getContext("webgl", { alpha: false, antialias: false, premultipliedAlpha: false }); } catch (e) { gl = null; }
-  if (gl) {
-    const sh = (tipo, src) => { const o = gl.createShader(tipo); gl.shaderSource(o, src); gl.compileShader(o); return o; };
-    prog = gl.createProgram();
-    gl.attachShader(prog, sh(gl.VERTEX_SHADER, "attribute vec2 p; varying vec2 v; void main(){ v = p * 0.5 + 0.5; v.y = 1.0 - v.y; gl_Position = vec4(p, 0.0, 1.0); }"));
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, [
-      "precision mediump float; varying vec2 v; uniform sampler2D uC, uP; uniform vec4 uCubre; uniform vec2 uRaton; uniform float uHayProf;",
-      "void main(){ vec2 uv = v * uCubre.xy + uCubre.zw;",
-      "  float d = texture2D(uP, uv).r;",                                   // 0 = cerca, 1 = lejos
-      "  vec2 corre = uRaton * (0.55 - d) * 0.016 * uHayProf;",
-      "  gl_FragColor = vec4(texture2D(uC, clamp(uv + corre, 0.001, 0.999)).rgb, 1.0); }"].join("\n")));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) gl = null;
+  // ── los rótulos: punto en la imagen (coordenadas del render 1920×1080), línea y etiqueta ──
+  const NS = svg.namespaceURI;
+  const rotulos = [];
+  lista.forEach((f, i) => f.querySelectorAll(".fase-rotulo").forEach((r) => {
+    const g = document.createElementNS(NS, "g");
+    const linea = document.createElementNS(NS, "path"); linea.setAttribute("pathLength", "1"); linea.classList.add("fl-linea");
+    const aro = document.createElementNS(NS, "circle"); aro.setAttribute("r", "11"); aro.classList.add("fl-aro");
+    const punto = document.createElementNS(NS, "circle"); punto.setAttribute("r", "4"); punto.classList.add("fl-punto");
+    g.append(linea, aro, punto); svg.append(g);
+    rotulos.push({ fase: i, r, g, linea, aro, punto, ancla: r.dataset.ancla.split(",").map(Number), k: f.querySelectorAll(".fase-rotulo").length });
+  }));
+  function cubrir(x, y) {                      // el mismo «cover» de las fotos (object-position 70 % 50 %)
+    const W = pista.clientWidth, H = window.innerHeight, s = Math.max(W / 1920, H / 1080);
+    return [(W - 1920 * s) * 0.7 + x * s, (H - 1080 * s) * 0.5 + y * s, W, H];
   }
-  if (gl) {
-    gl.useProgram(prog);
-    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(prog, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    const tex = (unidad) => {
-      const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unidad); gl.bindTexture(gl.TEXTURE_2D, t);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  function ubicarRotulos() {
+    let porFase = {};
+    rotulos.forEach((o) => {
+      const [ax, ay, W, H] = cubrir(o.ancla[0], o.ancla[1]);
+      const n = (porFase[o.fase] = (porFase[o.fase] || 0) + 1);
+      const arriba = n % 2 === 1, dx = Math.min(110, W * 0.08), dy = Math.min(140, H * 0.16) * (arriba ? -1 : 1);
+      const ancho = o.r.offsetWidth || 180, izquierda = ax + dx + ancho + 30 > W;     // cerca del borde, la etiqueta va a la izquierda
+      const sx = izquierda ? -1 : 1, lx = ax + dx * sx, ly = ay + dy;
+      o.linea.setAttribute("d", `M${ax},${ay} L${ax + dx * 0.35 * sx},${ly} L${lx + 6 * sx},${ly}`);
+      [o.aro, o.punto].forEach((c) => { c.setAttribute("cx", ax); c.setAttribute("cy", ay); });
+      o.r.style.transform = `translate(${izquierda ? lx - 12 - ancho : lx + 12}px, ${ly - 13}px)`;
+      const visible = ax > W * 0.36 && ax < W - 40 && ay > 60 && ay < H - 60;     // no encima del texto ni fuera
+      o.r.classList.toggle("visible", visible); o.g.style.display = visible ? "" : "none";
+    });
+    svg.setAttribute("viewBox", `0 0 ${pista.clientWidth} ${window.innerHeight}`);
+  }
+
+  function marcar(i) {
+    if (i === activa && lista[i].classList.contains("activa")) return;
+    activa = i;
+    lista.forEach((f, k) => { f.classList.toggle("activa", k === i); f.classList.toggle("cerca", Math.abs(k - i) === 1); });
+    pasos.forEach((p, k) => p.classList.toggle("hecho", k <= i));
+    rotulos.forEach((o) => o.g.classList.toggle("fl-activa", o.fase === i));
+    if (plano) plano.a(i);
+  }
+  function alScroll() {
+    const r = pista.getBoundingClientRect(), recorrido = r.height - window.innerHeight;
+    const p = recorrido > 0 ? Math.max(0, Math.min(0.9999, -r.top / recorrido)) : 0;
+    const i = Math.floor(p * lista.length);
+    avance = p * lista.length - i;
+    marcar(i);
+    lista[i].style.setProperty("--avance", avance.toFixed(3));
+    if (plano) plano.pedir();
+  }
+
+  // ── el plano con shader: fundido entre dos quietas, zoom leve y paralaje con la profundidad ──
+  let plano = null;
+  try { plano = armarPlano(); } catch (e) { plano = null; }
+  function armarPlano() {
+    if (!window.matchMedia("(pointer: fine)").matches) return null;
+    const gl = lienzo.getContext("webgl", { alpha: false, antialias: false });
+    if (!gl) return null;
+    const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+    const pr = gl.createProgram();
+    gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 p; varying vec2 v; void main(){ v = p * 0.5 + 0.5; v.y = 1.0 - v.y; gl_Position = vec4(p, 0.0, 1.0); }"));
+    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, [
+      "precision mediump float; varying vec2 v; uniform sampler2D uA, uB, uPA, uPB; uniform vec4 uCubre; uniform vec2 uRaton; uniform float uT, uZoomA, uZoomB;",
+      "vec3 toma(sampler2D c, sampler2D d, float z){ vec2 uv = v * uCubre.xy + uCubre.zw; uv = (uv - vec2(0.7, 0.5)) / (1.0 + z) + vec2(0.7, 0.5);",
+      "  float pr = texture2D(d, uv).r; uv += uRaton * (0.55 - pr) * 0.014 + vec2(0.0, (0.5 - pr) * z * 0.25);",
+      "  return texture2D(c, clamp(uv, 0.001, 0.999)).rgb; }",
+      "void main(){ gl_FragColor = vec4(mix(toma(uA, uPA, uZoomA), toma(uB, uPB, uZoomB), uT), 1.0); }"].join("\n")));
+    gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
+    gl.useProgram(pr);
+    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const U = (n) => gl.getUniformLocation(pr, n);
+    const texturas = [], profs = [];
+    const nueva = () => {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach((k) => gl.texParameteri(gl.TEXTURE_2D, k, gl.LINEAR));
+      [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((k) => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 128, 255]));
       return t;
     };
-    texColor = tex(0); texProf = tex(1);
-    gl.uniform1i(gl.getUniformLocation(prog, "uC"), 0); gl.uniform1i(gl.getUniformLocation(prog, "uP"), 1);
-  } else {
-    ctx = lienzo.getContext("2d");
-  }
-
-  // la secuencia la describe imagenes/portada/secuencia/manifiesto.json (lo escribe el empaquetador de la máquina del
-  // dueño: por tema —onix, marmol— y por ancho —1920, 1280— la carpeta y los cuadros que ya hay) y la profundidad de
-  // los cuadros clave, profundidad.json
-  const BASE = "imagenes/portada/secuencia/";
-  let manifiesto = null, profundidad = {};
-  const pedirManifiesto = Promise.all([
-    fetch(BASE + "manifiesto.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
-    fetch(BASE + "profundidad.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([m, p]) => { profundidad = p || {}; return m; });
-
-  function armar() {
-    if (!manifiesto) return;
-    const movil = telefono.matches, chico = liviano.matches;
-    const tema = claro() ? "marmol" : "onix", porAncho = manifiesto.temas && manifiesto.temas[tema];
-    const datos = porAncho && (chico && porAncho["1280"] && porAncho["1280"].cantidad ? porAncho["1280"] : porAncho["1920"]);
-    if (!datos || !datos.cuadros || !datos.cuadros.length) return;
-    // en el teléfono, la carpeta de 1280 y la mitad de los cuadros
-    const todos = datos.cuadros.slice().sort((a, b) => a - b);
-    const indices = todos.filter((n, i) => !chico || i % 2 === 0 || i === todos.length - 1);
-    const carpeta = BASE + datos.carpeta + "/", ext = manifiesto.formato || "avif";
-    const nombre = (n) => String(n).padStart(4, "0");
-    const prof = (profundidad[tema] || []).slice().sort((a, b) => a - b);
-    const nuevo = { indices, total: manifiesto.total_por_tema || todos[todos.length - 1] + 1, cuadros: new Array(indices.length),
-      prof, profImg: new Array(prof.length), fx: movil ? 0.93 : 0.7, fy: movil ? 0.45 : 0.5 };
-    juego = nuevo; pintado = -1; profPintada = -1;
-    const orden = [], visto = new Set();
-    for (const s of [8, 4, 2, 1]) for (let k = 0; k < indices.length; k += s) if (!visto.has(k)) { visto.add(k); orden.push(k); }
-    if (!visto.has(indices.length - 1)) orden.splice(1, 0, indices.length - 1);
-    let enCurso = 0, sig = 0, fallo = false;
-    const pedir = () => {
-      // el primero solo: si no llega (sin AVIF, por ejemplo) no se pide nada más y queda el póster
-      while (juego === nuevo && !fallo && enCurso < (nuevo.cuadros[0] ? 4 : 1) && sig < orden.length) {
-        const k = orden[sig++]; enCurso++;
-        const img = new Image(); img.decoding = "async";
-        img.onload = () => { enCurso--; if (juego !== nuevo) return; nuevo.cuadros[k] = img; pedir(); pintar(false); };
-        img.onerror = () => { enCurso--; if (k === 0) fallo = true; pedir(); };
-        img.src = carpeta + nombre(indices[k]) + "." + ext;
-      }
-    };
-    pedir();
-    // la profundidad (sólo los cuadros clave; con plano y puntero): se usa la del cuadro clave más cercano
-    if (gl && conPuntero) prof.forEach((n, j) => {
+    const listas = lista.map(() => false);
+    lista.forEach((f, i) => {
+      texturas[i] = nueva(); profs[i] = nueva();
+      const img = f.querySelector(".fase-foto img");
+      const subir = () => { gl.bindTexture(gl.TEXTURE_2D, texturas[i]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); listas[i] = true; pedir(); };
+      if (img.complete && img.naturalWidth) subir(); else img.addEventListener("load", subir, { once: true });
       const p = new Image(); p.decoding = "async";
-      p.onload = () => { if (juego === nuevo) { nuevo.profImg[j] = p; pintar(false); } };
-      p.src = BASE + tema + "-prof/" + nombre(n) + ".webp";
+      p.onload = () => { gl.bindTexture(gl.TEXTURE_2D, profs[i]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, p); pedir(); };
+      p.src = `imagenes/fases/f${i + 1}-${tema()}-prof.webp`;
     });
-  }
-
-  function medida() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = Math.round(lienzo.clientWidth * dpr), h = Math.round(lienzo.clientHeight * dpr);
-    if (w && (lienzo.width !== w || lienzo.height !== h)) { lienzo.width = w; lienzo.height = h; pintado = -1; if (gl) gl.viewport(0, 0, w, h); }
-  }
-
-  function cercano(lista, k) {
-    for (let d = 0; d < lista.length; d++) { if (lista[k - d]) return k - d; if (lista[k + d]) return k + d; }
-    return -1;
-  }
-
-  // de coordenadas del cuadro (1920×1080) a píxeles CSS del lienzo, con el mismo «cover» del dibujo
-  function cubrir() {
-    const cw = lienzo.clientWidth, ch = lienzo.clientHeight, iw = 1920, ih = 1080;
-    const s = Math.max(cw / iw, ch / ih), dw = iw * s, dh = ih * s;
-    return { s, dx: (cw - dw) * juego.fx, dy: (ch - dh) * juego.fy, dw, dh, cw, ch };
-  }
-  PAGINA.mapaHeroe = (x, y) => { if (!juego) return null; const c = cubrir(); return [c.dx + x * c.s, c.dy + y * c.s]; };
-
-  function pintar(forzar) {
-    if (!juego) return;
-    const f = actual * (juego.total - 1), ind = juego.indices;
-    let objetivoK = 0;
-    for (let i = 1; i < ind.length; i++) if (Math.abs(ind[i] - f) < Math.abs(ind[objetivoK] - f)) objetivoK = i;
-    const k = cercano(juego.cuadros, objetivoK);
-    const moverRaton = gl && (Math.abs(raton.x - raton.ox) > 0.0005 || Math.abs(raton.y - raton.oy) > 0.0005);
-    if (k < 0 || (k === pintado && !forzar && !moverRaton)) return;
-    const img = juego.cuadros[k];
-    if (gl) {
-      if (k !== pintado) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, texColor); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); }
-      let kp = -1;
-      juego.prof.forEach((nf, j) => { if (juego.profImg[j] && (kp < 0 || Math.abs(nf - ind[k]) < Math.abs(juego.prof[kp] - ind[k]))) kp = j; });
-      if (kp >= 0 && kp !== profPintada) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texProf); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, juego.profImg[kp]); profPintada = kp; }
-      const c = cubrir();
-      // uv de pantalla → uv de la imagen: escala y corrimiento del «cover»
-      gl.uniform4f(gl.getUniformLocation(prog, "uCubre"), c.cw / c.dw, c.ch / c.dh, -c.dx / c.dw, -c.dy / c.dh);
-      gl.uniform2f(gl.getUniformLocation(prog, "uRaton"), raton.ox, raton.oy);
-      gl.uniform1f(gl.getUniformLocation(prog, "uHayProf"), profPintada >= 0 ? 1 : 0);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    } else {
-      const cw = lienzo.width, ch = lienzo.height;
-      const s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight), dw = img.naturalWidth * s, dh = img.naturalHeight * s;
-      ctx.drawImage(img, (cw - dw) * juego.fx, (ch - dh) * juego.fy, dw, dh);
+    let desde = 0, hacia = 0, t0 = 0, mezcla = 1, pedido = 0;
+    const raton = { x: 0, y: 0, ox: 0, oy: 0 };
+    window.addEventListener("pointermove", (e) => { raton.x = e.clientX / innerWidth * 2 - 1; raton.y = e.clientY / innerHeight * 2 - 1; pedir(); }, { passive: true });
+    function medida() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(lienzo.clientWidth * dpr), h = Math.round(lienzo.clientHeight * dpr);
+      if (w && (lienzo.width !== w || lienzo.height !== h)) { lienzo.width = w; lienzo.height = h; gl.viewport(0, 0, w, h); }
     }
-    pintado = k; lienzo.classList.add("listo");
+    function pintar(ahora) {
+      pedido = 0; medida();
+      mezcla = Math.min(1, (ahora - t0) / 900); const m = mezcla * mezcla * (3 - 2 * mezcla);
+      raton.ox += (raton.x - raton.ox) * 0.08; raton.oy += (raton.y - raton.oy) * 0.08;
+      const W = lienzo.clientWidth, H = lienzo.clientHeight, s = Math.max(W / 1920, H / 1080), dw = 1920 * s, dh = 1080 * s;
+      gl.uniform4f(U("uCubre"), W / dw, H / dh, -((W - dw) * 0.7) / dw, -((H - dh) * 0.5) / dh);
+      [["uA", 0, texturas[desde]], ["uB", 1, texturas[hacia]], ["uPA", 2, profs[desde]], ["uPB", 3, profs[hacia]]].forEach(([n, u, t]) => {
+        gl.activeTexture(gl.TEXTURE0 + u); gl.bindTexture(gl.TEXTURE_2D, t); gl.uniform1i(U(n), u);
+      });
+      gl.uniform1f(U("uT"), m); gl.uniform2f(U("uRaton"), raton.ox, raton.oy);
+      gl.uniform1f(U("uZoomA"), 0.035 + 0.02 * m); gl.uniform1f(U("uZoomB"), 0.035 * (1 - avance) + 0.02 * (1 - m));
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      if (listas[hacia]) lienzo.classList.add("listo");
+      if (mezcla < 1 || Math.abs(raton.x - raton.ox) > 0.001 || Math.abs(raton.y - raton.oy) > 0.001) pedir();
+    }
+    function pedir() { if (!pedido && !document.hidden) pedido = requestAnimationFrame(pintar); }
+    return { a(i) { if (i === hacia) return; desde = mezcla < 1 ? hacia : hacia; hacia = i; t0 = performance.now(); mezcla = 0; pedir(); }, pedir };
   }
 
-  // ── los títulos y los rótulos de cada tramo ──
-  const capas = pista.querySelector(".heroe-capas");
-  const titulos = capas ? [...capas.querySelectorAll(".hc-titulo")] : [];
-  const rotulos = capas ? [...capas.querySelectorAll(".hc-rotulo")] : [];
-  const svg = capas && capas.querySelector(".hc-lineas");
-  const NS = svg ? svg.namespaceURI : "";          // el del propio <svg> (sin escribir direcciones externas)
-  titulos.forEach((t) => {
-    const txt = t.querySelector(".hc-txt");
-    txt.innerHTML = txt.textContent.split(" ").map((w, i) => `<span class="pal"><span style="--n:${i}">${w}</span></span>`).join(" ");
-  });
-  const trazos = rotulos.map((r) => {
-    const linea = document.createElementNS(NS, "path"); linea.setAttribute("pathLength", "1"); linea.classList.add("hc-linea");
-    const punto = document.createElementNS(NS, "circle"); punto.setAttribute("r", "4"); punto.classList.add("hc-punto");
-    const aro = document.createElementNS(NS, "circle"); aro.setAttribute("r", "11"); aro.classList.add("hc-aro");
-    svg.append(linea, aro, punto);
-    return { r, linea, punto, aro, ancla: r.dataset.ancla.split(",").map(Number), arriba: r.dataset.lado !== "abajo" };
-  });
-  const tramo = (el, p) => {
-    const a = parseFloat(el.dataset.desde), b = parseFloat(el.dataset.hasta);
-    return { dentro: p >= a && p < b, entra: Math.max(0, Math.min(1, (p - a) / 0.06)), pasado: p >= b };
-  };
-  function capasSegun(p) {
-    if (!capas) return;
-    titulos.forEach((t) => { const e = tramo(t, p); t.classList.toggle("activo", e.dentro); t.classList.toggle("ido", e.pasado); });
-    const W = lienzo.clientWidth, H = lienzo.clientHeight;
-    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
-    trazos.forEach((o) => {
-      const e = tramo(o.r, p), m = PAGINA.mapaHeroe(o.ancla[0], o.ancla[1]);
-      if (!m) return;
-      const [ax, ay] = m, alto = Math.min(150, H * 0.18) * (o.arriba ? -1 : 1);
-      const lx = ax + Math.min(90, W * 0.08), ly = ay + alto;              // el rótulo, arriba (o abajo) a la derecha del punto
-      o.linea.setAttribute("d", `M${ax},${ay} L${ax + (lx - ax) * 0.35},${ly} L${lx + 8},${ly}`);
-      o.r.style.transform = `translate(${lx + 14}px, ${ly - 9}px)`;
-      const visible = ax > 0 && ax < W && ay > 12 && ay < H - 12;          // en el teléfono la foto es más baja
-      const v = e.dentro && visible ? e.entra : 0;
-      o.linea.style.strokeDashoffset = String(1 - v);
-      [o.punto, o.aro].forEach((c) => { c.setAttribute("cx", ax); c.setAttribute("cy", ay); });
-      o.punto.style.opacity = o.aro.style.opacity = String(Math.min(1, v * 2));
-      o.r.classList.toggle("activo", e.dentro && visible && e.entra > 0.6);
-    });
-  }
-
-  function progreso() {
-    const r = pista.getBoundingClientRect(), recorrido = r.height - window.innerHeight;
-    objetivo = recorrido > 0 ? Math.max(0, Math.min(1, -r.top / recorrido)) : 0;
-    if (!andando) { andando = true; requestAnimationFrame(paso); }
-  }
-  function paso() {
-    actual += (objetivo - actual) * 0.16;                 // con inercia: el libro sigue al scroll, no lo copia
-    if (Math.abs(objetivo - actual) < 0.0005) actual = objetivo;
-    raton.ox += (raton.x - raton.ox) * 0.08; raton.oy += (raton.y - raton.oy) * 0.08;
-    pintar(false);
-    pista.style.setProperty("--salida", Math.max(0, Math.min(1, (actual - 0.06) / 0.08)).toFixed(3));
-    pista.style.setProperty("--cierre", Math.max(0, Math.min(1, (actual - 0.94) / 0.06)).toFixed(3));
-    capasSegun(actual);
-    const quieta = actual === objetivo && Math.abs(raton.x - raton.ox) < 0.0005 && Math.abs(raton.y - raton.oy) < 0.0005;
-    if (!quieta && !document.hidden) requestAnimationFrame(paso); else andando = false;
-  }
-
-  // sin manifiesto (o sin cuadros) la portada queda como estaba: el póster quieto, sin pista alta
-  pedirManifiesto.then((m) => {
-    if (!m || !m.temas) return;
-    manifiesto = m; pista.classList.add("con-secuencia");
-    medida(); armar(); progreso();
-  });
-  window.addEventListener("scroll", progreso, { passive: true });
-  window.addEventListener("resize", () => { medida(); pintar(true); capasSegun(actual); }, { passive: true });
-  if (gl && conPuntero) window.addEventListener("pointermove", (e) => {
-    raton.x = (e.clientX / window.innerWidth) * 2 - 1; raton.y = (e.clientY / window.innerHeight) * 2 - 1;
-    if (!andando) { andando = true; requestAnimationFrame(paso); }
-  }, { passive: true });
-  telefono.addEventListener("change", () => { armar(); medida(); });
-  liviano.addEventListener("change", () => { armar(); medida(); });
-  claroSistema.addEventListener("change", armar);
+  window.addEventListener("scroll", alScroll, { passive: true });
+  window.addEventListener("resize", () => { ubicarRotulos(); alScroll(); }, { passive: true });
+  escritorio.addEventListener("change", () => location.reload());
+  ubicarRotulos(); marcar(0); alScroll();
 })();
 
 /* ══════════════════════ los números que cuentan ══════════════════════ */
