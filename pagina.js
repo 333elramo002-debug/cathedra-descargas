@@ -242,7 +242,8 @@ if (quieto || !carga) {
   const pista = document.getElementById("portada");
   const lienzo = pista && pista.querySelector(".portada-lienzo");
   if (!pista || !lienzo || quieto || !lienzo.getContext) return;
-  const telefono = window.matchMedia("(max-width: 600px)");
+  const telefono = window.matchMedia("(max-width: 600px)");          // el encuadre del teléfono (la foto arriba)
+  const liviano = window.matchMedia("(max-width: 900px)");           // por debajo de 900 px: 1280 y uno de cada dos cuadros
   const claroSistema = window.matchMedia("(prefers-color-scheme: light)");
   const conPuntero = window.matchMedia("(pointer: fine)").matches;
     const claro = () => raiz.dataset.tema === "claro" || (raiz.dataset.tema !== "oscuro" && claroSistema.matches);
@@ -295,13 +296,13 @@ if (quieto || !carga) {
 
   function armar() {
     if (!manifiesto) return;
-    const movil = telefono.matches;
+    const movil = telefono.matches, chico = liviano.matches;
     const tema = claro() ? "marmol" : "onix", porAncho = manifiesto.temas && manifiesto.temas[tema];
-    const datos = porAncho && (movil && porAncho["1280"] && porAncho["1280"].cantidad ? porAncho["1280"] : porAncho["1920"]);
+    const datos = porAncho && (chico && porAncho["1280"] && porAncho["1280"].cantidad ? porAncho["1280"] : porAncho["1920"]);
     if (!datos || !datos.cuadros || !datos.cuadros.length) return;
     // en el teléfono, la carpeta de 1280 y la mitad de los cuadros
     const todos = datos.cuadros.slice().sort((a, b) => a - b);
-    const indices = todos.filter((n, i) => !movil || i % 2 === 0 || i === todos.length - 1);
+    const indices = todos.filter((n, i) => !chico || i % 2 === 0 || i === todos.length - 1);
     const carpeta = BASE + datos.carpeta + "/", ext = manifiesto.formato || "avif";
     const nombre = (n) => String(n).padStart(4, "0");
     const prof = (profundidad[tema] || []).slice().sort((a, b) => a - b);
@@ -450,6 +451,7 @@ if (quieto || !carga) {
     if (!andando) { andando = true; requestAnimationFrame(paso); }
   }, { passive: true });
   telefono.addEventListener("change", () => { armar(); medida(); });
+  liviano.addEventListener("change", () => { armar(); medida(); });
   claroSistema.addEventListener("change", armar);
 })();
 
