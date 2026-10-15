@@ -68,8 +68,8 @@ document.querySelectorAll(".palabras").forEach((el) => {
    por palabra; las imágenes con zoom lento y revelado) y sale igual, en espejo, cuando se va por
    arriba. Con «reducir movimiento» todo queda puesto desde el principio. */
 const TIPOS = [
-  [".tramo .titular, .todo .titular, .descargar .titular", "rev-mascara"],
-  [".tramo .paso-num, .tramo-bajada, .datos li, .nota-al-pie, .todo .rotulo, .todo .tramo-bajada, .descargar-caja > :not(.titular), .pie > *", "rev-texto"],
+  [".tramo .titular, .todo .titular, .descargar .titular, .cita .titular", "rev-mascara"],
+  [".tramo .paso-num, .cita .paso-num, .tramo-bajada, .datos li, .nota-al-pie, .todo .rotulo, .todo .tramo-bajada, .descargar-caja > :not(.titular), .pie > *", "rev-texto"],
   [".demo, .tarjeta", "rev-panel"],
   [".profundidad", "rev-imagen"],
 ];
@@ -128,7 +128,7 @@ if (quieto || !("IntersectionObserver" in window)) {
 const observador = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
   for (const e of entradas) if (e.isIntersecting) { e.target.classList.add("visto"); observador.unobserve(e.target); }
 }, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }) : null;
-document.querySelectorAll(".tramo, .sec-cab").forEach((el) => {
+document.querySelectorAll(".tramo, .sec-cab, .cita").forEach((el) => {
   if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
 });
 
@@ -373,6 +373,24 @@ if (quieto || !carga) {
   escritorio.addEventListener("change", () => location.reload());
   ubicarRotulos(); marcar(0); alScroll();
 })();
+
+/* ══════════════════════ la cita al minuto ══════════════════════ */
+/* Al pasar el mouse por un sello (o al tocarlo, o con el foco del teclado) se ilumina el tramo de la clase que lo
+   respalda; el sello vacío muestra que eso no está en el material. */
+document.querySelectorAll("[data-cita-demo]").forEach((demo) => {
+  const sellos = [...demo.querySelectorAll("button.sello")];
+  const lineas = [...demo.querySelectorAll(".cd-clase li")];
+  const encender = (clave) => {
+    sellos.forEach((s) => s.classList.toggle("activo", s.dataset.cita === clave));
+    lineas.forEach((l) => l.classList.toggle("encendida", !!clave && l.dataset.cita === clave));
+  };
+  sellos.forEach((s) => {
+    s.setAttribute("aria-pressed", "false");
+    const en = () => { encender(s.dataset.cita); sellos.forEach((o) => o.setAttribute("aria-pressed", String(o === s))); };
+    s.addEventListener("mouseenter", en); s.addEventListener("focus", en); s.addEventListener("click", en);
+  });
+  encender("a"); sellos[0].setAttribute("aria-pressed", "true");     // de entrada, el primero encendido
+});
 
 /* ══════════════════════ los números que cuentan ══════════════════════ */
 /* Cada [data-cuenta] cuenta desde cero hasta su valor cuando entra en pantalla (con la curva de la casa). */
