@@ -57,12 +57,13 @@
   --radio-panel: 18px;
   --radio-tarjeta: 20px;
   --cereza-degrade: linear-gradient(180deg, #A51225 0%, #8E0F20 55%, #780D1C 100%);
-  /* el rojo laqueado del botón principal (20/10, el dueño): luminoso arriba (#C8102E con brillo blanco) y hondo abajo;
-     detrás de las letras (35-65 % del alto) queda en #A41125 o más oscuro, así el marfil mide 7:1 o más */
+  /* el rojo laqueado del botón principal (20/10, el dueño): luminoso arriba (#C8102E con brillo blanco) y hondo abajo,
+     con el rebote de la luz al pie. La luz y el brillo se quedan en el 26 % de arriba y el rebote en el 10 % de abajo:
+     detrás de las letras (28-72 % del alto) el rojo es #991022 o más oscuro y el marfil mide 7:1 o más, medido */
   --cereza-laca:
-    linear-gradient(180deg, rgba(255, 255, 255, .34) 0%, rgba(255, 255, 255, .12) 12%, rgba(255, 255, 255, 0) 26%),
-    radial-gradient(60% 46% at 50% 118%, rgba(225, 59, 67, .5), rgba(225, 59, 67, 0) 100%),
-    linear-gradient(180deg, #C8102E 0%, #B81229 15%, #A81126 32%, #960F22 62%, #7A0D1C 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, .36) 0%, rgba(255, 255, 255, .12) 10%, rgba(255, 255, 255, 0) 21%),
+    radial-gradient(64% 26% at 50% 116%, rgba(225, 59, 67, .55), rgba(225, 59, 67, 0) 100%),
+    linear-gradient(180deg, #C8102E 0%, #B11229 10%, #991022 23%, #8F0E20 60%, #7A0D1C 100%);
 }
 
 /* ── Cuero oscuro: la de fábrica ── */
@@ -456,16 +457,24 @@ main, .pie { position: relative; z-index: 1; }
   display: inline-flex; align-items: center; gap: 12px;
   min-height: 58px; padding: 0 28px 0 22px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 150, 158, .42);
-  background: var(--cereza-laca);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--sobre-cereza);
   font: 600 17px/1 var(--texto-f); letter-spacing: .01em;
   text-decoration: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--halo-cereza);
+  box-shadow: var(--halo-cereza);
   transition: box-shadow var(--dur-medio) var(--curva), transform var(--dur-toque) var(--curva), filter var(--dur-medio) var(--curva);
 }
+/* (d60) la laca va en una capa propia, ENCIMA del halo: el halo que respira ya no aclara el rojo detrás de las letras
+   (antes, en la cima de la respiración, el marfil bajaba de 7:1) */
+.boton-descarga::before {
+  content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; pointer-events: none;
+  border: 1px solid rgba(255, 150, 158, .42);
+  background: var(--cereza-laca);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .3);
+}
 .boton-descarga::after {           /* el halo que respira: una luz detrás, sólo opacidad y escala */
-  content: ""; position: absolute; inset: -14px -18px; z-index: -1; border-radius: 999px; pointer-events: none;
+  content: ""; position: absolute; inset: -14px -18px; z-index: -2; border-radius: 999px; pointer-events: none;
   background: radial-gradient(closest-side, rgba(225, 59, 67, .42), transparent 75%);
   opacity: .55; animation: haloRespira 4.6s ease-in-out infinite;
 }
@@ -473,7 +482,7 @@ main, .pie { position: relative; z-index: 1; }
 .bd-icono { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bd-punto { display: none; }
 .boton-descarga:hover, .boton-descarga:focus-visible {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--halo-cereza-fuerte);
+  box-shadow: var(--halo-cereza-fuerte);
   transform: translateY(-1px);
 }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva-enfasis) .05s both; }
