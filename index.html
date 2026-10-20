@@ -79,18 +79,26 @@
 
   <!-- ═══ el héroe (manual §04, 20/10): grilla de 12 columnas; a la izquierda el bloque editorial sobre marfil liso y a la
        derecha la composición 3D, que no pisa el texto. La composición es el render maestro A «Ivory Hero» (B «Espresso
-       Signature» en la oscura) en tres capas de la MISMA cámara: la escena (sin el emblema ni el primer plano), el emblema
-       recortado del mismo render, que entra a los 0,7 s y flota (§14), y el primer plano desenfocado (paralaje). En reposo,
-       compuestas, son el render. Sólo se pide la apariencia que toca. Las arma hacer_imagenes_d66.py desde
+       Signature» en la oscura) en CUATRO capas de la MISMA cámara (dueño 20/10 15:05, «más cinemático»): el fondo (la
+       pared, el arco, la ventana), la mesa (escritorio, libros, peana), el emblema recortado del mismo render, que entra a
+       los 0,7 s con una luz que le recorre los cantos y flota (§14), y el primer plano desenfocado. Se separan apenas con
+       el scroll y el mouse; en reposo, compuestas, son el render. Encima, una viñeta suave y una bruma mínima en los bordes
+       y, cada 8 a 10 s, un barrido de luz lento. Sólo se pide la apariencia que toca. Las arma hacer_imagenes_d66.py desde
        recursos_3d/emblema/renders: cambiar el render es volver a correrlo (los nombres no cambian). ═══ -->
   <section class="heroe" id="portada" aria-labelledby="heroe-tit">
     <div class="heroe-escenario" aria-hidden="true">
       <div class="heroe-lienzo">
-        <picture class="capa-escena">
-          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/maestro-b-espresso-768.avif 768w, imagenes/heroe/maestro-b-espresso-1280.avif 1280w, imagenes/heroe/maestro-b-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
-          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/maestro-b-espresso-768.webp 768w, imagenes/heroe/maestro-b-espresso-1280.webp 1280w, imagenes/heroe/maestro-b-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
-          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/maestro-a-ivory-768.avif 768w, imagenes/heroe/maestro-a-ivory-1280.avif 1280w, imagenes/heroe/maestro-a-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
-          <img src="imagenes/heroe/maestro-a-ivory-1280.webp" srcset="imagenes/heroe/maestro-a-ivory-768.webp 768w, imagenes/heroe/maestro-a-ivory-1280.webp 1280w, imagenes/heroe/maestro-a-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        <picture class="capa-fondo">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/fondo-espresso-768.avif 768w, imagenes/heroe/fondo-espresso-1280.avif 1280w, imagenes/heroe/fondo-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/fondo-espresso-768.webp 768w, imagenes/heroe/fondo-espresso-1280.webp 1280w, imagenes/heroe/fondo-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/fondo-ivory-768.avif 768w, imagenes/heroe/fondo-ivory-1280.avif 1280w, imagenes/heroe/fondo-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <img src="imagenes/heroe/fondo-ivory-1280.webp" srcset="imagenes/heroe/fondo-ivory-768.webp 768w, imagenes/heroe/fondo-ivory-1280.webp 1280w, imagenes/heroe/fondo-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        </picture>
+        <picture class="capa-mesa">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/mesa-espresso-960.avif 960w, imagenes/heroe/mesa-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/mesa-espresso-960.webp 960w, imagenes/heroe/mesa-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/mesa-ivory-960.avif 960w, imagenes/heroe/mesa-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <img src="imagenes/heroe/mesa-ivory-1920.webp" srcset="imagenes/heroe/mesa-ivory-960.webp 960w, imagenes/heroe/mesa-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
         </picture>
         <div class="capa-emblema" id="emblema">
           <div class="emblema-mira">
@@ -101,6 +109,7 @@
                 <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/emblema-ivory-474.avif 474w, imagenes/heroe/emblema-ivory-948.avif 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
                 <img class="emblema-img" src="imagenes/heroe/emblema-ivory-948.webp" srcset="imagenes/heroe/emblema-ivory-474.webp 474w, imagenes/heroe/emblema-ivory-948.webp 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw" width="948" height="966" alt="" fetchpriority="high" decoding="async">
               </picture>
+              <div class="emblema-luz"><i></i></div>
             </div>
           </div>
         </div>
@@ -111,6 +120,8 @@
           <img src="imagenes/heroe/frente-ivory-960.webp" srcset="imagenes/heroe/frente-ivory-960.webp 960w" sizes="80vw" width="960" height="540" alt="" decoding="async">
         </picture>
       </div>
+      <div class="heroe-barrido"><i></i></div>
+      <div class="heroe-atmosfera"></div>
     </div>
 
     <div class="heroe-grilla">

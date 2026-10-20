@@ -82,8 +82,12 @@
   /* §10 · el cherry: el degradé del botón legible y el laqueado del principal (20/10, el dueño: luminoso arriba con brillo
      blanco y hondo abajo; detrás de las letras queda #991022 o más oscuro y el marfil mide 7:1 o más) */
   --cereza-degrade: linear-gradient(180deg, #A51225 0%, #8E0F20 55%, #780D1C 100%);
+  /* (dueño 20/10 15:05) laca: la capa clara (un velo que se apaga antes de las letras) y el brillo NÍTIDO de la luz de
+     estudio reflejada arriba: una elipse ancha de borde neto que sigue la curva del botón y termina a un quinto del alto,
+     antes de la altura de las mayúsculas (el contraste de las letras no cambia) */
   --cereza-laca:
-    linear-gradient(180deg, rgba(255, 255, 255, .36) 0%, rgba(255, 255, 255, .12) 10%, rgba(255, 255, 255, 0) 21%),
+    radial-gradient(75% 90% at 50% -69%, rgba(255, 255, 255, .34) 0, rgba(255, 255, 255, .13) 96%, rgba(255, 255, 255, 0) 99%),
+    linear-gradient(180deg, rgba(255, 255, 255, .2) 0%, rgba(255, 255, 255, .07) 18%, rgba(255, 255, 255, 0) 34%),
     radial-gradient(64% 26% at 50% 116%, rgba(225, 59, 67, .55), rgba(225, 59, 67, 0) 100%),
     linear-gradient(180deg, #C8102E 0%, #B11229 10%, #991022 23%, #8F0E20 60%, #7A0D1C 100%);
   /* §07 · el cuero: degradé de 155° TAL CUAL + textura teselable a 320 px, soft-light, 0,18. El brillo de 135° del manual
@@ -119,8 +123,10 @@
   --vidrio-borde: rgba(255, 255, 255, .7);
   --vidrio-canto: linear-gradient(145deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, .4) 36%, rgba(255, 255, 255, .2) 62%, rgba(255, 255, 255, .85));
   --sombra-1: 0 2px 6px rgba(31, 15, 9, .08);
-  --sombra-2: 0 1px 2px rgba(56, 32, 22, .06), 0 14px 34px -18px rgba(56, 32, 22, .26);
-  --sombra-3: 0 1px 2px rgba(56, 32, 22, .06), 0 40px 80px -40px rgba(56, 32, 22, .38);
+  /* sombras con profundidad (dueño 20/10 15:05): el contacto, una media y una larga y suave */
+  --sombra-2: 0 1px 1px rgba(56, 32, 22, .07), 0 5px 12px -5px rgba(56, 32, 22, .13), 0 24px 46px -22px rgba(56, 32, 22, .34);
+  --sombra-3: 0 2px 3px rgba(56, 32, 22, .07), 0 16px 32px -14px rgba(56, 32, 22, .22), 0 58px 104px -44px rgba(56, 32, 22, .46);
+  --grano-fuerza: .7;           /* la microtextura de las tarjetas marfil: desvío de ~4 / 255 sobre el marfil */
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .9), 0 18px 48px rgba(38, 22, 14, .15);
   --halo-cereza: 0 6px 20px rgba(165, 18, 37, .26), 0 0 34px rgba(225, 59, 67, .14);
   --halo-cereza-fuerte: 0 8px 26px rgba(165, 18, 37, .38), 0 0 48px rgba(225, 59, 67, .22);
@@ -165,6 +171,7 @@
     --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
     --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
     --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
+    --grano-fuerza: 1;
     --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
     --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
     --halo-cereza-fuerte: 0 10px 32px rgba(225, 59, 67, .48), 0 0 64px rgba(225, 59, 67, .3);
@@ -179,6 +186,23 @@
                  linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, .4) 100%);
   }
 }
+/* la luz de los cantos, la atmósfera y el barrido en la oscura */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="marfil"]) .emblema-luz { -webkit-mask-image: url(imagenes/heroe/cantos-espresso-640.webp); mask-image: url(imagenes/heroe/cantos-espresso-640.webp); }
+  :root:not([data-tema="marfil"]) .heroe-atmosfera {
+    background:
+      radial-gradient(118% 96% at 56% 44%, rgba(8, 4, 2, 0) 54%, rgba(8, 4, 2, .5) 100%),
+      linear-gradient(180deg, rgba(117, 69, 45, .16) 0%, rgba(117, 69, 45, 0) 14%, rgba(117, 69, 45, 0) 82%, rgba(26, 15, 11, .45) 100%);
+  }
+  :root:not([data-tema="marfil"]) .heroe-barrido i { background: linear-gradient(104deg, rgba(255, 226, 204, 0) 0%, rgba(255, 226, 204, .1) 50%, rgba(255, 226, 204, 0) 100%); }
+}
+:root[data-tema="cuero"] .emblema-luz { -webkit-mask-image: url(imagenes/heroe/cantos-espresso-640.webp); mask-image: url(imagenes/heroe/cantos-espresso-640.webp); }
+:root[data-tema="cuero"] .heroe-atmosfera {
+  background:
+    radial-gradient(118% 96% at 56% 44%, rgba(8, 4, 2, 0) 54%, rgba(8, 4, 2, .5) 100%),
+    linear-gradient(180deg, rgba(117, 69, 45, .16) 0%, rgba(117, 69, 45, 0) 14%, rgba(117, 69, 45, 0) 82%, rgba(26, 15, 11, .45) 100%);
+}
+:root[data-tema="cuero"] .heroe-barrido i { background: linear-gradient(104deg, rgba(255, 226, 204, 0) 0%, rgba(255, 226, 204, .1) 50%, rgba(255, 226, 204, 0) 100%); }
 :root[data-tema="cuero"] {
   color-scheme: dark;
   --fondo: #1A0F0B;
@@ -206,6 +230,7 @@
   --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
   --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
   --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
+  --grano-fuerza: 1;
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
   --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
   --halo-cereza-fuerte: 0 10px 32px rgba(225, 59, 67, .48), 0 0 64px rgba(225, 59, 67, .3);
@@ -250,10 +275,25 @@ main:focus, section:focus { outline: none; }
 /* §08 · las superficies de lectura: marfil mineral (Ivory levantado, degradé amplio de baja amplitud, sombra suave).
    En la oscura, el mismo papel en cuero hondo. Nada de vidrio acá: el vidrio es para lo que flota. */
 .demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice {
-  position: relative;
+  position: relative; isolation: isolate;
   background: var(--superficie);
   border: 1px solid var(--borde);
   box-shadow: var(--sombra-2);
+}
+/* la microtextura del marfil (dueño 20/10 15:05, §08): se ve, pero NUNCA debajo del texto. En lo que no lleva texto (el
+   paspartú de las pantallas, el cuadro de «Lo que también hace») cubre la superficie; en lo que sí (demos, cita, índice)
+   queda en el canto: un filo de 7 px que el texto nunca toca (el relleno de esas tarjetas es de 16 px o más). Detrás
+   del contenido (z-index -1 dentro de su propio contexto): la sombra del relieve del yeso, en taupe con alfa. */
+.demo::before, .cita-demo::before, .profundidad::before, .tj-cuadro::before, .legal-indice::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: url(imagenes/grano-marfil-384.webp) 0 0 / 384px 384px repeat;
+  opacity: var(--grano-fuerza);
+}
+.demo::before, .cita-demo::before, .legal-indice::before {
+  padding: 7px;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
 /* §08 · Liquid Glass en CSS: sólo en superposiciones (el visor). El canto de vidrio: 1 px recortado al borde */
 .vidrio, .visor {
@@ -444,13 +484,42 @@ main, .pie { position: relative; z-index: 1; }
   left: clamp(calc(100cqw - var(--ancho)), calc(100cqw * var(--ox) - var(--ancho) * var(--fx)), 0px);
   top: clamp(calc(100cqh - var(--alto)), calc(100cqh * var(--oy) - var(--alto) * var(--fy)), 0px);
 }
-.capa-escena, .capa-escena img, .capa-frente, .capa-frente img { position: absolute; inset: 0; width: 100%; height: 100%; }
-.capa-escena img { object-fit: cover; background: var(--fondo); }
+.capa-fondo, .capa-fondo img, .capa-mesa, .capa-mesa img, .capa-frente, .capa-frente img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.capa-fondo img { object-fit: cover; background: var(--fondo); }
+/* las capas se separan apenas con el scroll y el mouse (dueño 20/10 15:05): el fondo y la mesa llevan margen propio para
+   que nunca asome un borde (la mesa crece desde la peana, así el emblema sigue sobre ella) */
+.capa-fondo { transform: scale(1.08); }
+.capa-mesa { transform-origin: 55.4% 75%; transform: scale(1.02); }
 /* el emblema, en la MISMA caja del cuadro que usa hacer_imagenes_d66.py (x 37–74 %, y 10–77 %) */
 .capa-emblema { position: absolute; left: 37%; top: 10%; width: 37%; height: 67%; }
 .emblema-mira, .emblema-flota, .capa-emblema picture { position: absolute; inset: 0; }
 .emblema-img { position: absolute; inset: 0; width: 100%; height: 100%; }
-.heroe-escenario, .heroe-lienzo, .capa-escena, .capa-emblema, .emblema-mira, .emblema-flota, .capa-frente, .capa-frente img { will-change: transform; }
+.heroe-escenario, .heroe-lienzo, .capa-fondo, .capa-fondo img, .capa-mesa, .capa-emblema, .emblema-mira, .emblema-flota, .capa-frente, .capa-frente img { will-change: transform; }
+/* §14 · la luz que recorre los cantos del emblema: una franja cálida que cruza, recortada por la máscara de los cantos
+   del MISMO render (el filo, los biseles y los brillos que ya tiene), en trama «screen» sobre el emblema. Apagada sin
+   JS o con menos movimiento. Sólo transform y opacity. */
+.emblema-luz {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+  -webkit-mask: url(imagenes/heroe/cantos-ivory-640.webp) 0 0 / 100% 100% no-repeat;
+          mask: url(imagenes/heroe/cantos-ivory-640.webp) 0 0 / 100% 100% no-repeat;
+  mix-blend-mode: screen;
+}
+.emblema-luz i, .heroe-barrido i {
+  position: absolute; top: -25%; bottom: -25%; left: 0; width: 44%;
+  background: linear-gradient(102deg, rgba(255, 240, 226, 0) 0%, rgba(255, 240, 226, .9) 50%, rgba(255, 240, 226, 0) 100%);
+  transform: translateX(-110%); opacity: 0; will-change: transform, opacity;
+}
+/* el barrido de luz lento sobre toda la composición, cada 8 a 10 s (sólo en el héroe) */
+.heroe-barrido { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.heroe-barrido i { width: 34%; background: linear-gradient(104deg, rgba(255, 246, 236, 0) 0%, rgba(255, 246, 236, .2) 50%, rgba(255, 246, 236, 0) 100%); }
+/* la atmósfera, quieta: una viñeta suave hacia los bordes y una bruma mínima arriba y abajo (no llega al texto: el
+   escenario se funde antes de la quinta columna) */
+.heroe-atmosfera {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(118% 96% at 56% 44%, rgba(56, 32, 22, 0) 56%, rgba(56, 32, 22, .15) 100%),
+    linear-gradient(180deg, rgba(241, 236, 228, .36) 0%, rgba(241, 236, 228, 0) 13%, rgba(241, 236, 228, 0) 84%, rgba(241, 236, 228, .3) 100%);
+}
 
 .heroe-grilla {
   width: var(--c-ancho); margin: 0 auto;
@@ -526,7 +595,7 @@ main, .pie { position: relative; z-index: 1; }
   opacity: .5;
 }
 /* §10 cherry-breathe: SÓLO en el botón principal del héroe, lento y de baja amplitud (opacidad y escala, nada de filtros) */
-.boton-principal::after { animation: cerezaRespira 3.6s ease-in-out infinite; }
+.boton-principal::after { animation: cerezaRespira 5.6s ease-in-out infinite; }      /* lenta (dueño 20/10 15:05) */
 @keyframes cerezaRespira { 0%, 100% { opacity: .38; transform: scale(.97); } 50% { opacity: .78; transform: scale(1.03); } }
 .bd-icono { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bd-texto { white-space: nowrap; }                  /* una sola línea siempre (en el teléfono se partía) */
@@ -566,7 +635,7 @@ main, .pie { position: relative; z-index: 1; }
 .atlas-pista { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: calc(var(--atlas-alto) - 2px); }   /* los 2 px: los filos de arriba y abajo */
 .atlas-pista:focus-visible { outline-offset: -3px; }
 .atlas-panel {
-  --pad: clamp(18px, 1.8vw, 36px);
+  --pad: clamp(24px, 1.8vw, 36px);   /* §05: márgenes internos de 24–36 px */
   position: relative; display: flex; flex-direction: column; min-width: 0;
   border-left: 1px solid rgba(241, 236, 228, .14);
 }
@@ -577,7 +646,8 @@ main, .pie { position: relative; z-index: 1; }
   background: #24140F;
 }
 .atlas-cuadro picture { display: contents; }
-.atlas-img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-escena) var(--curva), opacity var(--dur-largo) var(--curva); }
+.atlas-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.1s var(--curva), opacity var(--dur-largo) var(--curva); }
+.ficha-abierta .atlas-img { transform: scale(1.05); }
 .atlas-cuadro::after {            /* un filo de luz abajo, donde la imagen se apoya en el cuero */
   content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: rgba(255, 231, 211, .14);
 }
@@ -615,7 +685,7 @@ main, .pie { position: relative; z-index: 1; }
 /* abierta, la versión editorial se va del todo (también para el lector de pantalla): en su lugar queda la técnica */
 .ficha-abierta .atlas-texto, .ficha-abierta .atlas-muestras > * { opacity: 0; visibility: hidden; transition: opacity var(--dur-largo) var(--curva), visibility 0s linear var(--dur-largo); }
 @media (hover: hover) and (pointer: fine) {
-  .atlas-panel:hover .atlas-img { transform: scale(1.04); }
+  .atlas-panel:hover .atlas-img { transform: scale(1.05); }
   .atlas-panel:hover .atlas-ficha { opacity: 1; transform: none; }
   .atlas-panel:hover .atlas-texto { opacity: 0; }
 }
@@ -1050,11 +1120,14 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .heroe { display: block; min-height: 0; }
   .heroe-escenario {
     position: relative; inset: auto; left: auto; height: 56svh; min-height: 380px; max-height: 660px;
-    -webkit-mask-image: linear-gradient(180deg, #000 86%, transparent);
-            mask-image: linear-gradient(180deg, #000 86%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 86%, transparent);
+            mask-image: linear-gradient(180deg, transparent 0, #000 9%, #000 86%, transparent);
   }
   /* el emblema entero con su peana, por debajo de la barra */
   .heroe-lienzo { --z: .9; --ox: .5; --oy: .5; }
+  /* con el lienzo más chico que el escenario, arriba quedaba una franja sin escena (un borde duro bajo la barra): el
+     fondo sube y la cubre (es la pared desenfocada; la mesa y el emblema no se mueven) */
+  .capa-fondo { inset: -16% 0 0 0; width: auto; height: auto; }
   .heroe-grilla { display: block; width: auto; padding: 0 var(--gutter); }
   .heroe-texto { max-width: 640px; padding: 10px 0 72px; }
   .heroe-titular { font-size: clamp(36px, 9.6vw, 56px); }

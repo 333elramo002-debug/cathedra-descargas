@@ -15,9 +15,11 @@ imagenes/_anterior/ y fuentes/_anterior/: está en el repositorio pero no se pub
 
 Manual de producción visual (20/10/2026):
   imagenes/heroe/: el render maestro A «Ivory Hero» y el B «Espresso Signature» del emblema (recursos_3d/emblema/ del
-    repositorio privado), separados en escena, emblema y primer plano con la misma cámara. Propios de Cathedra.
+    repositorio privado), separados en fondo, mesa, emblema (y la máscara de sus cantos) y primer plano con la misma
+    cámara. Propios de Cathedra.
   imagenes/atlas/: marcadores hasta que lleguen los macros finales: 01_leather sale de «Leather029» (ambientCG, CC0 1.0)
-    con luz rasante; 02_glass y 03_emblem, recortes del render B; 04_ivory_stone, la pared de la escena clara con el grano
-    de «Plaster001» (ambientCG, CC0 1.0).
+    con luz rasante; 02_glass y 03_emblem, recortes del render B; 04_ivory_stone, el relieve de «Plaster001» y la piedra
+    de «Travertine009» (ambientCG, CC0 1.0) con luz difusa.
+  imagenes/grano-marfil-384.webp: la microtextura de las tarjetas marfil, del relieve de «Plaster001» (ambientCG, CC0 1.0).
   imagenes/cuero-512.webp: la textura teselable del cuero de la app (app/estilos/cuero_seamless_512.webp, de «Leather029»
     de ambientCG, CC0 1.0).

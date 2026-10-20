@@ -199,43 +199,63 @@ window.addEventListener("scroll", cabeceraSegunScroll, { passive: true });
 cabeceraSegunScroll();
 
 /* ══════════════════════ el héroe (manual §04 y §14) ══════════════════════ */
-/* La entrada es la del manual: 0,0 s el titular (0,7 s), 0,3 s la composición entra con un leve desplazamiento (0,9 s),
-   0,7 s aparece el emblema (1,0 s); después el atlas. En reposo, una flotación mínima del emblema con ciclos de 6 a
-   10 s que no se repiten. Con el puntero, las capas se corren apenas (paralaje: la escena casi nada, el emblema un poco,
-   el primer plano más); al bajar, la composición se queda atrás. Cada capa tiene un solo trabajo, así ninguna
-   transformación pisa a otra:
-     .heroe-escenario (entrada) › .heroe-lienzo (scroll) › .capa-escena (puntero)
-                                                         › .capa-emblema (entrada) › .emblema-mira (puntero) › .emblema-flota (reposo)
+/* La entrada es la del manual, más cinemática (dueño 20/10 15:05): 0,0 s el titular (0,7 s); 0,3 s la composición entra
+   con un leve desplazamiento y escala (0,9 s) mientras el fondo se acerca despacio; 0,7 s aparece el emblema con escala
+   (1,0 s) y una luz le recorre los cantos; después el atlas. En reposo, una flotación mínima del emblema con ciclos de 6
+   a 10 s que no se repiten y, cada 8 a 10 s, un barrido de luz lento (los cantos y, apenas, la composición). Las cuatro
+   capas (fondo, mesa, emblema, primer plano) se separan apenas con el puntero y al bajar. Cada elemento tiene un solo
+   trabajo, así ninguna transformación pisa a otra:
+     .heroe-escenario (entrada) › .heroe-lienzo (scroll) › .capa-fondo (puntero, acercamiento) › img (scroll)
+                                                         › .capa-mesa (puntero)
+                                                         › .capa-emblema (entrada) › .emblema-mira (puntero) › .emblema-flota (reposo) › .emblema-luz i (luz)
                                                          › .capa-frente (puntero) › img (scroll)
+                                 › .heroe-barrido i (luz)
    Sólo transform y opacity. Todo se frena cuando el héroe sale de la pantalla o la pestaña se oculta. */
 (function heroe() {
   const sec = document.getElementById("portada");
   if (!sec || quieto || !gsap) return;           // quieto o sin GSAP: el héroe ya está puesto, con el emblema en su lugar
   const q = (s) => sec.querySelector(s);
-  const escenario = q(".heroe-escenario"), lienzo = q(".heroe-lienzo"), escena = q(".capa-escena");
+  const escenario = q(".heroe-escenario"), lienzo = q(".heroe-lienzo");
+  const fondo = q(".capa-fondo"), fondoImg = q(".capa-fondo img"), mesa = q(".capa-mesa");
   const emblema = q(".capa-emblema"), mira = q(".emblema-mira"), flota = q(".emblema-flota");
   const frente = q(".capa-frente"), frenteImg = q(".capa-frente img");
+  const luzCantos = q(".emblema-luz i"), luzEscena = q(".heroe-barrido i");
   const lineas = sec.querySelectorAll(".heroe-titular .linea > span");
   const copia = [q(".rotulo"), q(".heroe-bajada"), q(".portada-acciones"), q(".requisito"), q(".heroe-datos")].filter(Boolean);
   const atlas = [...document.querySelectorAll(".atlas-panel")].filter((p) => p.getBoundingClientRect().top < window.innerHeight);
   const apilado = window.matchMedia("(max-width: 860px), (max-aspect-ratio: 11/10)").matches;
   const fino = window.matchMedia("(pointer: fine)").matches && !apilado;
+  const FONDO = 1.08;                             // el margen del fondo (el mismo de estilos.css)
 
   // el estado de partida (mientras la carga tapa la página)
   gsap.set(lineas, { yPercent: 108 });
   gsap.set(copia, { opacity: 0, y: 24 });
   gsap.set(escenario, { opacity: 0, y: 32, scale: 0.985, transformOrigin: "60% 50%" });
-  gsap.set(emblema, { opacity: 0, y: 18, rotation: -5, transformOrigin: "50% 55%" });
+  gsap.set(fondo, { scale: FONDO + 0.06, transformOrigin: "55% 45%" });
+  gsap.set(mesa, { transformOrigin: "55.4% 75%", scale: 1.02 });
+  gsap.set(emblema, { opacity: 0, y: 18, rotation: -5, scale: 0.92, transformOrigin: "50% 55%" });
+  gsap.set([luzCantos, luzEscena], { xPercent: -110, opacity: 0 });
   if (atlas.length) gsap.set(atlas, { opacity: 0, y: 16 });
 
   let enVista = true;
   const vivos = [];
+  // la luz: una franja que cruza los cantos del emblema (y, más tenue y más lenta, la composición)
+  function barrido(conEscena) {
+    const t = gsap.timeline();
+    t.fromTo(luzCantos, { xPercent: -110, opacity: 0.9 }, { xPercent: 240, duration: 1.7, ease: "power1.inOut" }, 0)
+      .set(luzCantos, { opacity: 0 });
+    if (conEscena) t.fromTo(luzEscena, { xPercent: -110, opacity: 1 }, { xPercent: 300, duration: 3.2, ease: "sine.inOut" }, 0)
+      .set(luzEscena, { opacity: 0 });
+    return t;
+  }
   const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
   tl.to(lineas, { yPercent: 0, duration: 0.7, stagger: 0.07 }, 0)                         // 0,0 s · el titular
     .to(copia, { opacity: 1, y: 0, duration: 0.7, stagger: 0.06 }, 0.08)
     .to(escenario, { opacity: 1, y: 0, scale: 1, duration: 0.9 }, 0.3)                   // 0,3 s · la composición
-    .to(emblema, { opacity: 1, y: 0, rotation: 0, duration: 1.0 }, 0.7)                  // 0,7 s · el emblema
-    .add(() => { gsap.set([escenario, emblema], { clearProps: "transform" }); flotar(); }, 1.75);
+    .to(fondo, { scale: FONDO, duration: 1.8, ease: "power2.out" }, 0.3)                  //        el fondo se acerca
+    .to(emblema, { opacity: 1, y: 0, rotation: 0, scale: 1, duration: 1.0 }, 0.7)        // 0,7 s · el emblema
+    .add(() => barrido(false), 1.15)                                                       //        la luz en los cantos
+    .add(() => { gsap.set([escenario, emblema], { clearProps: "transform" }); flotar(); luzCada(); }, 1.75);
 
   if (atlas.length) tl.to(atlas, { opacity: 1, y: 0, duration: 0.6, stagger: 0.07 }, 0.95);    // 0,95 s · el atlas
 
@@ -251,11 +271,17 @@ cabeceraSegunScroll();
     };
     paso();
   }
+  // el barrido lento: cada 8 a 10 s, sólo si el héroe se ve y la pestaña está a la vista
+  function luzCada() {
+    const espera = gsap.delayedCall(gsap.utils.random(8, 10), () => { if (enVista && !document.hidden) barrido(true); luzCada(); });
+    vivos[1] = espera; if (!enVista || document.hidden) espera.pause();
+  }
 
-  // el puntero: profundidad por paralaje (sólo con mouse, sólo en escritorio)
+  // el puntero: profundidad por paralaje (sólo con mouse, sólo en escritorio): el fondo casi nada, la mesa un poco, el
+  // emblema algo más y el primer plano más
   if (fino) {
     const a = (el, prop) => gsap.quickTo(el, prop, { duration: 1.2, ease: "power3.out" });
-    const capas = [[escena, 4], [mira, 10], [frente, 22]].map(([el, k]) => ({ x: a(el, "x"), y: a(el, "y"), k }));
+    const capas = [[fondo, 6], [mesa, 12], [mira, 16], [frente, 34]].map(([el, k]) => ({ x: a(el, "x"), y: a(el, "y"), k }));
     const giro = a(mira, "rotation");
     window.addEventListener("pointermove", (e) => {
       if (!enVista) return;
@@ -266,11 +292,13 @@ cabeceraSegunScroll();
     document.documentElement.addEventListener("pointerleave", () => { capas.forEach((c) => { c.x(0); c.y(0); }); giro(0); });
   }
 
-  // el scroll: la composición se queda atrás (más lenta que el texto) y el primer plano sube más rápido
+  // el scroll: la composición se queda atrás (más lenta que el texto); dentro, el fondo se queda un poco más y el primer
+  // plano sube más rápido: las capas se separan apenas
   if (ScrollTrigger) {
     const st = gsap.timeline({ scrollTrigger: { trigger: sec, start: "top top", end: "bottom top", scrub: 0.6,
       onToggle: (s) => { enVista = s.isActive; vivos.forEach((t) => t && (enVista && !document.hidden ? t.resume() : t.pause())); } } });
     st.to(lienzo, { yPercent: apilado ? 6 : 9, ease: "none" }, 0)
+      .to(fondoImg, { yPercent: apilado ? 1.5 : 2.5, ease: "none" }, 0)
       .to(frenteImg, { yPercent: -10, ease: "none" }, 0);
   }
   document.addEventListener("visibilitychange", () => vivos.forEach((t) => t && (document.hidden || !enVista ? t.pause() : t.resume())));
