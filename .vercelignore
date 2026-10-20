@@ -2,3 +2,7 @@
 tests_pagina.py
 __pycache__
 .pytest_cache
+# lo de antes (la identidad Ónix/Candy, el héroe del libro, la dirección visual): queda en el repositorio, no se sirve
+_anterior
+imagenes/_anterior
+fuentes/_anterior

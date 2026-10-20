@@ -3,153 +3,123 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cathedra · Estudiá desde lo que dijo el profesor</title>
+<title>Cathedra · Estudiás de lo que dijo tu profesor</title>
 <meta name="description" content="Importás tus clases grabadas y Cathedra las transcribe, arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma. Para Windows.">
 <meta name="color-scheme" content="dark light">
-<meta name="theme-color" content="#020202" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#E8F2F6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A0F0B" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F1ECE4" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="es_AR">
 <meta property="og:site_name" content="Cathedra">
-<meta property="og:title" content="Cathedra · Estudiá desde lo que dijo el profesor">
+<meta property="og:title" content="Cathedra · Estudiás de lo que dijo tu profesor">
 <meta property="og:description" content="Subís la clase, Cathedra arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma.">
 <meta property="og:url" content="https://cathedra-beta.vercel.app/">
 <meta property="og:image" content="https://cathedra-beta.vercel.app/imagenes/compartir.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="La C de Cathedra en dovelas de ónix y Candy Blue, con el hilo de luz de la clase entrando en su ojo, y la marca">
+<meta property="og:image:alt" content="El emblema de Cathedra, una estrella de cuatro puntas de cuero y cristal con el núcleo cereza, flotando sobre su peana, junto a «Estudiás de lo que dijo tu profesor.»">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="48x48">
 <link rel="icon" href="icono.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icono-claro.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
 <link rel="apple-touch-icon" href="imagenes/icono-180.png">
-<link rel="preload" href="fuentes/IBMPlexSansCondensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/PlayfairDisplay-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fuentes/Inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos.css">
+<script>try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 <noscript><style>
-  /* sin JS: la página ya puesta y quieta (la carga no se abre sola; el fondo es la luz en CSS) */
-  .carga, .apertura, .escena canvas, .cab-sonido, [data-quieto] { display: none !important; }
-  .cabecera > *, .llega, .entra, .marca span { opacity: 1 !important; translate: none !important; }
+  /* sin JS: la página ya puesta y quieta (la carga no se abre sola) */
+  .carga, .cab-sonido, .cab-tema, [data-quieto] { display: none !important; }
   .bajar { translate: -50% 0 !important; }
-  .marca span { background-size: 100% 100%, 100% 100%; }
-  .bajar i, .marcado { animation: none !important; }
+  .bajar i, .marcado, .boton-descarga::after, .descargar-emblema { animation: none !important; }
 </style></noscript>
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
-<!-- v7 (paso 0): sin escena 3D. El fondo es Onyx con una luz Candy suave, en CSS. -->
-<div class="escena" aria-hidden="true"><div class="escena-luz"></div></div>
-</div>
+<!-- la estrella de la marca (✦): un solo dibujo, usado en la cabecera y en el pie -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <linearGradient id="e-cereza" gradientUnits="userSpaceOnUse" x1="66" y1="62" x2="190" y2="194"><stop offset="0" stop-color="#E8444B"/><stop offset="1" stop-color="#A51225"/></linearGradient>
+    <radialGradient id="e-brillo" gradientUnits="userSpaceOnUse" cx="100" cy="94" r="90"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    <symbol id="estrella" viewBox="0 0 256 256"><path d="M128 10C128 69 187 128 246 128C187 128 128 187 128 246C128 187 69 128 10 128C69 128 128 69 128 10Z" fill="url(#e-cereza)"/><path d="M128 10C128 69 187 128 246 128C187 128 128 187 128 246C128 187 69 128 10 128C69 128 128 69 128 10Z" fill="url(#e-brillo)"/></symbol>
+  </defs>
+</svg>
 
-<!-- la carga: una línea fina que se llena con lo que va llegando (la C queda sólo en la marca chica) -->
+<!-- la carga: la estrella se enciende con lo que va llegando (las letras y la página) -->
 <div class="carga" id="carga" aria-hidden="true">
-  <span class="carga-linea"><i id="carga-linea"></i></span>
-  <span class="carga-cifra"><span id="carga-cifra">0</span></span>
+  <div class="carga-estrella" id="carga-estrella">
+    <span class="carga-brillo"></span>
+    <svg class="carga-base" viewBox="0 0 256 256"><path d="M128 10C128 85.52 170.48 128 246 128C170.48 128 128 170.48 128 246C128 170.48 85.52 128 10 128C85.52 128 128 85.52 128 10Z"/></svg>
+    <svg class="carga-luz" viewBox="0 0 256 256"><use href="#estrella"/></svg>
+  </div>
+  <span class="carga-cifra"><span id="carga-cifra">000</span></span>
 </div>
-<div class="apertura" id="apertura" aria-hidden="true"></div>
 <div class="cortina" aria-hidden="true"></div>
 
 <header class="cabecera" id="cabecera">
   <a class="cab-marca" href="#portada" aria-label="Cathedra, volver arriba">
-    <svg viewBox="-4 -4 108 108" aria-hidden="true"><path class="sg-c" d="M79.4 82.7A44 44 0 1 1 79.4 17.3L63.4 35.1A20 20 0 1 0 63.4 64.9Z"/><path class="sg-clave" d="M30.7 55.2 7.5 61.4 0.5 50 7.5 38.6 30.7 44.8A20 20 0 0 0 30.7 55.2Z"/></svg>
+    <svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>
     <span>Cathedra</span>
   </a>
   <span class="cab-seccion vacio" aria-hidden="true"></span>
   <nav class="cab-nav" aria-label="Secciones">
     <a href="#cronograma">Cómo funciona</a>
     <a href="#todo">Todo lo que hace</a>
-    <a href="#descargar" class="cab-ir">Descargar</a>
+    <button class="cab-tema" type="button" id="tema" aria-label="Cambiar la apariencia" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path class="lleno" d="M12 3.8a8.2 8.2 0 0 1 0 16.4z"/></svg></button>
     <button class="cab-sonido" type="button" id="sonido" aria-pressed="true" aria-label="Sonido de la página" hidden><canvas width="44" height="44" aria-hidden="true"></canvas></button>
+    <a href="#descargar" class="cab-ir">Descargar</a>
   </nav>
 </header>
 
 <main id="contenido">
 
-  <section class="portada" id="portada" data-tramo="0" aria-labelledby="marca">
-    <!-- el héroe por fases (14/10): cinco paradas del scroll con una imagen quieta del libro cada una. En escritorio la
-         escena queda fija y las fases se reemplazan con un fundido; en el teléfono (o con menos movimiento) van una debajo
-         de la otra, con la imagen arriba. Sólo la primera imagen se pide de entrada. -->
-    <div class="portada-fija">
-    <span class="signo" id="signo" aria-hidden="true"></span>
-    <canvas class="fases-lienzo" aria-hidden="true"></canvas>
-    <svg class="fases-lineas" aria-hidden="true"></svg>
-    <ol class="fases">
-      <li class="fase activa" data-fase="1">
-        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f1-marmol-1280.avif 1280w, imagenes/fases/f1-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f1-onix-1280.avif 1280w, imagenes/fases/f1-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f1-onix-1280.webp" width="1920" height="1080" alt="Un sello de alfarero grande, de cerámica esmaltada celeste con «Cathedra» en bajorrelieve y un cordón cereza, junto a su impresión fresca en la arcilla: «Cathedra · Clase 3 · min 42:10», con los minutos marcados en la vuelta." fetchpriority="high" decoding="async"></picture></figure>
-        <div class="fase-texto">
-          <h1 class="marca" id="marca" aria-label="Cathedra"><span style="--i:0;--g:3">C</span><span style="--i:1;--g:2">A</span><span style="--i:2;--g:1">T</span><span style="--i:3;--g:0">H</span><span style="--i:4;--g:0">E</span><span style="--i:5;--g:1">D</span><span style="--i:6;--g:2">R</span><span style="--i:7;--g:3">A</span></h1>
-          <p class="fase-num">01 · Escuchá</p>
-          <h2 class="fase-titulo">Subís la clase grabada.</h2>
-          <p class="fase-linea">El audio o el video que ya tenés, o el que bajás del campus: lo importás y Cathedra lo transcribe. Todo sale de lo que dijo el profesor.</p>
-          <p class="fase-sellos"><span class="sello">Clase 3 · 1 h 24 min · transcripta</span></p>
-          <p class="fase-archivo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4V20a.5.5 0 0 1-.5.5h-10A.5.5 0 0 1 7 20z"/><path d="M14 3.5V8h4"/><path d="M12.5 11v6m0 0-2.4-2.4m2.4 2.4 2.4-2.4"/></svg><span>clase-3.mp4 · 1 h 24 min · importada</span></p>
-          <div class="portada-acciones">
-          <a class="boton-descarga" href="#descargar">
-            <span class="bd-punto" aria-hidden="true"></span>
-            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
-            <span class="bd-texto">Descargar para Windows</span>
-          </a>
-          <a class="pildora" href="#cronograma">Cómo funciona</a>
+  <!-- ═══ el héroe: el emblema protagonista (19/10). El fondo es el render de la sala con la peana, sin el emblema;
+       el emblema va aparte, recortado, y flota encima. Sólo la imagen de la apariencia que toca se pide. ═══ -->
+  <section class="heroe" id="portada" aria-labelledby="heroe-tit">
+    <div class="heroe-escena" aria-hidden="true">
+      <div class="heroe-lienzo">
+        <picture class="heroe-fondo">
+          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/heroe/fondo-marfil-768.avif 768w, imagenes/heroe/fondo-marfil-1280.avif 1280w, imagenes/heroe/fondo-marfil-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
+          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/webp" srcset="imagenes/heroe/fondo-marfil-768.webp 768w, imagenes/heroe/fondo-marfil-1280.webp 1280w, imagenes/heroe/fondo-marfil-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
+          <source data-tema="cuero" type="image/avif" srcset="imagenes/heroe/fondo-cuero-768.avif 768w, imagenes/heroe/fondo-cuero-1280.avif 1280w, imagenes/heroe/fondo-cuero-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
+          <img src="imagenes/heroe/fondo-cuero-1280.webp" srcset="imagenes/heroe/fondo-cuero-768.webp 768w, imagenes/heroe/fondo-cuero-1280.webp 1280w, imagenes/heroe/fondo-cuero-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        </picture>
+        <div class="heroe-emblema" id="emblema">
+          <div class="emblema-entrada">
+            <div class="emblema-flota">
+              <div class="emblema-giro">
+                <span class="emblema-halo"></span>
+                <img class="emblema-img" src="imagenes/heroe/emblema-1200.webp" srcset="imagenes/heroe/emblema-720.webp 720w, imagenes/heroe/emblema-1200.webp 1200w" sizes="(max-width: 860px) 82vw, 36vw" width="1200" height="1228" alt="" fetchpriority="high" decoding="async">
+                <span class="emblema-nucleo"></span>
+              </div>
+            </div>
           </div>
-          <p class="requisito">Windows 10 u 11 · 64 bits</p>
         </div>
-        <span class="fase-rotulo" data-ancla="919,706" aria-hidden="true">la cita, al minuto</span>
-        <span class="fase-rotulo" data-ancla="1532,693" aria-hidden="true">el sello de Cathedra</span>
-      </li>
-      <li class="fase" data-fase="2">
-        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f2-marmol-1280.avif 1280w, imagenes/fases/f2-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f2-onix-1280.avif 1280w, imagenes/fases/f2-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f2-onix-1280.webp" width="1920" height="1080" alt="Hojas de arcilla apiladas; la de arriba, con «Entendé» y la guía grabada con sus minutos; al lado, una pieza con «de lo que dijo el profesor» y una lapicera cereza." loading="lazy" decoding="async"></picture></figure>
-        <div class="fase-texto">
-          <p class="fase-num">02 · Entendé</p>
-          <h2 class="fase-titulo">Cathedra la lee y arma la guía.</h2>
-          <p class="fase-linea">Transcribe la clase y la ordena en una guía: los temas, los conceptos y el minuto exacto de cada cosa.</p>
-          <p class="fase-sellos"><span class="sello">Clase 3 · min 42:10 · dicho por el profesor</span></p>
-        </div>
-        <span class="fase-rotulo" data-ancla="1326,478" aria-hidden="true">la guía, con sus minutos</span>
-        <span class="fase-rotulo" data-ancla="1658,729" aria-hidden="true">de lo que dijo el profesor</span>
-      </li>
-      <li class="fase" data-fase="3">
-        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f3-marmol-1280.avif 1280w, imagenes/fases/f3-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f3-onix-1280.avif 1280w, imagenes/fases/f3-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f3-onix-1280.webp" width="1920" height="1080" alt="Fichas de cerámica esmaltada celeste; la de arriba, con «Practicá», una pregunta y su cita grabadas; al lado, piezas con «sin inventos» y, en cereza, «estudio»." loading="lazy" decoding="async"></picture></figure>
-        <div class="fase-texto">
-          <p class="fase-num">03 · Practicá</p>
-          <h2 class="fase-titulo">Practicás con preguntas y fichas.</h2>
-          <p class="fase-linea">Preguntas sobre tu materia, cada una con la cita de la clase de donde sale, y fichas para repasar.</p>
-          <p class="fase-sellos"><span class="sello">Clase 4 · min 12:40 · dicho por el profesor</span><span class="sello sello-vacio">no está en tu material</span></p>
-        </div>
-        <span class="fase-rotulo" data-ancla="1368,473" aria-hidden="true">una pregunta y su cita</span>
-        <span class="fase-rotulo" data-ancla="1668,728" aria-hidden="true">sin inventos</span>
-      </li>
-      <li class="fase" data-fase="4">
-        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f4-marmol-1280.avif 1280w, imagenes/fases/f4-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f4-onix-1280.avif 1280w, imagenes/fases/f4-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f4-onix-1280.webp" width="1920" height="1080" alt="Una hoja de examen de arcilla con «Rendí», la nota, las respuestas tildadas y la devolución grabadas; al lado, una pieza esmaltada con «seguridad» y una lapicera cereza." loading="lazy" decoding="async"></picture></figure>
-        <div class="fase-texto">
-          <p class="fase-num">04 · Rendí</p>
-          <h2 class="fase-titulo">Rendís el simulacro.</h2>
-          <p class="fase-linea">Un examen como el de verdad, escrito u oral, y una devolución con tus fortalezas y lo que te conviene repasar.</p>
-          <p class="fase-sellos"><span class="sello">Clase 2 · min 18:05 · dicho por el profesor</span></p>
-        </div>
-        <span class="fase-rotulo" data-ancla="1352,608" aria-hidden="true">la devolución: qué repasar</span>
-        <span class="fase-rotulo" data-ancla="1693,698" aria-hidden="true">seguridad</span>
-      </li>
-      <li class="fase" data-fase="5">
-        <figure class="fase-foto"><picture><source media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/fases/f5-marmol-1280.avif 1280w, imagenes/fases/f5-marmol-1920.avif 1920w" sizes="100vw"><source type="image/avif" srcset="imagenes/fases/f5-onix-1280.avif 1280w, imagenes/fases/f5-onix-1920.avif 1920w" sizes="100vw"><img src="imagenes/fases/f5-onix-1280.webp" width="1920" height="1080" alt="Una pieza de arcilla con «Cathedra» y «Empezá» sellados; al lado, piezas con «tecnología» y, en cereza, «innovación»." loading="lazy" decoding="async"></picture></figure>
-        <div class="fase-texto">
-          <p class="fase-num">05 · Empezá</p>
-          <h2 class="fase-titulo">Bajala y empezá.</h2>
-          <p class="fase-linea">Cathedra se instala en tu computadora y empieza con tu próxima clase.</p>
-          <p class="fase-sellos"><span class="sello">cada respuesta, con su minuto</span></p>
-          <div class="portada-acciones">
-          <a class="boton-descarga" href="#descargar">
-            <span class="bd-punto" aria-hidden="true"></span>
-            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
-            <span class="bd-texto">Descargar Cathedra</span>
-          </a>
-          </div>
-          <p class="requisito">Windows 10 u 11 · 64 bits</p>
-        </div>
-        <span class="fase-rotulo" data-ancla="1657,707" aria-hidden="true">tecnología</span>
-        <span class="fase-rotulo" data-ancla="1205,772" aria-hidden="true">innovación</span>
-      </li>
-    </ol>
-    <div class="fases-marcas" aria-hidden="true"><span class="fm-paso"><i></i><i></i><i></i><i></i><i></i></span><span>Bajá para seguir</span></div>
+      </div>
+      <div class="heroe-velo"></div>
     </div>
+
+    <div class="heroe-texto">
+      <p class="rotulo">Para tus clases grabadas</p>
+      <h1 class="heroe-titular" id="heroe-tit"><span class="linea"><span>Estudiás de lo que</span></span> <span class="linea"><span>dijo <em>tu profesor.</em></span></span></h1>
+      <p class="heroe-bajada">Importás tus clases y Cathedra arma la guía, te contesta con la clase y el minuto exacto, y te toma un simulacro con lo que el profesor dijo que toma.</p>
+      <div class="portada-acciones">
+        <a class="boton-descarga" href="#descargar">
+          <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+          <span class="bd-texto">Descargar para Windows</span>
+        </a>
+        <a class="pildora" href="#cronograma">Cómo funciona</a>
+      </div>
+      <p class="requisito">Windows 10 u 11 · 64 bits</p>
+    </div>
+
+    <ul class="heroe-datos" aria-label="Lo que la hace distinta">
+      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>La cita</b><span>Cada respuesta, con su clase y su minuto</span></li>
+      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>Sin inventos</b><span>Si no está en tu material, te lo dice</span></li>
+      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>En tu computadora</b><span>Tus clases y tus guías quedan con vos</span></li>
+    </ul>
+    <p class="bajar" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
   </section>
 
 
@@ -185,6 +155,9 @@
     </div>
   </section>
 
+  <!-- FASE 2: capturas nuevas. Las pantallas de cada tramo (imagenes/app/*) son las de antes, con datos inventados;
+       quedan como marcadores con estas mismas rutas hasta que lleguen las capturas con la identidad cuero. -->
+
   <!-- ═══ 1 · el cronograma ═══ -->
   <section class="tramo" id="cronograma" data-nombre="01 · Empezás" data-tramo="1" aria-labelledby="crono-tit">
     <div class="tramo-texto">
@@ -207,7 +180,7 @@
       <div class="dc-ficha" data-ficha hidden aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/cronograma-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/cronograma-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con «Materias» de Cathedra y, adelante, una tablilla de arcilla con el calendario grabado y un día marcado con una bolita Cherry."></picture>
+      <img class="pf-fondo" src="imagenes/app/cronograma-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="La pantalla de materias de Cathedra con el cronograma de una materia de ejemplo: los días, el horario y las fechas de cada clase.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/cronograma-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -225,7 +198,7 @@
       </ul>
     </div>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/subir-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/subir-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con la lista de clases y, adelante, una tablilla de arcilla con la onda de la voz grabada; al lado, un lápiz Cherry."></picture>
+      <img class="pf-fondo" src="imagenes/app/subir-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="La lista de clases de una materia de ejemplo, con la clase que se está transcribiendo y cuánto falta.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/subir-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -256,7 +229,7 @@
       </div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/lee-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/lee-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con lo importante de la materia y, adelante, el libro abierto con la cinta Cherry."></picture>
+      <img class="pf-fondo" src="imagenes/app/guia-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="Lo importante de una materia de ejemplo: los temas en orden, con lo que el profesor dijo que toma.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/guia-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -279,7 +252,7 @@
       <div class="dp-hilo" data-hilo aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/preguntar-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/preguntar-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con la conversación y, adelante, un globo de diálogo de cerámica esmaltada Candy y otro de arcilla con una bolita Cherry."></picture>
+      <img class="pf-fondo" src="imagenes/app/chat-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="Una conversación con Cathedra en una materia de ejemplo: la respuesta con la cita de la clase y el minuto.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/chat-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -315,7 +288,7 @@
       </div>
     </form>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/simulacro-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/simulacro-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con el plan de la materia y, adelante, tablillas de arcilla apiladas con las respuestas tildadas y una marcada en Cherry."></picture>
+      <img class="pf-fondo" src="imagenes/app/simulacro.webp" width="1600" height="900" loading="lazy" decoding="async" alt="El simulacro de una materia de ejemplo, con las consignas en el formato que anunció el profesor.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/simulacro.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -328,7 +301,7 @@
       <p class="tramo-bajada">Lo que erraste en el simulacro, en los juegos o en las fichas va a tu mazo de repaso, con la página de donde sale, y vuelve cuando toca. Al abrir, «Por dónde empezar» te da una tarea por materia, ordenada por los días que faltan para cada examen; «Cuánto por día» reparte lo que falta entre todas.</p>
     </div>
     <figure class="profundidad" data-profundidad>
-      <picture class="pf-tema"><source media="(prefers-color-scheme: light)" srcset="imagenes/secciones/repaso-marmol.webp"><img class="pf-fondo" src="imagenes/secciones/repaso-onix.webp" width="1600" height="900" loading="lazy" decoding="async" alt="La notebook con una ficha y, adelante, un abanico de fichas de arcilla; la de arriba, esmaltada Candy."></picture>
+      <img class="pf-fondo" src="imagenes/app/panel-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="El panel de inicio con las materias de ejemplo, lo que falta de cada una y las fichas para hoy.">
       <button class="ampliar" type="button" data-ampliar="imagenes/app/panel-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
@@ -354,16 +327,16 @@
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-apariencia.webp" data-texto="Fondos vivos, íconos 3D para cada materia, temas claros y oscuros, y el sonido de arranque que elijas."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-apariencia.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-apariencia-frente.webp" width="900" height="558" loading="lazy" decoding="async" alt=""></span><b>Apariencia</b><small>Fondos vivos, íconos 3D, claro y oscuro</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-modulos.webp" data-texto="Cathedra viene liviana: lo pesado se baja aparte, una sola vez, desde Ajustes › Módulos (la transcripción, la transcripción precisa, el Motor de Cathedra para contestar sin conexión, la voz natural, los fondos)."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-modulos.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-modulos-frente.webp" width="900" height="385" loading="lazy" decoding="async" alt=""></span><b>Módulos y sin conexión</b><small>Con el Motor de Cathedra contesta sin internet</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-papelera.webp" data-texto="Lo que sacás queda en la papelera hasta que decidas que no lo querés más, y vuelve a su lugar con un toque. Tus clases, guías y mazos son archivos en tu computadora."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-papelera.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-papelera-frente.webp" width="900" height="211" loading="lazy" decoding="async" alt=""></span><b>Nada se pierde</b><small>Papelera, y todo en tu computadora</small></button></li>
-      <li><div class="tarjeta tarjeta-pronto"><span class="tj-cuadro tj-pronto" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="18" y="6" width="12" height="22" rx="6"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M17 42h14"/></svg><i class="tj-onda"></i></span><b>Grabar en vivo (opcional) <em class="pronto">pronto</em></b><small>Te sentás en el aula con el micrófono y Cathedra transcribe en el momento, con aviso si estás lejos o hay ruido. Todavía no está en la app.</small></div></li>
+      <li><div class="tarjeta tarjeta-pronto"><span class="tj-cuadro tj-pronto" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="18" y="6" width="12" height="22" rx="6"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M17 42h14"/></svg></span><b>Grabar en vivo (opcional) <em class="pronto">pronto</em></b><small>Te sentás en el aula con el micrófono y Cathedra transcribe en el momento, con aviso si estás lejos o hay ruido. Todavía no está en la app.</small></div></li>
     </ul>
   </section>
 
   <section class="descargar" id="descargar" data-nombre="Descargar" data-tramo="8" aria-labelledby="descargar-tit">
     <div class="descargar-caja">
+      <img class="descargar-emblema" src="imagenes/heroe/emblema-720.webp" width="720" height="737" loading="lazy" decoding="async" alt="">
       <p class="rotulo">Para Windows</p>
       <h2 id="descargar-tit" class="titular"><span class="palabras">Bajala y empezá por la próxima clase.</span></h2>
       <a class="boton-descarga" data-descarga href="#descargar">
-        <span class="bd-punto" aria-hidden="true"></span>
         <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
         <span class="bd-texto">Descargar para Windows</span>
       </a>
@@ -420,7 +393,7 @@
     <a href="terminos#contacto" data-contacto>Contacto</a>
     <a href="#" data-quieto role="button">Ver sin animaciones</a>
   </nav>
-  <p class="pie-firma">© 2026 Cathedra</p>
+  <p class="pie-firma"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>© 2026 Cathedra</p>
 </footer>
 
 <dialog class="visor" id="visor" aria-label="La pantalla en grande">
@@ -429,6 +402,8 @@
   <button class="visor-cerrar" type="button" data-cerrar>Cerrar</button>
 </dialog>
 
+<script src="lib/gsap.min.js" defer></script>
+<script src="lib/ScrollTrigger.min.js" defer></script>
 <script src="pagina.js" defer></script>
 </body>
 </html>

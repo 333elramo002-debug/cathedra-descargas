@@ -1,0 +1,13 @@
+Tipografías de la página de Cathedra. Licencia SIL Open Font License 1.1 (uso comercial y redistribución permitidos).
+
+Playfair Display (Claus Eggers Sørensen), títulos
+  PlayfairDisplay-latin.woff2           variable, eje de peso 400-900, subconjunto latin
+  PlayfairDisplay-italic-latin.woff2    cursiva 400, subconjunto latin
+  https://fonts.google.com/specimen/Playfair+Display
+
+Inter (Rasmus Andersson), textos y cifras
+  Inter-latin.woff2                     variable, eje de peso 100-900, subconjunto latin (con cifras tabulares)
+  https://fonts.google.com/specimen/Inter
+
+Bajadas de fonts.gstatic.com el 19/10/2026 (copias de recursos_web/fuentes/ del repositorio privado).
+Las de antes (IBM Plex) quedaron en fuentes/_anterior/.
