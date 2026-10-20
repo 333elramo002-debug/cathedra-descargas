@@ -420,7 +420,7 @@ main, .pie { position: relative; z-index: 1; }
   margin: 0;
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   font: 600 11px/1 var(--texto-f); letter-spacing: .24em; text-transform: uppercase;
-  color: var(--tenue);
+  color: var(--tenue); white-space: nowrap;
 }
 .bajar span { padding: 8px 14px 8px 16px; border-radius: 999px; background: var(--capsula); border: 1px solid var(--vidrio-borde); }
 .bajar i { display: block; width: 1px; height: 34px; background: linear-gradient(var(--cereza-luz), transparent); transform-origin: top; animation: bajarLinea 2.8s var(--curva) infinite; }
@@ -874,7 +874,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .heroe-velo { background:
     linear-gradient(to top, var(--velo-bajo) 0%, color-mix(in srgb, var(--velo-bajo) 70%, transparent) 14%, transparent 38%),
     linear-gradient(to bottom, var(--velo-bajo) 0, var(--velo-bajo) var(--arriba), color-mix(in srgb, var(--velo-bajo) 55%, transparent) calc(var(--arriba) + 40px), transparent calc(var(--arriba) + 150px)); }
-  .heroe-texto { max-width: 640px; margin-top: -28px; padding: 0 var(--gutter) 104px; }
+  .heroe-texto { max-width: 640px; margin-top: -28px; padding: 0 var(--gutter) 112px; }
   .heroe-titular { font-size: clamp(36px, 9.6vw, 56px); }
   .heroe-bajada { margin-top: 20px; }
 }
