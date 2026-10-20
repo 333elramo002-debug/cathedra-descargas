@@ -187,7 +187,8 @@ const cabecera = document.querySelector(".cabecera");
 const portada = document.getElementById("portada");
 function cabeceraSegunScroll() {
   if (!cabecera || !portada) return;          // en las legales la cabecera ya va con fondo
-  cabecera.classList.toggle("sobre", portada.getBoundingClientRect().bottom < 90);
+  // apenas se baja, la cabecera toma su vidrio: lo que pasa por debajo (el titular, el emblema) no se cruza con la marca
+  cabecera.classList.toggle("sobre", window.scrollY > 24);
 }
 window.addEventListener("scroll", cabeceraSegunScroll, { passive: true });
 cabeceraSegunScroll();

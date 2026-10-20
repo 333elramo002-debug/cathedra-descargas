@@ -10,5 +10,5 @@ Identidad cuero (19/10/2026):
     texturas CC0 1.0 de Poly Haven (brown_leather, marble_01, brown_photostudio_02).
   icono.svg, icono-claro.svg, favicon.ico, imagenes/icono-180.png: la marca de Cathedra (la estrella de cuatro puntas).
 
-Lo de antes (IBM Plex, la C de dovelas, el héroe del libro, la dirección visual) quedó en _anterior/,
+Lo de antes (las letras y la marca anteriores, el héroe anterior y la dirección visual) quedó en _anterior/,
 imagenes/_anterior/ y fuentes/_anterior/: está en el repositorio pero no se publica (.vercelignore).
