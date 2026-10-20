@@ -20,7 +20,12 @@ Qué verifica (sin navegador):
   · la sección de descarga dice la versión;
   · existen las legales (privacidad, términos, cookies) y 404.html; vercel.json sirve las direcciones
     limpias; todos los enlaces internos (y los anclas) resuelven;
-  · el CSS respeta prefers-reduced-motion por sí solo y la página se ve sin JS.
+  · el CSS respeta prefers-reduced-motion por sí solo y la página se ve sin JS;
+  · (d66, el manual de producción visual) el héroe de §04: titular, botón principal cherry y secundario de borde fino,
+    la barra de marca con su navegación breve y Oscuro / Claro, y la composición en capas con sus tamaños en avif y webp
+    (la escena de 1920 <= 450 KB); el atlas de §05: cinco paneles con su ficha técnica, las imágenes de nombre fijo y sus
+    variantes al día (imagenes/atlas/derivadas.json); el movimiento de §14 y §16: reposo sólo en el héroe, @keyframes
+    sólo con transform y opacity, a lo sumo dos superficies con desenfoque, y la clara de fábrica.
 
 Con Chromium (si hay uno; se busca en CATHEDRA_NAVEGADOR_PRUEBAS, /opt/pw-browsers/chromium o el de
 Playwright), además sirve el repo en un puerto libre y mira la página de verdad:
@@ -375,6 +380,107 @@ def menos_movimiento_y_sin_js() -> list[str]:
     return problemas
 
 
+# ─────────────────────────── d66 · el manual de producción visual (20/10) ───────────────────────────
+HEROE_CAPAS = {   # cada capa del héroe, en sus tamaños; avif y webp de cada uno (§13, §16)
+    "maestro-a-ivory": (768, 1280, 1920), "maestro-b-espresso": (768, 1280, 1920),
+    "emblema-ivory": (474, 948), "emblema-espresso": (474, 948), "frente-ivory": (960,), "frente-espresso": (960,),
+}
+ESCENA_MAXIMA = 450 * 1024        # la escena del héroe a 1920, en cada formato (encargo d66)
+ATLAS = ["01_leather", "02_glass", "03_emblem", "04_ivory_stone"]
+
+
+@estatico("el héroe según el manual: grilla, titular, dos botones y la composición en capas")
+def heroe_del_manual() -> list[str]:
+    problemas = []
+    html = sin_comentarios_html(leer("index.html"))
+    heroe = html.split('id="portada"', 1)[-1].split("</section>", 1)[0]
+    for clase in ("heroe-escenario", "capa-escena", "capa-emblema", "emblema-flota", "capa-frente", "heroe-grilla", "heroe-texto"):
+        if f'class="{clase}' not in heroe and f' {clase}"' not in heroe:
+            problemas.append(f"el héroe no tiene .{clase}")
+    if not re.search(r'<h1 class="heroe-titular"[^>]*>.*Estudiás de lo que.*dijo tu <em>profesor\.</em>', heroe, flags=re.S):
+        problemas.append("el titular no es «Estudiás de lo que dijo tu profesor.» con la última palabra en cherry")
+    if not re.search(r'class="boton-descarga boton-principal"[^>]*>.*?Descargar para Windows', heroe, flags=re.S):
+        problemas.append("falta el botón principal cherry «Descargar para Windows»")
+    if not re.search(r'class="pildora"[^>]*>Cómo funciona<', heroe):
+        problemas.append("falta el secundario de borde fino «Cómo funciona»")
+    cabecera = html.split('<header class="cabecera"', 1)[-1].split("</header>", 1)[0]
+    for texto in ("Cómo funciona", "Todo lo que hace", "Descargar"):
+        if f">{texto}<" not in cabecera:
+            problemas.append(f"la barra de marca no lleva «{texto}»")
+    for nombre in ("Oscuro", "Claro"):
+        if f'aria-label="{nombre}"' not in cabecera:
+            problemas.append(f"el selector de apariencia no dice «{nombre}»")
+    for base, tamanos in HEROE_CAPAS.items():
+        for t in tamanos:
+            for ext in ("avif", "webp"):
+                f = RAIZ / f"imagenes/heroe/{base}-{t}.{ext}"
+                if not f.is_file():
+                    problemas.append(f"falta {f.relative_to(RAIZ).as_posix()}")
+                elif f"imagenes/heroe/{base}-{t}.{ext}" not in html:
+                    problemas.append(f"index.html no pide {base}-{t}.{ext}")
+    for base in ("maestro-a-ivory", "maestro-b-espresso"):
+        for ext in ("avif", "webp"):
+            f = RAIZ / f"imagenes/heroe/{base}-1920.{ext}"
+            if f.is_file() and f.stat().st_size > ESCENA_MAXIMA:
+                problemas.append(f"{f.name}: {f.stat().st_size / 1024:.0f} KB (tope 450 KB)")
+    return problemas
+
+
+@estatico("el atlas de materiales: cinco paneles, imágenes con nombre fijo y variantes al día")
+def atlas_de_materiales() -> list[str]:
+    import hashlib
+    problemas = []
+    html = sin_comentarios_html(leer("index.html"))
+    if html.count('class="atlas-panel') != 5:
+        problemas.append(f"el atlas tiene {html.count('class=\"atlas-panel')} paneles (se esperaban 5)")
+    for n in ("01 · Leather", "02 · Liquid Glass", "03 · Signature Emblem", "04 · Ivory &amp; Stone", "05 · Brand system"):
+        if n not in html:
+            problemas.append(f"falta el panel «{n}»")
+    if html.count('class="atlas-ficha"') != 5:
+        problemas.append("cada panel lleva su ficha técnica (versión técnica neutra, §05)")
+    huellas_f = RAIZ / "imagenes/atlas/derivadas.json"
+    huellas = json.loads(huellas_f.read_text(encoding="utf-8")) if huellas_f.is_file() else {}
+    for n in ATLAS:
+        maestro = RAIZ / f"imagenes/atlas/{n}.webp"
+        if not maestro.is_file():
+            problemas.append(f"falta imagenes/atlas/{n}.webp")
+            continue
+        for v in (f"{n}.avif", f"{n}-600.avif", f"{n}-600.webp"):
+            if not (RAIZ / "imagenes/atlas" / v).is_file():
+                problemas.append(f"falta imagenes/atlas/{v}")
+        if huellas.get(n) != hashlib.sha256(maestro.read_bytes()).hexdigest():
+            problemas.append(f"imagenes/atlas/{n}.webp cambió y sus variantes no: correr hacer_imagenes_d66.py --atlas")
+    return problemas
+
+
+def reglas_css() -> list[tuple[str, str]]:
+    """(selector, cuerpo) de cada regla de estilos.css, con los @media abiertos."""
+    css = sin_comentarios_css(leer("estilos.css"))
+    return [(sel.strip(), cuerpo) for sel, cuerpo in re.findall(r"([^{}]+)\{([^{}]*)\}", css)]
+
+
+@estatico("movimiento: reposo sólo en el héroe, sólo transform y opacity, a lo sumo dos desenfoques")
+def movimiento_del_manual() -> list[str]:
+    problemas = []
+    css = sin_comentarios_css(leer("estilos.css"))
+    for sel, cuerpo in reglas_css():
+        if re.search(r"animation[^;]*\binfinite\b", cuerpo) and not re.search(r"\.boton-principal|\.cursor-escribe", sel):
+            problemas.append(f"movimiento de reposo fuera del héroe y el atlas: {sel}")
+    for nombre, cuerpo in re.findall(r"@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}", css):
+        for prop in re.findall(r"([\w-]+)\s*:", cuerpo):
+            if prop not in ("transform", "opacity", "translate", "scale", "rotate"):
+                problemas.append(f"@keyframes {nombre} anima {prop} (sólo transform y opacity)")
+    con_desenfoque = [sel for sel, cuerpo in reglas_css() if re.search(r"(?<!-webkit-)backdrop-filter\s*:\s*blur", cuerpo)]
+    if len(con_desenfoque) > 2:
+        problemas.append(f"{len(con_desenfoque)} superficies con desenfoque (tope 2): {con_desenfoque}")
+    if "prefers-color-scheme: dark" not in css or ':root[data-tema="cuero"]' not in css:
+        problemas.append("la oscura no sale del sistema ni del selector")
+    claro = re.search(r":root\s*\{\s*color-scheme:\s*light;[^}]*--fondo:\s*#F1ECE4", css)
+    if not claro:
+        problemas.append("la clara (Ivory #F1ECE4) no es la de fábrica")
+    return problemas
+
+
 # ─────────────────────────── los chequeos con Chromium ───────────────────────────
 def navegador_disponible() -> str | None:
     candidatos = [os.environ.get("CATHEDRA_NAVEGADOR_PRUEBAS"), "/opt/pw-browsers/chromium"]
@@ -450,15 +556,13 @@ def en_navegador() -> dict[str, list[str]]:
             # 3 · con «reducir movimiento»: quieta desde el arranque, sin carga ni animaciones
             ctx, pag, _, _ = abrir(viewport={"width": 390, "height": 844}, reduced_motion="reduce")
             pag.wait_for_timeout(500)
-            # el «bajá para recorrerla» se centra con left: 50% + translate: quieto no lo puede correr
-            CENTRO_BAJAR = "(() => { const r = document.querySelector('.bajar').getBoundingClientRect(); return (r.left + r.right) / 2 - innerWidth / 2; })()"
             estado = pag.evaluate("""() => ({
                 quieto: document.documentElement.classList.contains('quieto'),
                 animaciones: document.getAnimations().length,
                 carga: getComputedStyle(document.querySelector('.carga')).display,
                 marcado: getComputedStyle(document.querySelector('.marcado')).animationName,
                 enlace: document.querySelector('[data-quieto]').textContent,
-                bajar: %s })""" % CENTRO_BAJAR)
+                emblema: getComputedStyle(document.querySelector('.capa-emblema')).opacity })""")
             problemas = []
             if not estado["quieto"]:
                 problemas.append("la página no se puso en modo quieto")
@@ -468,8 +572,8 @@ def en_navegador() -> dict[str, list[str]]:
                 problemas.append(f"la carga ({estado['carga']}) o el aviso de Windows ({estado['marcado']}) siguen animados")
             if estado["enlace"] != "Ver con animaciones":
                 problemas.append(f"el enlace del pie dice {estado['enlace']!r}")
-            if abs(estado["bajar"]) > 2:
-                problemas.append(f"«Bajá para recorrerla» quedó corrido {estado['bajar']:.0f}px del centro")
+            if estado["emblema"] != "1":
+                problemas.append(f"quieto, el emblema no se ve (opacidad {estado['emblema']})")
             ctx.close()
             # sin JS (y con menos movimiento): la carga no tapa la página
             ctx = nav.new_context(user_agent=UA_WINDOWS, viewport={"width": 390, "height": 844}, reduced_motion="reduce", java_script_enabled=False)
@@ -479,13 +583,13 @@ def en_navegador() -> dict[str, list[str]]:
             try:
                 carga = pag.locator(".carga").evaluate("e => getComputedStyle(e).display")
                 marca = pag.locator("h1.heroe-titular").evaluate("e => getComputedStyle(e.querySelector('span')).opacity")
-                bajar = pag.locator(".bajar").evaluate("e => { const r = e.getBoundingClientRect(); return (r.left + r.right) / 2 - innerWidth / 2; }")
+                emblema = pag.locator(".capa-emblema").evaluate("e => getComputedStyle(e).opacity")
                 if carga != "none":
                     problemas.append(f"sin JS la carga queda a la vista (display {carga})")
                 if marca != "1":
                     problemas.append(f"sin JS el titular no se ve (opacidad {marca})")
-                if abs(bajar) > 2:
-                    problemas.append(f"sin JS «Bajá para recorrerla» quedó corrido {bajar:.0f}px del centro")
+                if emblema != "1":
+                    problemas.append(f"sin JS el emblema no se ve (opacidad {emblema})")
             except Exception as e:   # sin JS no se puede medir en este navegador: queda anotado
                 problemas.append(f"no se pudo medir sin JS: {e}")
             ctx.close()
