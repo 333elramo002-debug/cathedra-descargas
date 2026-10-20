@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cathedra · Estudiás de lo que dijo tu profesor</title>
 <meta name="description" content="Importás tus clases grabadas y Cathedra las transcribe, arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma. Para Windows.">
-<meta name="color-scheme" content="dark light">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#1A0F0B" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F1ECE4" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
@@ -29,9 +29,8 @@
 <script>try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 <noscript><style>
   /* sin JS: la página ya puesta y quieta (la carga no se abre sola) */
-  .carga, .cab-sonido, .cab-tema, [data-quieto] { display: none !important; }
-  .bajar { translate: -50% 0 !important; }
-  .bajar i, .marcado, .boton-descarga::after, .descargar-emblema { animation: none !important; }
+  .carga, .cab-sonido, .cab-tema, .atlas-ver, [data-quieto] { display: none !important; }
+  .boton-principal::after { animation: none !important; }
 </style></noscript>
 </head>
 <body>
@@ -78,52 +77,193 @@
 
 <main id="contenido">
 
-  <!-- ═══ el héroe: el emblema protagonista (19/10). El fondo es el render de la sala con la peana, sin el emblema;
-       el emblema va aparte, recortado, y flota encima. Sólo la imagen de la apariencia que toca se pide. ═══ -->
+  <!-- ═══ el héroe (manual §04, 20/10): grilla de 12 columnas; a la izquierda el bloque editorial sobre marfil liso y a la
+       derecha la composición 3D, que no pisa el texto. La composición es el render maestro A «Ivory Hero» (B «Espresso
+       Signature» en la oscura) en tres capas de la MISMA cámara: la escena (sin el emblema ni el primer plano), el emblema
+       recortado del mismo render, que entra a los 0,7 s y flota (§14), y el primer plano desenfocado (paralaje). En reposo,
+       compuestas, son el render. Sólo se pide la apariencia que toca. Las arma hacer_imagenes_d66.py desde
+       recursos_3d/emblema/renders: cambiar el render es volver a correrlo (los nombres no cambian). ═══ -->
   <section class="heroe" id="portada" aria-labelledby="heroe-tit">
-    <div class="heroe-escena" aria-hidden="true">
+    <div class="heroe-escenario" aria-hidden="true">
       <div class="heroe-lienzo">
-        <picture class="heroe-fondo">
-          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/heroe/fondo-marfil-768.avif 768w, imagenes/heroe/fondo-marfil-1280.avif 1280w, imagenes/heroe/fondo-marfil-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/webp" srcset="imagenes/heroe/fondo-marfil-768.webp 768w, imagenes/heroe/fondo-marfil-1280.webp 1280w, imagenes/heroe/fondo-marfil-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <source data-tema="cuero" type="image/avif" srcset="imagenes/heroe/fondo-cuero-768.avif 768w, imagenes/heroe/fondo-cuero-1280.avif 1280w, imagenes/heroe/fondo-cuero-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <img src="imagenes/heroe/fondo-cuero-1280.webp" srcset="imagenes/heroe/fondo-cuero-768.webp 768w, imagenes/heroe/fondo-cuero-1280.webp 1280w, imagenes/heroe/fondo-cuero-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        <picture class="capa-escena">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/maestro-b-espresso-768.avif 768w, imagenes/heroe/maestro-b-espresso-1280.avif 1280w, imagenes/heroe/maestro-b-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/maestro-b-espresso-768.webp 768w, imagenes/heroe/maestro-b-espresso-1280.webp 1280w, imagenes/heroe/maestro-b-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/maestro-a-ivory-768.avif 768w, imagenes/heroe/maestro-a-ivory-1280.avif 1280w, imagenes/heroe/maestro-a-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <img src="imagenes/heroe/maestro-a-ivory-1280.webp" srcset="imagenes/heroe/maestro-a-ivory-768.webp 768w, imagenes/heroe/maestro-a-ivory-1280.webp 1280w, imagenes/heroe/maestro-a-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
         </picture>
-        <div class="heroe-emblema" id="emblema">
-          <div class="emblema-entrada">
+        <div class="capa-emblema" id="emblema">
+          <div class="emblema-mira">
             <div class="emblema-flota">
-              <div class="emblema-giro">
-                <span class="emblema-halo"></span>
-                <img class="emblema-img" src="imagenes/heroe/emblema-1200.webp" srcset="imagenes/heroe/emblema-720.webp 720w, imagenes/heroe/emblema-1200.webp 1200w" sizes="(max-width: 860px) 82vw, 36vw" width="1200" height="1228" alt="" fetchpriority="high" decoding="async">
-                <span class="emblema-nucleo"></span>
-              </div>
+              <picture>
+                <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/emblema-espresso-474.avif 474w, imagenes/heroe/emblema-espresso-948.avif 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/emblema-espresso-474.webp 474w, imagenes/heroe/emblema-espresso-948.webp 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/emblema-ivory-474.avif 474w, imagenes/heroe/emblema-ivory-948.avif 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <img class="emblema-img" src="imagenes/heroe/emblema-ivory-948.webp" srcset="imagenes/heroe/emblema-ivory-474.webp 474w, imagenes/heroe/emblema-ivory-948.webp 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw" width="948" height="966" alt="" fetchpriority="high" decoding="async">
+              </picture>
             </div>
           </div>
         </div>
+        <picture class="capa-frente">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/frente-espresso-960.avif 960w" sizes="80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/frente-espresso-960.webp 960w" sizes="80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/frente-ivory-960.avif 960w" sizes="80vw">
+          <img src="imagenes/heroe/frente-ivory-960.webp" srcset="imagenes/heroe/frente-ivory-960.webp 960w" sizes="80vw" width="960" height="540" alt="" decoding="async">
+        </picture>
       </div>
-      <div class="heroe-velo"></div>
     </div>
 
-    <div class="heroe-texto">
-      <p class="rotulo">Para tus clases grabadas</p>
-      <h1 class="heroe-titular" id="heroe-tit"><span class="linea"><span>Estudiás de lo que</span></span> <span class="linea"><span>dijo <em>tu profesor.</em></span></span></h1>
-      <p class="heroe-bajada">Importás tus clases y Cathedra arma la guía, te contesta con la clase y el minuto exacto, y te toma un simulacro con lo que el profesor dijo que toma.</p>
-      <div class="portada-acciones">
-        <a class="boton-descarga" href="#descargar">
-          <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
-          <span class="bd-texto">Descargar para Windows</span>
-        </a>
-        <a class="pildora" href="#cronograma">Cómo funciona</a>
+    <div class="heroe-grilla">
+      <div class="heroe-texto">
+        <p class="rotulo">Para tus clases grabadas</p>
+        <h1 class="heroe-titular" id="heroe-tit"><span class="linea"><span>Estudiás de lo que</span></span> <span class="linea"><span>dijo tu <em>profesor.</em></span></span></h1>
+        <p class="heroe-bajada">Importás tus clases y Cathedra arma la guía, te contesta con la clase y el minuto exacto, y te toma un simulacro con lo que el profesor dijo que toma.</p>
+        <div class="portada-acciones">
+          <a class="boton-descarga boton-principal" href="#descargar">
+            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+            <span class="bd-texto">Descargar para Windows</span>
+          </a>
+          <a class="pildora" href="#cronograma">Cómo funciona</a>
+        </div>
+        <p class="requisito">Windows 10 u 11 · 64 bits</p>
+        <ul class="heroe-datos" aria-label="Lo que la hace distinta">
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>La cita</b><span>Cada respuesta, con su clase y su minuto</span></li>
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>Sin inventos</b><span>Si no está en tu material, te lo dice</span></li>
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>En tu computadora</b><span>Tus clases y tus guías quedan con vos</span></li>
+        </ul>
       </div>
-      <p class="requisito">Windows 10 u 11 · 64 bits</p>
     </div>
+  </section>
 
-    <ul class="heroe-datos" aria-label="Lo que la hace distinta">
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>La cita</b><span>Cada respuesta, con su clase y su minuto</span></li>
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>Sin inventos</b><span>Si no está en tu material, te lo dice</span></li>
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>En tu computadora</b><span>Tus clases y tus guías quedan con vos</span></li>
-    </ul>
-    <p class="bajar" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
+  <!-- ═══ el atlas de materiales (manual §05): la franja de abajo del héroe, sobre espresso, con divisores finos. Cuatro
+       paneles de material y uno del sistema de la marca; cada uno con su versión editorial (título y una línea) y su
+       ficha técnica neutra (al pasar el mouse o con «Ficha técnica»). Las imágenes tienen nombre FIJO
+       (imagenes/atlas/0N_<material>.webp, 1200 × 800): las produce la tanda «Materiales y atlas»; hoy son MARCADORES hechos
+       con los recursos actuales (hacer_imagenes_d66.py --atlas-marcadores). Al cambiarlas, volver a correr
+       hacer_imagenes_d66.py --atlas: rehace las variantes (600 y avif) y su huella (tests_pagina.py lo controla). ═══ -->
+  <section class="atlas" id="materiales" data-nombre="Materiales" aria-labelledby="atlas-tit">
+    <h2 class="solo-lector" id="atlas-tit">Los materiales de Cathedra</h2>
+    <div class="atlas-pista" role="list" tabindex="0" aria-label="Los materiales de Cathedra: deslizá para ver los cinco">
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-01-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/01_leather-600.avif 600w, imagenes/atlas/01_leather.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/01_leather.webp" srcset="imagenes/atlas/01_leather-600.webp 600w, imagenes/atlas/01_leather.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Cuero espresso de cerca, con luz rasante: el grano fino y su brillo satinado.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">01 · Leather</p>
+          <h3 class="atlas-tit" id="at-01-tit">Cuero real, en cada detalle.</h3>
+          <p class="atlas-desc">Grano fino y cálido. Va en la barra y en lo que se destaca.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-01">
+          <div><dt>Color</dt><dd>#382016 a #75452D</dd></div>
+          <div><dt>Grano</dt><dd>Fino, sin patrón que se repita</dd></div>
+          <div><dt>Brillo</dt><dd>Satinado: rugosidad 0,48–0,68</dd></div>
+          <div><dt>Uso</dt><dd>La barra, lo destacado y la marca</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-01"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-02-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/02_glass-600.avif 600w, imagenes/atlas/02_glass.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/02_glass.webp" srcset="imagenes/atlas/02_glass-600.webp 600w, imagenes/atlas/02_glass.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Un pétalo de vidrio del emblema de cerca: el canto grueso y curvo, con reflejos blancos y cálidos.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">02 · Liquid Glass</p>
+          <h3 class="atlas-tit" id="at-02-tit">Vidrio con volumen.</h3>
+          <p class="atlas-desc">Cantos gruesos y pulidos, sólo en lo que flota.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-02">
+          <div><dt>Transparencia</dt><dd>Total, con un tinte mínimo</dd></div>
+          <div><dt>Refracción</dt><dd>Índice 1,45–1,52</dd></div>
+          <div><dt>Grosor</dt><dd>Real, con el canto biselado</dd></div>
+          <div><dt>Perfil</dt><dd>Curvo y pulido: 0,04–0,12</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-02"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-03-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/03_emblem-600.avif 600w, imagenes/atlas/03_emblem.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/03_emblem.webp" srcset="imagenes/atlas/03_emblem-600.webp 600w, imagenes/atlas/03_emblem.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="El emblema de Cathedra en primer plano: cuatro puntas de cuero y cristal alrededor del núcleo cereza.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">03 · Signature Emblem</p>
+          <h3 class="atlas-tit" id="at-03-tit">Un símbolo que te acompaña.</h3>
+          <p class="atlas-desc">Cuero y cristal alrededor de un núcleo cereza.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-03">
+          <div><dt>Forma</dt><dd>Cuatro puntas, 1:1, simétrica</dd></div>
+          <div><dt>Capas</dt><dd>Cuerpo, vidrio y núcleo aparte</dd></div>
+          <div><dt>Núcleo</dt><dd>Resina cereza #A51225</dd></div>
+          <div><dt>En chico</dt><dd>Se reconoce de 16 a 512 px</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-03"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-04-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/04_ivory_stone-600.avif 600w, imagenes/atlas/04_ivory_stone.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/04_ivory_stone.webp" srcset="imagenes/atlas/04_ivory_stone-600.webp 600w, imagenes/atlas/04_ivory_stone.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Una pared marfil mate con un arco y un nicho de piedra, con luz difusa.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">04 · Ivory &amp; Stone</p>
+          <h3 class="atlas-tit" id="at-04-tit">Marfil para leer horas.</h3>
+          <p class="atlas-desc">Una superficie mate y satinada, con luz difusa.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-04">
+          <div><dt>Base</dt><dd>Ivory #F1ECE4</dd></div>
+          <div><dt>Sombra</dt><dd>Ivory shadow #E2D8CC</dd></div>
+          <div><dt>Piedra</dt><dd>Stone #C9C3BD, en separadores</dd></div>
+          <div><dt>Textura</dt><dd>Casi imperceptible, sin vetas</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-04"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel atlas-marca" role="listitem" aria-labelledby="at-05-tit">
+        <div class="atlas-cuadro atlas-muestras">
+          <ul class="am-colores" aria-label="Los colores de la marca">
+            <li style="--c:#382016"><i></i><span>#382016</span></li>
+            <li style="--c:#F1ECE4"><i></i><span>#F1ECE4</span></li>
+            <li style="--c:#6E625A"><i></i><span>#6E625A</span></li>
+            <li style="--c:#A51225"><i></i><span>#A51225</span></li>
+          </ul>
+          <p class="am-letras"><span class="am-serif">Playfair Display</span> <span class="am-sans">Inter</span></p>
+          <p class="am-iconos" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 6.5C10.2 5.3 7.6 4.8 4.5 5v13c3.1-.2 5.7.3 7.5 1.5 1.8-1.2 4.4-1.7 7.5-1.5V5c-3.1-.2-5.7.3-7.5 1.5Zm0 0v13"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.5"/></svg>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c.9-3.3 3.6-5.2 7-5.2s6.1 1.9 7 5.2"/></svg>
+          </p>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">05 · Brand system</p>
+          <h3 class="atlas-tit" id="at-05-tit"><svg class="am-estrella" viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>Cathedra</h3>
+          <p class="atlas-desc">Los mismos colores, letras e íconos en la app.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-05">
+          <div class="af-paleta"><dt>Paleta</dt><dd>
+            <span style="--c:#F1ECE4" title="Ivory">#F1ECE4</span><span style="--c:#E2D8CC" title="Ivory shadow">#E2D8CC</span>
+            <span style="--c:#382016" title="Espresso">#382016</span><span style="--c:#75452D" title="Leather warm">#75452D</span>
+            <span style="--c:#A51225" title="Cherry">#A51225</span><span style="--c:#E13B43" title="Cherry light">#E13B43</span>
+            <span style="--c:#C9C3BD" title="Stone">#C9C3BD</span><span style="--c:#6E625A" title="Taupe">#6E625A</span>
+          </dd></div>
+          <div><dt>Letras</dt><dd>Playfair Display e Inter</dd></div>
+          <div><dt>Escala</dt><dd>De 12 a 56 px, en ocho pasos</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-05"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+    </div>
   </section>
 
 
@@ -159,7 +299,9 @@
     </div>
   </section>
 
-  <!-- las pantallas de cada tramo: capturas de la app 1.1.0 con datos de ejemplo (d60, 20/10/2026), en imagenes/app/<nombre>-{1280,1920}.{avif,webp} -->
+  <!-- CAPTURAS: la integración las reemplaza. Las pantallas de cada tramo y de las tarjetas son capturas de la app 1.1.0 con
+       datos de ejemplo (d60, 20/10/2026) y quedan de marcador con nombres estables: imagenes/app/<nombre>-{1280,1920}.{avif,webp}
+       (y -640 / -frente las de las tarjetas). Reemplazar los archivos con el mismo nombre; el HTML no cambia. -->
 
   <!-- ═══ 1 · el cronograma ═══ -->
   <section class="tramo" id="cronograma" data-nombre="01 · Empezás" data-tramo="1" aria-labelledby="crono-tit">
@@ -355,8 +497,8 @@
   </section>
 
   <section class="descargar" id="descargar" data-nombre="Descargar" data-tramo="8" aria-labelledby="descargar-tit">
-    <div class="descargar-caja">
-      <img class="descargar-emblema" src="imagenes/heroe/emblema-720.webp" width="720" height="737" loading="lazy" decoding="async" alt="">
+    <div class="descargar-caja cuero-tarjeta">
+      <picture class="descargar-emblema"><source type="image/avif" srcset="imagenes/heroe/emblema-espresso-474.avif 474w, imagenes/heroe/emblema-espresso-948.avif 948w" sizes="180px"><img src="imagenes/heroe/emblema-espresso-474.webp" srcset="imagenes/heroe/emblema-espresso-474.webp 474w, imagenes/heroe/emblema-espresso-948.webp 948w" sizes="180px" width="474" height="483" loading="lazy" decoding="async" alt=""></picture>
       <p class="rotulo">Para Windows</p>
       <h2 id="descargar-tit" class="titular"><span class="palabras">Bajala y empezá por la próxima clase.</span></h2>
       <a class="boton-descarga" data-descarga href="#descargar">
