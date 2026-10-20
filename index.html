@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cathedra · Estudiás de lo que dijo tu profesor</title>
 <meta name="description" content="Importás tus clases grabadas y Cathedra las transcribe, arma la guía, te contesta con la clase y el minuto y te toma un simulacro desde lo que el profesor dijo que toma. Para Windows.">
-<meta name="color-scheme" content="dark light">
+<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#1A0F0B" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F1ECE4" media="(prefers-color-scheme: light)">
 <meta property="og:type" content="website">
@@ -29,9 +29,8 @@
 <script>try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 <noscript><style>
   /* sin JS: la página ya puesta y quieta (la carga no se abre sola) */
-  .carga, .cab-sonido, .cab-tema, [data-quieto] { display: none !important; }
-  .bajar { translate: -50% 0 !important; }
-  .bajar i, .marcado, .boton-descarga::after, .descargar-emblema { animation: none !important; }
+  .carga, .cab-sonido, .cab-tema, .atlas-ver, [data-quieto] { display: none !important; }
+  .boton-principal::after { animation: none !important; }
 </style></noscript>
 </head>
 <body>
@@ -78,52 +77,204 @@
 
 <main id="contenido">
 
-  <!-- ═══ el héroe: el emblema protagonista (19/10). El fondo es el render de la sala con la peana, sin el emblema;
-       el emblema va aparte, recortado, y flota encima. Sólo la imagen de la apariencia que toca se pide. ═══ -->
+  <!-- ═══ el héroe (manual §04, 20/10): grilla de 12 columnas; a la izquierda el bloque editorial sobre marfil liso y a la
+       derecha la composición 3D, que no pisa el texto. La composición es el render maestro A «Ivory Hero» (B «Espresso
+       Signature» en la oscura) en CUATRO capas de la MISMA cámara (dueño 20/10 15:05, «más cinemático»): el fondo (la
+       pared, el arco, la ventana), la mesa (escritorio, libros, peana), el emblema recortado del mismo render, que entra a
+       los 0,7 s con una luz que le recorre los cantos y flota (§14), y el primer plano desenfocado. Se separan apenas con
+       el scroll y el mouse; en reposo, compuestas, son el render. Encima, una viñeta suave y una bruma mínima en los bordes
+       y, cada 8 a 10 s, un barrido de luz lento. Sólo se pide la apariencia que toca. Las arma hacer_imagenes_d66.py desde
+       recursos_3d/emblema/renders: cambiar el render es volver a correrlo (los nombres no cambian). ═══ -->
   <section class="heroe" id="portada" aria-labelledby="heroe-tit">
-    <div class="heroe-escena" aria-hidden="true">
+    <div class="heroe-escenario" aria-hidden="true">
       <div class="heroe-lienzo">
-        <picture class="heroe-fondo">
-          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/avif" srcset="imagenes/heroe/fondo-marfil-768.avif 768w, imagenes/heroe/fondo-marfil-1280.avif 1280w, imagenes/heroe/fondo-marfil-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <source data-tema="marfil" media="(prefers-color-scheme: light)" type="image/webp" srcset="imagenes/heroe/fondo-marfil-768.webp 768w, imagenes/heroe/fondo-marfil-1280.webp 1280w, imagenes/heroe/fondo-marfil-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <source data-tema="cuero" type="image/avif" srcset="imagenes/heroe/fondo-cuero-768.avif 768w, imagenes/heroe/fondo-cuero-1280.avif 1280w, imagenes/heroe/fondo-cuero-1920.avif 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw">
-          <img src="imagenes/heroe/fondo-cuero-1280.webp" srcset="imagenes/heroe/fondo-cuero-768.webp 768w, imagenes/heroe/fondo-cuero-1280.webp 1280w, imagenes/heroe/fondo-cuero-1920.webp 1920w" sizes="(max-width: 860px) 230vw, (max-aspect-ratio: 16/9) 178vh, 100vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        <picture class="capa-fondo">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/fondo-espresso-768.avif 768w, imagenes/heroe/fondo-espresso-1280.avif 1280w, imagenes/heroe/fondo-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/fondo-espresso-768.webp 768w, imagenes/heroe/fondo-espresso-1280.webp 1280w, imagenes/heroe/fondo-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/fondo-ivory-768.avif 768w, imagenes/heroe/fondo-ivory-1280.avif 1280w, imagenes/heroe/fondo-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <img src="imagenes/heroe/fondo-ivory-1280.webp" srcset="imagenes/heroe/fondo-ivory-768.webp 768w, imagenes/heroe/fondo-ivory-1280.webp 1280w, imagenes/heroe/fondo-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
         </picture>
-        <div class="heroe-emblema" id="emblema">
-          <div class="emblema-entrada">
+        <picture class="capa-mesa">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/mesa-espresso-960.avif 960w, imagenes/heroe/mesa-espresso-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/mesa-espresso-960.webp 960w, imagenes/heroe/mesa-espresso-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/mesa-ivory-960.avif 960w, imagenes/heroe/mesa-ivory-1920.avif 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw">
+          <img src="imagenes/heroe/mesa-ivory-1920.webp" srcset="imagenes/heroe/mesa-ivory-960.webp 960w, imagenes/heroe/mesa-ivory-1920.webp 1920w" sizes="(max-width: 860px) 240vw, (max-aspect-ratio: 11/10) 150vw, 80vw" width="1920" height="1080" alt="" fetchpriority="high" decoding="async">
+        </picture>
+        <div class="capa-emblema" id="emblema">
+          <div class="emblema-mira">
             <div class="emblema-flota">
-              <div class="emblema-giro">
-                <span class="emblema-halo"></span>
-                <img class="emblema-img" src="imagenes/heroe/emblema-1200.webp" srcset="imagenes/heroe/emblema-720.webp 720w, imagenes/heroe/emblema-1200.webp 1200w" sizes="(max-width: 860px) 82vw, 36vw" width="1200" height="1228" alt="" fetchpriority="high" decoding="async">
-                <span class="emblema-nucleo"></span>
-              </div>
+              <picture>
+                <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/emblema-espresso-474.avif 474w, imagenes/heroe/emblema-espresso-948.avif 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/emblema-espresso-474.webp 474w, imagenes/heroe/emblema-espresso-948.webp 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/emblema-ivory-474.avif 474w, imagenes/heroe/emblema-ivory-948.avif 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw">
+                <img class="emblema-img" src="imagenes/heroe/emblema-ivory-948.webp" srcset="imagenes/heroe/emblema-ivory-474.webp 474w, imagenes/heroe/emblema-ivory-948.webp 948w" sizes="(max-width: 860px) 90vw, (max-aspect-ratio: 11/10) 56vw, 30vw" width="948" height="966" alt="" fetchpriority="high" decoding="async">
+              </picture>
+              <div class="emblema-luz"><i></i></div>
             </div>
           </div>
         </div>
+        <picture class="capa-frente">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/heroe/frente-espresso-960.avif 960w" sizes="80vw">
+          <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/heroe/frente-espresso-960.webp 960w" sizes="80vw">
+          <source data-tema="marfil" type="image/avif" srcset="imagenes/heroe/frente-ivory-960.avif 960w" sizes="80vw">
+          <img src="imagenes/heroe/frente-ivory-960.webp" srcset="imagenes/heroe/frente-ivory-960.webp 960w" sizes="80vw" width="960" height="540" alt="" decoding="async">
+        </picture>
       </div>
-      <div class="heroe-velo"></div>
+      <div class="heroe-barrido"><i></i></div>
+      <div class="heroe-atmosfera"></div>
     </div>
 
-    <div class="heroe-texto">
-      <p class="rotulo">Para tus clases grabadas</p>
-      <h1 class="heroe-titular" id="heroe-tit"><span class="linea"><span>Estudiás de lo que</span></span> <span class="linea"><span>dijo <em>tu profesor.</em></span></span></h1>
-      <p class="heroe-bajada">Importás tus clases y Cathedra arma la guía, te contesta con la clase y el minuto exacto, y te toma un simulacro con lo que el profesor dijo que toma.</p>
-      <div class="portada-acciones">
-        <a class="boton-descarga" href="#descargar">
-          <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
-          <span class="bd-texto">Descargar para Windows</span>
-        </a>
-        <a class="pildora" href="#cronograma">Cómo funciona</a>
+    <div class="heroe-grilla">
+      <div class="heroe-texto">
+        <p class="rotulo">Para tus clases grabadas</p>
+        <h1 class="heroe-titular" id="heroe-tit"><span class="linea"><span>Estudiás de lo que</span></span> <span class="linea"><span>dijo tu <em>profesor.</em></span></span></h1>
+        <p class="heroe-bajada">Importás tus clases y Cathedra arma la guía, te contesta con la clase y el minuto exacto, y te toma un simulacro con lo que el profesor dijo que toma.</p>
+        <div class="portada-acciones">
+          <a class="boton-descarga boton-principal" href="#descargar">
+            <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
+            <span class="bd-texto">Descargar para Windows</span>
+          </a>
+          <a class="pildora" href="#cronograma">Cómo funciona</a>
+        </div>
+        <p class="requisito">Windows 10 u 11 · 64 bits</p>
+        <ul class="heroe-datos" aria-label="Lo que la hace distinta">
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>La cita</b><span>Cada respuesta, con su clase y su minuto</span></li>
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>Sin inventos</b><span>Si no está en tu material, te lo dice</span></li>
+          <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>En tu computadora</b><span>Tus clases y tus guías quedan con vos</span></li>
+        </ul>
       </div>
-      <p class="requisito">Windows 10 u 11 · 64 bits</p>
     </div>
+  </section>
 
-    <ul class="heroe-datos" aria-label="Lo que la hace distinta">
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>La cita</b><span>Cada respuesta, con su clase y su minuto</span></li>
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>Sin inventos</b><span>Si no está en tu material, te lo dice</span></li>
-      <li><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg><b>En tu computadora</b><span>Tus clases y tus guías quedan con vos</span></li>
-    </ul>
-    <p class="bajar" aria-hidden="true"><span>Bajá para recorrerla</span><i></i></p>
+  <!-- ═══ el atlas de materiales (manual §05): la franja de abajo del héroe, sobre espresso, con divisores finos. Cuatro
+       paneles de material y uno del sistema de la marca; cada uno con su versión editorial (título y una línea) y su
+       ficha técnica neutra (al pasar el mouse o con «Ficha técnica»). Las imágenes tienen nombre FIJO
+       (imagenes/atlas/0N_<material>.webp, 1200 × 800): las produce la tanda «Materiales y atlas»; hoy son MARCADORES hechos
+       con los recursos actuales (hacer_imagenes_d66.py --atlas-marcadores). Al cambiarlas, volver a correr
+       hacer_imagenes_d66.py --atlas: rehace las variantes (600 y avif) y su huella (tests_pagina.py lo controla). ═══ -->
+  <section class="atlas" id="materiales" data-nombre="Materiales" aria-labelledby="atlas-tit">
+    <h2 class="solo-lector" id="atlas-tit">Los materiales de Cathedra</h2>
+    <div class="atlas-pista" role="list" tabindex="0" aria-label="Los materiales de Cathedra: deslizá para ver los cinco">
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-01-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/01_leather-600.avif 600w, imagenes/atlas/01_leather.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/01_leather.webp" srcset="imagenes/atlas/01_leather-600.webp 600w, imagenes/atlas/01_leather.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Cuero espresso de cerca, con luz rasante: el grano fino y su brillo satinado.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">01 · Leather</p>
+          <h3 class="atlas-tit" id="at-01-tit">Cuero real, en cada detalle.</h3>
+          <p class="atlas-desc">Grano fino y cálido. Va en la barra y en lo que se destaca.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-01">
+          <div><dt>Color</dt><dd>#382016 a #75452D</dd></div>
+          <div><dt>Grano</dt><dd>Fino, sin patrón que se repita</dd></div>
+          <div><dt>Brillo</dt><dd>Satinado: rugosidad 0,48–0,68</dd></div>
+          <div><dt>Uso</dt><dd>La barra, lo destacado y la marca</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-01"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-02-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/02_glass-600.avif 600w, imagenes/atlas/02_glass.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/02_glass.webp" srcset="imagenes/atlas/02_glass-600.webp 600w, imagenes/atlas/02_glass.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Un pétalo de vidrio del emblema de cerca: el canto grueso y curvo, con reflejos blancos y cálidos.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">02 · Liquid Glass</p>
+          <h3 class="atlas-tit" id="at-02-tit">Vidrio con volumen.</h3>
+          <p class="atlas-desc">Cantos gruesos y pulidos, sólo en lo que flota.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-02">
+          <div><dt>Transparencia</dt><dd>Total, con un tinte mínimo</dd></div>
+          <div><dt>Refracción</dt><dd>Índice 1,45–1,52</dd></div>
+          <div><dt>Grosor</dt><dd>Real, con el canto biselado</dd></div>
+          <div><dt>Perfil</dt><dd>Curvo y pulido: 0,04–0,12</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-02"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-03-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/03_emblem-600.avif 600w, imagenes/atlas/03_emblem.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/03_emblem.webp" srcset="imagenes/atlas/03_emblem-600.webp 600w, imagenes/atlas/03_emblem.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="El emblema de Cathedra en primer plano: cuatro puntas de cuero y cristal alrededor del núcleo cereza.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">03 · Signature Emblem</p>
+          <h3 class="atlas-tit" id="at-03-tit">Un símbolo que te acompaña.</h3>
+          <p class="atlas-desc">Cuero y cristal alrededor de un núcleo cereza.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-03">
+          <div><dt>Forma</dt><dd>Cuatro puntas, 1:1, simétrica</dd></div>
+          <div><dt>Capas</dt><dd>Cuerpo, vidrio y núcleo aparte</dd></div>
+          <div><dt>Núcleo</dt><dd>Resina cereza #A51225</dd></div>
+          <div><dt>En chico</dt><dd>Se reconoce de 16 a 512 px</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-03"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel" role="listitem" aria-labelledby="at-04-tit">
+        <div class="atlas-cuadro">
+          <picture>
+            <source type="image/avif" srcset="imagenes/atlas/04_ivory_stone-600.avif 600w, imagenes/atlas/04_ivory_stone.avif 1200w" sizes="(max-width: 1179px) 320px, 21vw">
+            <img class="atlas-img" src="imagenes/atlas/04_ivory_stone.webp" srcset="imagenes/atlas/04_ivory_stone-600.webp 600w, imagenes/atlas/04_ivory_stone.webp 1200w" sizes="(max-width: 1179px) 320px, 21vw" width="1200" height="800" loading="lazy" decoding="async" alt="Una pared marfil mate con un arco y un nicho de piedra, con luz difusa.">
+          </picture>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">04 · Ivory &amp; Stone</p>
+          <h3 class="atlas-tit" id="at-04-tit">Marfil para leer horas.</h3>
+          <p class="atlas-desc">Una superficie mate y satinada, con luz difusa.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-04">
+          <div><dt>Base</dt><dd>Ivory #F1ECE4</dd></div>
+          <div><dt>Sombra</dt><dd>Ivory shadow #E2D8CC</dd></div>
+          <div><dt>Piedra</dt><dd>Stone #C9C3BD, en separadores</dd></div>
+          <div><dt>Textura</dt><dd>Casi imperceptible, sin vetas</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-04"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+      <article class="atlas-panel atlas-marca" role="listitem" aria-labelledby="at-05-tit">
+        <div class="atlas-cuadro atlas-muestras">
+          <ul class="am-colores" aria-label="Los colores de la marca">
+            <li style="--c:#382016"><i></i><span>#382016</span></li>
+            <li style="--c:#F1ECE4"><i></i><span>#F1ECE4</span></li>
+            <li style="--c:#6E625A"><i></i><span>#6E625A</span></li>
+            <li style="--c:#A51225"><i></i><span>#A51225</span></li>
+          </ul>
+          <p class="am-letras"><span class="am-serif">Playfair Display</span> <span class="am-sans">Inter</span></p>
+          <p class="am-iconos" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 6.5C10.2 5.3 7.6 4.8 4.5 5v13c3.1-.2 5.7.3 7.5 1.5 1.8-1.2 4.4-1.7 7.5-1.5V5c-3.1-.2-5.7.3-7.5 1.5Zm0 0v13"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="4.5" width="6" height="6" rx="1.5"/><rect x="4.5" y="13.5" width="6" height="6" rx="1.5"/><rect x="13.5" y="13.5" width="6" height="6" rx="1.5"/></svg>
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 19.5c.9-3.3 3.6-5.2 7-5.2s6.1 1.9 7 5.2"/></svg>
+          </p>
+        </div>
+        <div class="atlas-texto">
+          <p class="atlas-num">05 · Brand system</p>
+          <h3 class="atlas-tit" id="at-05-tit"><svg class="am-estrella" viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>Cathedra</h3>
+          <p class="atlas-desc">Los mismos colores, letras e íconos en la app.</p>
+        </div>
+        <dl class="atlas-ficha" id="ficha-05">
+          <div class="af-paleta"><dt>Paleta</dt><dd>
+            <span style="--c:#F1ECE4" title="Ivory">#F1ECE4</span><span style="--c:#E2D8CC" title="Ivory shadow">#E2D8CC</span>
+            <span style="--c:#382016" title="Espresso">#382016</span><span style="--c:#75452D" title="Leather warm">#75452D</span>
+            <span style="--c:#A51225" title="Cherry">#A51225</span><span style="--c:#E13B43" title="Cherry light">#E13B43</span>
+            <span style="--c:#C9C3BD" title="Stone">#C9C3BD</span><span style="--c:#6E625A" title="Taupe">#6E625A</span>
+          </dd></div>
+          <div><dt>Letras</dt><dd>Playfair Display e Inter</dd></div>
+          <div><dt>Escala</dt><dd>De 12 a 56 px, en ocho pasos</dd></div>
+        </dl>
+        <button class="atlas-ver" type="button" aria-expanded="false" aria-controls="ficha-05"><i aria-hidden="true"></i><span>Ficha técnica</span></button>
+      </article>
+
+    </div>
   </section>
 
 
@@ -159,7 +310,11 @@
     </div>
   </section>
 
-  <!-- las pantallas de cada tramo: capturas de la app 1.1.0 con datos de ejemplo (d60, 20/10/2026), en imagenes/app/<nombre>-{1280,1920}.{avif,webp} -->
+  <!-- CAPTURAS (d68, 20/10/2026): las pantallas de cada tramo y de las tarjetas son capturas de la app 1.1.0 según el manual
+       (barra lateral de cuero, panel del costado, Claro de fábrica) con datos de ejemplo, sacadas sin pérdida con
+       capturar_app_d68.py y pasadas por hacer_imagenes_app_d68.py (repositorio de la app, _relevamiento/capturas/d68/herramientas).
+       Nombres estables: imagenes/app/<nombre>-{1280,1920}.{avif,webp} (y -640 / -frente las de las tarjetas); las de d60, en
+       imagenes/_anterior/app_d60/. -->
 
   <!-- ═══ 1 · el cronograma ═══ -->
   <section class="tramo" id="cronograma" data-nombre="01 · Empezás" data-tramo="1" aria-labelledby="crono-tit">
@@ -336,27 +491,27 @@
       <p class="tramo-bajada">Cada tarjeta es una pantalla de Cathedra. Tocala para verla entera.</p>
     </header>
     <ul class="tarjetas" data-tarjetas>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/material" data-texto="Al pie de cada materia, el material de la cátedra: lo abrís, recortás una página para tus apuntes y aparece en las respuestas con su miniatura. Si una clase no tiene grabación, la guía se arma leyendo el material."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/material-640.avif"><img class="tj-fondo" src="imagenes/app/material-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/material-frente.avif"><img class="tj-frente" src="imagenes/app/material-frente.webp" width="900" height="326" loading="lazy" decoding="async" alt=""></picture></span><b>Material de la cátedra</b><small>PDF, Word y PowerPoint al pie de su materia</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/plan-materia" data-texto="Los temas que entran, en el orden para entenderlos, con su peso en el examen, lo que marcó para el parcial y cómo lo dijo."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/plan-materia-640.avif"><img class="tj-fondo" src="imagenes/app/plan-materia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/plan-materia-frente.avif"><img class="tj-frente" src="imagenes/app/plan-materia-frente.webp" width="900" height="309" loading="lazy" decoding="async" alt=""></picture></span><b>Plan de la materia</b><small>Por tema, con lo que va a tomar primero</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/juegos" data-texto="Juegos armados con tus clases: cazá el error, el hueco, conectá, la escalera, clasificá contra reloj, poné en orden, duelo relámpago, memotest de conceptos y más. Elegís el tema, el tipo y la dificultad."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/juegos-640.avif"><img class="tj-fondo" src="imagenes/app/juegos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/juegos-frente.avif"><img class="tj-frente" src="imagenes/app/juegos-frente.webp" width="900" height="293" loading="lazy" decoding="async" alt=""></picture></span><b>Juegos con tus clases</b><small>Para fijar lo que ya leíste</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/fichas" data-texto="Cada clase trae sus fichas. Respondés «Otra vez», «Difícil», «Bien» o «Fácil»: las que fallás vuelven antes y las que sabés se espacian."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/fichas-640.avif"><img class="tj-fondo" src="imagenes/app/fichas-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/fichas-frente.avif"><img class="tj-frente" src="imagenes/app/fichas-frente.webp" width="900" height="497" loading="lazy" decoding="async" alt=""></picture></span><b>Fichas que vuelven solas</b><small>Repetición espaciada, clase por clase</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/calculadora" data-texto="En las materias con números: básica, científica, álgebra, gráficos, matrices, sistemas, vectores, estadística, distribuciones y fórmulas, resolviendo con todos los pasos."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/calculadora-640.avif"><img class="tj-fondo" src="imagenes/app/calculadora-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/calculadora-frente.avif"><img class="tj-frente" src="imagenes/app/calculadora-frente.webp" width="900" height="462" loading="lazy" decoding="async" alt=""></picture></span><b>Calculadora paso a paso</b><small>Resuelve mostrando todos los pasos</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/buscar" data-texto="Buscás una palabra en todo lo que dijo el profesor, en una materia o en todas, y saltás a la clase en ese minuto."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/buscar-640.avif"><img class="tj-fondo" src="imagenes/app/buscar-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/buscar-frente.avif"><img class="tj-frente" src="imagenes/app/buscar-frente.webp" width="900" height="324" loading="lazy" decoding="async" alt=""></picture></span><b>Buscar en todo lo que dijo</b><small>Y leer la clase desde ahí</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/cuanto-por-dia" data-texto="Le decís hasta cuándo y cuánto podés por día, y reparte lo que falta entre todas las materias para llegar a cada examen."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-640.avif"><img class="tj-fondo" src="imagenes/app/cuanto-por-dia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-frente.avif"><img class="tj-frente" src="imagenes/app/cuanto-por-dia-frente.webp" width="900" height="311" loading="lazy" decoding="async" alt=""></picture></span><b>Cuánto por día</b><small>El plan de estudio hasta cada examen</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/asistente" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu plan), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/asistente-640.avif"><img class="tj-fondo" src="imagenes/app/asistente-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/asistente-frente.avif"><img class="tj-frente" src="imagenes/app/asistente-frente.webp" width="900" height="309" loading="lazy" decoding="async" alt=""></picture></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/practicos" data-texto="Los trabajos prácticos de todas las materias con su fecha de entrega y cuántos días faltan; cada consigna, partida en las partes a entregar."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/practicos-640.avif"><img class="tj-fondo" src="imagenes/app/practicos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/practicos-frente.avif"><img class="tj-frente" src="imagenes/app/practicos-frente.webp" width="900" height="363" loading="lazy" decoding="async" alt=""></picture></span><b>Trabajos prácticos</b><small>Con sus partes y su entrega</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/que-le-falta" data-texto="Cada clase lleva su etiqueta: Lista, Falta transcribir, Sin guía o Sin material. Tocás una pendiente y al costado ves lo que tiene, lo que le falta y lo que podés hacer hoy, sin salir del camino."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-640.avif"><img class="tj-fondo" src="imagenes/app/que-le-falta-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-frente.avif"><img class="tj-frente" src="imagenes/app/que-le-falta-frente.webp" width="580" height="640" loading="lazy" decoding="async" alt=""></picture></span><b>Qué le falta a cada clase</b><small>Con su etiqueta, clase por clase</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/sesion" data-texto="Una sesión de estudio con descansos y una ventanita que queda adelante mientras estudiás."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/sesion-640.avif"><img class="tj-fondo" src="imagenes/app/sesion-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/sesion-frente.avif"><img class="tj-frente" src="imagenes/app/sesion-frente.webp" width="900" height="228" loading="lazy" decoding="async" alt=""></picture></span><b>Sesión con descansos</b><small>Con la ventanita siempre adelante</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/apariencia" data-texto="Dos apariencias, oscura y clara, con el emblema de cristal flotando detrás; íconos 3D de cada materia que se mueven al pasar el mouse, y el sonido de arranque que elijas."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/apariencia-640.avif"><img class="tj-fondo" src="imagenes/app/apariencia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/apariencia-frente.avif"><img class="tj-frente" src="imagenes/app/apariencia-frente.webp" width="900" height="406" loading="lazy" decoding="async" alt=""></picture></span><b>Apariencia</b><small>Oscura o clara, con el emblema detrás</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/material" data-texto="Al pie de cada materia, el material de la cátedra: lo abrís, recortás una página para tus apuntes y aparece en las respuestas con su miniatura. Si una clase no tiene grabación, la guía se arma leyendo el material."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/material-640.avif"><img class="tj-fondo" src="imagenes/app/material-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/material-frente.avif"><img class="tj-frente" src="imagenes/app/material-frente.webp" width="900" height="260" loading="lazy" decoding="async" alt=""></picture></span><b>Material de la cátedra</b><small>PDF, Word y PowerPoint al pie de su materia</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/plan-materia" data-texto="Los temas que entran, en el orden para entenderlos, con su peso en el examen, lo que marcó para el parcial y cómo lo dijo."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/plan-materia-640.avif"><img class="tj-fondo" src="imagenes/app/plan-materia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/plan-materia-frente.avif"><img class="tj-frente" src="imagenes/app/plan-materia-frente.webp" width="900" height="442" loading="lazy" decoding="async" alt=""></picture></span><b>Plan de la materia</b><small>Por tema, con lo que va a tomar primero</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/juegos" data-texto="Juegos armados con tus clases: cazá el error, el hueco, conectá, la escalera, clasificá contra reloj, poné en orden, duelo relámpago, memotest de conceptos y más. Elegís el tema, el tipo y la dificultad."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/juegos-640.avif"><img class="tj-fondo" src="imagenes/app/juegos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/juegos-frente.avif"><img class="tj-frente" src="imagenes/app/juegos-frente.webp" width="900" height="508" loading="lazy" decoding="async" alt=""></picture></span><b>Juegos con tus clases</b><small>Para fijar lo que ya leíste</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/fichas" data-texto="Cada clase trae sus fichas. Respondés «Otra vez», «Difícil», «Bien» o «Fácil»: las que fallás vuelven antes y las que sabés se espacian."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/fichas-640.avif"><img class="tj-fondo" src="imagenes/app/fichas-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/fichas-frente.avif"><img class="tj-frente" src="imagenes/app/fichas-frente.webp" width="900" height="514" loading="lazy" decoding="async" alt=""></picture></span><b>Fichas que vuelven solas</b><small>Repetición espaciada, clase por clase</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/calculadora" data-texto="En las materias con números: básica, científica, álgebra, gráficos, matrices, sistemas, vectores, estadística, distribuciones y fórmulas, resolviendo con todos los pasos."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/calculadora-640.avif"><img class="tj-fondo" src="imagenes/app/calculadora-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/calculadora-frente.avif"><img class="tj-frente" src="imagenes/app/calculadora-frente.webp" width="865" height="845" loading="lazy" decoding="async" alt=""></picture></span><b>Calculadora paso a paso</b><small>Resuelve mostrando todos los pasos</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/buscar" data-texto="Buscás una palabra en todo lo que dijo el profesor, en una materia o en todas, y saltás a la clase en ese minuto."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/buscar-640.avif"><img class="tj-fondo" src="imagenes/app/buscar-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/buscar-frente.avif"><img class="tj-frente" src="imagenes/app/buscar-frente.webp" width="900" height="433" loading="lazy" decoding="async" alt=""></picture></span><b>Buscar en todo lo que dijo</b><small>Y leer la clase desde ahí</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/cuanto-por-dia" data-texto="Le decís hasta cuándo y cuánto podés por día, y reparte lo que falta entre todas las materias para llegar a cada examen."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-640.avif"><img class="tj-fondo" src="imagenes/app/cuanto-por-dia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-frente.avif"><img class="tj-frente" src="imagenes/app/cuanto-por-dia-frente.webp" width="900" height="337" loading="lazy" decoding="async" alt=""></picture></span><b>Cuánto por día</b><small>El plan de estudio hasta cada examen</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/asistente" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu plan), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/asistente-640.avif"><img class="tj-fondo" src="imagenes/app/asistente-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/asistente-frente.avif"><img class="tj-frente" src="imagenes/app/asistente-frente.webp" width="900" height="380" loading="lazy" decoding="async" alt=""></picture></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/practicos" data-texto="Los trabajos prácticos de todas las materias con su fecha de entrega y cuántos días faltan; cada consigna, partida en las partes a entregar."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/practicos-640.avif"><img class="tj-fondo" src="imagenes/app/practicos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/practicos-frente.avif"><img class="tj-frente" src="imagenes/app/practicos-frente.webp" width="900" height="366" loading="lazy" decoding="async" alt=""></picture></span><b>Trabajos prácticos</b><small>Con sus partes y su entrega</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/que-le-falta" data-texto="Cada clase lleva su etiqueta: Lista, Falta transcribir, Sin guía o Sin material. Tocás una pendiente y al costado ves lo que tiene, lo que le falta y lo que podés hacer hoy, sin salir del camino."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-640.avif"><img class="tj-fondo" src="imagenes/app/que-le-falta-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-frente.avif"><img class="tj-frente" src="imagenes/app/que-le-falta-frente.webp" width="575" height="620" loading="lazy" decoding="async" alt=""></picture></span><b>Qué le falta a cada clase</b><small>Con su etiqueta, clase por clase</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/sesion" data-texto="Una sesión de estudio con descansos y una ventanita que queda adelante mientras estudiás."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/sesion-640.avif"><img class="tj-fondo" src="imagenes/app/sesion-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/sesion-frente.avif"><img class="tj-frente" src="imagenes/app/sesion-frente.webp" width="900" height="302" loading="lazy" decoding="async" alt=""></picture></span><b>Sesión con descansos</b><small>Con la ventanita siempre adelante</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/apariencia" data-texto="Dos apariencias, clara (la de fábrica) y oscura, con el emblema de cristal en su tarjeta del inicio; íconos 3D de cada materia que se mueven al pasar el mouse, el sonido de arranque que elijas y los efectos a tu gusto: completos, suaves o apagados, y se usa igual."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/apariencia-640.avif"><img class="tj-fondo" src="imagenes/app/apariencia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/apariencia-frente.avif"><img class="tj-frente" src="imagenes/app/apariencia-frente.webp" width="900" height="338" loading="lazy" decoding="async" alt=""></picture></span><b>Apariencia</b><small>Clara u oscura, y los efectos a tu gusto</small></button></li>
       <li><div class="tarjeta tarjeta-icono"><span class="tj-cuadro tj-icono" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 41 14v20L24 43 7 34V14Z"/><path d="m7 14 17 9 17-9M24 23v20"/><path d="M24 9.5v8m0 0-3.4-3.4M24 17.5l3.4-3.4"/></svg></span><b>Módulos y sin conexión</b><small>Cathedra viene liviana: lo pesado se baja aparte, una sola vez, desde Ajustes › Módulos. La transcripción, la transcripción precisa, la voz natural y el Motor de Cathedra, que contesta sin internet.</small></div></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/papelera" data-texto="Lo que sacás queda en la papelera hasta que decidas que no lo querés más, y vuelve a su lugar con un toque. Tus clases, guías y mazos son archivos en tu computadora."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/papelera-640.avif"><img class="tj-fondo" src="imagenes/app/papelera-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/papelera-frente.avif"><img class="tj-frente" src="imagenes/app/papelera-frente.webp" width="900" height="296" loading="lazy" decoding="async" alt=""></picture></span><b>Nada se pierde</b><small>Papelera, y todo en tu computadora</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/papelera" data-texto="Lo que sacás queda en la papelera hasta que decidas que no lo querés más, y vuelve a su lugar con un toque. Tus clases, guías y mazos son archivos en tu computadora."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/papelera-640.avif"><img class="tj-fondo" src="imagenes/app/papelera-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/papelera-frente.avif"><img class="tj-frente" src="imagenes/app/papelera-frente.webp" width="900" height="369" loading="lazy" decoding="async" alt=""></picture></span><b>Nada se pierde</b><small>Papelera, y todo en tu computadora</small></button></li>
       <li><div class="tarjeta tarjeta-pronto"><span class="tj-cuadro tj-pronto" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="18" y="6" width="12" height="22" rx="6"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M17 42h14"/></svg></span><b>Grabar en vivo (opcional) <em class="pronto">pronto</em></b><small>Te sentás en el aula con el micrófono y Cathedra transcribe en el momento, con aviso si estás lejos o hay ruido. Todavía no está en la app.</small></div></li>
     </ul>
   </section>
 
   <section class="descargar" id="descargar" data-nombre="Descargar" data-tramo="8" aria-labelledby="descargar-tit">
-    <div class="descargar-caja">
-      <img class="descargar-emblema" src="imagenes/heroe/emblema-720.webp" width="720" height="737" loading="lazy" decoding="async" alt="">
+    <div class="descargar-caja cuero-tarjeta">
+      <picture class="descargar-emblema"><source type="image/avif" srcset="imagenes/heroe/emblema-espresso-474.avif 474w, imagenes/heroe/emblema-espresso-948.avif 948w" sizes="180px"><img src="imagenes/heroe/emblema-espresso-474.webp" srcset="imagenes/heroe/emblema-espresso-474.webp 474w, imagenes/heroe/emblema-espresso-948.webp 948w" sizes="180px" width="474" height="483" loading="lazy" decoding="async" alt=""></picture>
       <p class="rotulo">Para Windows</p>
       <h2 id="descargar-tit" class="titular"><span class="palabras">Bajala y empezá por la próxima clase.</span></h2>
       <a class="boton-descarga" data-descarga href="#descargar">
