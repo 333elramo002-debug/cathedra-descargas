@@ -381,8 +381,8 @@ def menos_movimiento_y_sin_js() -> list[str]:
 
 
 # ─────────────────────────── d66 · el manual de producción visual (20/10) ───────────────────────────
-HEROE_CAPAS = {   # cada capa del héroe, en sus tamaños; avif y webp de cada uno (§13, §16)
-    "maestro-a-ivory": (768, 1280, 1920), "maestro-b-espresso": (768, 1280, 1920),
+HEROE_CAPAS = {   # cada capa del héroe, en sus tamaños; avif y webp de cada uno (§13, §16; cuatro capas desde el 20/10 15:05)
+    "fondo-ivory": (768, 1280, 1920), "fondo-espresso": (768, 1280, 1920), "mesa-ivory": (960, 1920), "mesa-espresso": (960, 1920),
     "emblema-ivory": (474, 948), "emblema-espresso": (474, 948), "frente-ivory": (960,), "frente-espresso": (960,),
 }
 ESCENA_MAXIMA = 450 * 1024        # la escena del héroe a 1920, en cada formato (encargo d66)
@@ -394,7 +394,8 @@ def heroe_del_manual() -> list[str]:
     problemas = []
     html = sin_comentarios_html(leer("index.html"))
     heroe = html.split('id="portada"', 1)[-1].split("</section>", 1)[0]
-    for clase in ("heroe-escenario", "capa-escena", "capa-emblema", "emblema-flota", "capa-frente", "heroe-grilla", "heroe-texto"):
+    for clase in ("heroe-escenario", "capa-fondo", "capa-mesa", "capa-emblema", "emblema-flota", "emblema-luz", "capa-frente",
+                  "heroe-barrido", "heroe-atmosfera", "heroe-grilla", "heroe-texto"):
         if f'class="{clase}' not in heroe and f' {clase}"' not in heroe:
             problemas.append(f"el héroe no tiene .{clase}")
     if not re.search(r'<h1 class="heroe-titular"[^>]*>.*Estudiás de lo que.*dijo tu <em>profesor\.</em>', heroe, flags=re.S):
@@ -418,11 +419,45 @@ def heroe_del_manual() -> list[str]:
                     problemas.append(f"falta {f.relative_to(RAIZ).as_posix()}")
                 elif f"imagenes/heroe/{base}-{t}.{ext}" not in html:
                     problemas.append(f"index.html no pide {base}-{t}.{ext}")
-    for base in ("maestro-a-ivory", "maestro-b-espresso"):
+    for base in ("fondo-ivory", "fondo-espresso", "mesa-ivory", "mesa-espresso"):
         for ext in ("avif", "webp"):
             f = RAIZ / f"imagenes/heroe/{base}-1920.{ext}"
             if f.is_file() and f.stat().st_size > ESCENA_MAXIMA:
                 problemas.append(f"{f.name}: {f.stat().st_size / 1024:.0f} KB (tope 450 KB)")
+    css = sin_comentarios_css(leer("estilos.css"))
+    for tema in ("ivory", "espresso"):          # la máscara de los cantos (la luz que los recorre) la pide el CSS
+        f = RAIZ / f"imagenes/heroe/cantos-{tema}-640.webp"
+        if not f.is_file():
+            problemas.append(f"falta {f.relative_to(RAIZ).as_posix()}")
+        elif f"imagenes/heroe/cantos-{tema}-640.webp" not in css:
+            problemas.append(f"estilos.css no usa cantos-{tema}-640.webp")
+    return problemas
+
+
+@estatico("más cinemático y texturizado: barrido cada 8–10 s sólo en el héroe, microtextura nunca bajo el texto")
+def cinematico_y_texturas() -> list[str]:
+    """Dueño 20/10 15:05: capas que se separan, luz en los cantos, viñeta y bruma, un barrido cada 8–10 s SÓLO en el
+    héroe; macros reales en el atlas; tarjetas marfil con microtextura perceptible pero NUNCA debajo del texto (§08)."""
+    problemas = []
+    js = sin_comentarios_js(leer("pagina.js"))
+    if not re.search(r"delayedCall\(gsap\.utils\.random\(8,\s*10\)", js):
+        problemas.append("el barrido de luz no se repite cada 8 a 10 s")
+    if ".heroe-barrido i" not in js or ".emblema-luz i" not in js:
+        problemas.append("el barrido no está en el héroe")
+    grano = RAIZ / "imagenes/grano-marfil-384.webp"
+    if not grano.is_file() or grano.stat().st_size > 64 * 1024:
+        problemas.append("la microtextura del marfil falta o pesa más de 64 KB")
+    con_grano = [sel for sel, cuerpo in reglas_css() if "grano-marfil" in cuerpo]
+    permitidos = {".demo::before", ".cita-demo::before", ".profundidad::before", ".tj-cuadro::before", ".legal-indice::before"}
+    for sel in con_grano:
+        for s in (x.strip() for x in sel.split(",")):
+            if s not in permitidos:
+                problemas.append(f"microtextura fuera de las tarjetas marfil: {s}")
+    con_texto = {".demo::before", ".cita-demo::before", ".legal-indice::before"}
+    filo = [sel for sel, cuerpo in reglas_css() if "content-box" in cuerpo and re.search(r"padding:\s*[1-9]px", cuerpo)]
+    cubiertos = {s.strip() for sel in filo for s in sel.split(",")}
+    if not con_texto <= cubiertos:
+        problemas.append(f"la microtextura de las tarjetas con texto no queda en el canto: {sorted(con_texto - cubiertos)}")
     return problemas
 
 
