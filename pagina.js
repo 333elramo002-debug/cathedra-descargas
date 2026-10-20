@@ -1,14 +1,14 @@
-/* La página de Cathedra.
+/* La página de Cathedra · identidad cuero (19/10/2026).
 
    Las dos constantes que hay que tocar al publicar están arriba. El resto:
-     · la carga: la C de dovelas se arma con lo que va llegando (las letras y la
-       página) y, al cerrarse, la luz se abre en un círculo desde el signo;
-     · las entradas: los títulos llegan palabra por palabra y los bloques suben
-       con la curva de la casa cuando entran en pantalla (y vuelven a su lugar
-       quietos con «reducir movimiento»);
-     · la cabecera, que cambia de fondo apenas se deja la portada;
-     · desde la v7 no hay escena 3D: el fondo es luz en CSS y las capturas son reales.
-   El texto, los enlaces y los botones son HTML. */
+     · la carga: la estrella se enciende con lo que va llegando (las letras y la página) y se abre;
+     · el héroe: el emblema protagonista entra con GSAP (fondo y titular, después la bajada y el botón, al final
+       el emblema sube y se enciende), flota sin repetirse (tramos de 6 a 9 s), gira hasta 6° hacia el puntero y,
+       al bajar, se achica y se corre a un costado (ScrollTrigger). En el teléfono, arriba y sin seguir al puntero;
+     · las apariencias Oscuro (cuero) y Claro (marfil): siguen al sistema hasta que se elige una en la cabecera (se recuerda);
+     · las entradas de las secciones atadas al scroll, la cabecera, las demos, el visor y el sonido.
+   Con «reducir movimiento» (del sistema o del pie) nada se anima y todo llega puesto. Sin JS, la página se ve igual
+   de completa. El texto, los enlaces y los botones son HTML. */
 
 const ENLACE_INSTALADOR = "https://github.com/333elramo002-debug/cathedra-descargas/releases/latest/download/Cathedra-Setup.exe";
 const CONTACTO = "[EMAIL DE CONTACTO]";
@@ -26,9 +26,11 @@ const quieto = quietoElegido === "1" || /quieto/.test(location.search) ||
 // «animada» le dice al CSS que el JS decidió animar (si el sistema pide menos movimiento, el CSS
 // solo ya frena todo; así la preferencia se respeta aunque este archivo no llegue a correr)
 raiz.classList.add(quieto ? "quieto" : "animada");
-// vistas para fabricar las imágenes de la página (la nave sola, la tarjeta para compartir)
-const vista = (location.search.match(/vista=(nave|compartir)/) || [])[1];
-if (vista) raiz.classList.add("vista-" + vista);
+// la vista para fabricar la imagen para compartir
+if (/vista=compartir/.test(location.search)) raiz.classList.add("vista-compartir");
+const gsap = window.gsap;
+const ScrollTrigger = window.ScrollTrigger;
+if (gsap && ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
 
 /* ══════════════════════ los enlaces ══════════════════════ */
 document.querySelectorAll("[data-descarga]").forEach((a) => { a.href = ENLACE_INSTALADOR; });
@@ -37,6 +39,46 @@ document.querySelectorAll("[data-contacto]").forEach((a) => {
   if (esCorreo) a.href = "mailto:" + CONTACTO;
 });
 document.querySelectorAll("[data-contacto-texto]").forEach((el) => { el.textContent = CONTACTO; });
+
+/* ══════════════════════ las apariencias: Cuero y Marfil ══════════════════════ */
+/* Sin elegir, la página sigue al sistema (las imágenes también, con <source media>). Al elegir, <html data-tema>
+   fija la apariencia (lo pone ya el guion de la cabecera antes de pintar) y las fuentes de las imágenes se ajustan. */
+const claroSistema = window.matchMedia("(prefers-color-scheme: light)");
+const temaActual = () => raiz.dataset.tema || (claroSistema.matches ? "marfil" : "cuero");
+const COLOR_TEMA = { cuero: "#1A0F0B", marfil: "#F1ECE4" };
+// el selector (20/10): «Oscuro» con la luna y «Claro» con el sol; por dentro siguen siendo cuero y marfil
+const botonTema = document.getElementById("tema");
+function fuentesSegunTema() {
+  const elegido = raiz.dataset.tema;
+  document.querySelectorAll("source[data-tema]").forEach((s) => {
+    if (s.dataset.mediaOriginal === undefined) s.dataset.mediaOriginal = s.getAttribute("media") || "";
+    if (!elegido) {
+      if (s.dataset.mediaOriginal) s.setAttribute("media", s.dataset.mediaOriginal); else s.removeAttribute("media");
+    } else s.setAttribute("media", s.dataset.tema === elegido ? "all" : "not all");
+  });
+  if (elegido) document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", COLOR_TEMA[elegido]));
+  if (botonTema) {
+    const ahora = temaActual();
+    botonTema.querySelectorAll("[data-elegir]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.elegir === ahora)));
+  }
+}
+fuentesSegunTema();
+if (botonTema) {
+  botonTema.hidden = false;
+  botonTema.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-elegir]");
+    if (!b) return;
+    const nuevo = b.dataset.elegir;
+    if (nuevo === temaActual() && raiz.dataset.tema === nuevo) return;
+    const cambiar = () => {
+      raiz.dataset.tema = nuevo;
+      try { localStorage.setItem("cathedra-tema", nuevo); } catch (e) { /* sin almacenamiento: vale para esta visita */ }
+      fuentesSegunTema();
+    };
+    if (!quieto && document.startViewTransition) document.startViewTransition(cambiar); else cambiar();
+  });
+  claroSistema.addEventListener("change", fuentesSegunTema);
+}
 
 /* ══════════════════════ las palabras ══════════════════════ */
 /* Cada palabra de los títulos en su caja, para que suban de a una. El texto
@@ -62,15 +104,14 @@ document.querySelectorAll(".palabras").forEach((el) => {
 });
 
 /* ══════════════════════ las transiciones atadas al scroll ══════════════════════ */
-/* Ningún texto aparece de golpe: cada título, párrafo, etiqueta, botón, tarjeta e imagen tiene un
-   valor --v (0 a 1) que sigue a su posición en la pantalla con la curva de la casa. Entra desde
-   abajo (de desenfocado a nítido, con un desplazamiento corto; los títulos por máscara y palabra
-   por palabra; las imágenes con zoom lento y revelado) y sale igual, en espejo, cuando se va por
-   arriba. Con «reducir movimiento» todo queda puesto desde el principio. */
+/* Ningún texto aparece de golpe: cada título, párrafo, etiqueta, botón, tarjeta e imagen tiene un valor --v (0 a 1)
+   que sigue a su posición en la pantalla. Entra desde abajo (sólo opacidad y un desplazamiento corto; los títulos por
+   máscara y palabra por palabra; las pantallas con un revelado) y sale igual, en espejo, cuando se va por arriba.
+   Con «reducir movimiento» todo queda puesto desde el principio. */
 const TIPOS = [
   [".tramo .titular, .todo .titular, .descargar .titular, .cita .titular", "rev-mascara"],
   [".tramo .paso-num, .cita .paso-num, .tramo-bajada, .datos li, .nota-al-pie, .todo .rotulo, .todo .tramo-bajada, .descargar-caja > :not(.titular), .pie > *", "rev-texto"],
-  [".demo, .tarjeta", "rev-panel"],
+  [".demo, .tarjeta, .cita-demo", "rev-panel"],
   [".profundidad", "rev-imagen"],
 ];
 const revelables = [];
@@ -78,7 +119,6 @@ TIPOS.forEach(([sel, clase]) => document.querySelectorAll(sel).forEach((el) => {
   if (el.dataset.rev !== undefined) return;
   el.dataset.rev = ""; el.classList.add(clase); revelables.push(el);
 }));
-// la portada ya entra con la apertura: sólo sale, en espejo, al bajar
 const curva = (x) => { const t = Math.min(1, Math.max(0, x)); return 1 - Math.pow(1 - t, 3); };
 if (quieto || !("IntersectionObserver" in window)) {
   revelables.forEach((el) => el.style.setProperty("--v", "1"));
@@ -96,11 +136,12 @@ if (quieto || !("IntersectionObserver" in window)) {
     let moviendo = false;
     activos.forEach((el) => {
       const r = el.getBoundingClientRect();
-      const entra = el.dataset.rev === "salida" ? 1 : curva((vh - r.top) / (vh * 0.3));
-      const sale = curva((r.bottom - vh * 0.04) / (vh * 0.26));
+      // entra entero apenas asoma (el último 16 % de la pantalla) y sale sólo al irse por arriba (el primer 10 %)
+      const entra = curva((vh - r.top) / (vh * 0.16));
+      const sale = curva(r.bottom / (vh * 0.1));
       const objetivo = Math.min(entra, sale);
       let st = resortes.get(el);
-      if (!st) { st = { v: el.dataset.rev === "salida" ? 1 : 0, d: 0 }; resortes.set(el, st); }
+      if (!st) { st = { v: 0, d: 0 }; resortes.set(el, st); }
       st.d += (W * W * (objetivo - st.v) - 2 * Z * W * st.d) * dt; st.v += st.d * dt;
       if (Math.abs(objetivo - st.v) < 0.001 && Math.abs(st.d) < 0.002) { st.v = objetivo; st.d = 0; } else moviendo = true;
       el.style.setProperty("--v", Math.min(1, Math.max(0, st.v)).toFixed(3));
@@ -111,7 +152,7 @@ if (quieto || !("IntersectionObserver" in window)) {
   // se observa cada sección (no cada elemento: un título recortado por su máscara no «se ve» y no avisaría)
   const porSeccion = new Map();
   revelables.forEach((el) => {
-    if (el.dataset.rev !== "salida") el.style.setProperty("--v", "0");
+    el.style.setProperty("--v", "0");
     const sec = el.closest("section, footer, header") || el;
     if (!porSeccion.has(sec)) porSeccion.set(sec, []);
     porSeccion.get(sec).push(el);
@@ -124,13 +165,6 @@ if (quieto || !("IntersectionObserver" in window)) {
   window.addEventListener("scroll", pedir, { passive: true });
   window.addEventListener("resize", pedir);
 }
-// los tramos se marcan cuando entran (lo usa la escena y los avisos de la cabecera)
-const observador = "IntersectionObserver" in window ? new IntersectionObserver((entradas) => {
-  for (const e of entradas) if (e.isIntersecting) { e.target.classList.add("visto"); observador.unobserve(e.target); }
-}, { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }) : null;
-document.querySelectorAll(".tramo, .sec-cab, .cita").forEach((el) => {
-  if (observador && !quieto) observador.observe(el); else el.classList.add("visto");
-});
 
 /* la cabecera dice en qué sección estás (cambia con un fundido corto) */
 const rotuloCab = document.querySelector(".cab-seccion");
@@ -144,7 +178,7 @@ if (rotuloCab && conNombre.length) {
     if (nombre === actual) return;
     actual = nombre;
     rotuloCab.classList.add("cambiando");
-    setTimeout(() => { rotuloCab.textContent = nombre; rotuloCab.classList.toggle("vacio", !nombre); rotuloCab.classList.remove("cambiando"); }, quieto ? 0 : 180);
+    setTimeout(() => { rotuloCab.textContent = nombre; rotuloCab.classList.toggle("vacio", !nombre); rotuloCab.classList.remove("cambiando"); }, quieto ? 0 : 160);
   };
   window.addEventListener("scroll", cual, { passive: true });
   cual();
@@ -155,70 +189,141 @@ const cabecera = document.querySelector(".cabecera");
 const portada = document.getElementById("portada");
 function cabeceraSegunScroll() {
   if (!cabecera || !portada) return;          // en las legales la cabecera ya va con fondo
-  const pasada = portada ? portada.getBoundingClientRect().bottom < 90 : window.scrollY > 200;
-  cabecera.classList.toggle("sobre", pasada);
+  // apenas se baja, la cabecera toma su vidrio: lo que pasa por debajo (el titular, el emblema) no se cruza con la marca
+  cabecera.classList.toggle("sobre", window.scrollY > 24);
 }
 window.addEventListener("scroll", cabeceraSegunScroll, { passive: true });
 cabeceraSegunScroll();
 
-/* ══════════════════════ la carga ══════════════════════ */
-/* Lo que se mide de verdad: las letras (30 %) y la nave (70 %: el código que
-   llega, la construcción y el primer dibujo). Lo que se muestra persigue a lo
-   medido con un suavizado, y dura como mínimo un segundo para que el ritmo
-   se sostenga aunque todo ya esté. Tope: a los 7 s se abre igual. */
+/* ══════════════════════ el héroe: el emblema protagonista ══════════════════════ */
+/* Tres capas para el emblema, cada una con un solo trabajo (así ninguna transformación pisa a otra):
+   .heroe-emblema (el scroll), .emblema-entrada (la entrada), .emblema-flota (la flotación) y .emblema-giro (el puntero).
+   El núcleo y el halo respiran con tramos al azar. Todo se frena cuando el héroe sale de la pantalla. */
+(function heroe() {
+  const sec = document.getElementById("portada");
+  if (!sec || quieto || !gsap) return;           // quieto o sin GSAP: el héroe ya está puesto y encendido
+  const q = (s) => sec.querySelector(s);
+  const emblema = q(".heroe-emblema"), entrada = q(".emblema-entrada"), flota = q(".emblema-flota"), giro = q(".emblema-giro");
+  const img = q(".emblema-img"), halo = q(".emblema-halo"), nucleo = q(".emblema-nucleo"), fondo = q(".heroe-fondo");
+  const texto = q(".heroe-texto"), lineas = sec.querySelectorAll(".heroe-titular .linea > span");
+  const despues = [q(".heroe-bajada"), q(".portada-acciones"), q(".requisito")];
+  const rotulo = q(".rotulo"), datos = q(".heroe-datos"), bajar = q(".bajar");
+  const apilado = window.matchMedia("(max-width: 860px), (max-aspect-ratio: 11/10)").matches;
+  const fino = window.matchMedia("(pointer: fine)").matches && !apilado;
+  const sombra = getComputedStyle(img).filter.replace(/brightness\([^)]*\)|saturate\([^)]*\)/g, "").trim() || "none";
+  const encendido = "brightness(1) saturate(1) " + (sombra === "none" ? "" : sombra);
+  const apagado = "brightness(0.42) saturate(0.55) " + (sombra === "none" ? "" : sombra);
+
+  // el estado de partida (mientras la carga tapa la página)
+  gsap.set(fondo, { opacity: 0, scale: 1.06, transformOrigin: "60% 60%" });
+  gsap.set(lineas, { yPercent: 112 });
+  gsap.set([rotulo, ...despues], { opacity: 0, y: 18 });
+  if (datos) gsap.set(datos, { opacity: 0, x: 24 });
+  gsap.set(bajar, { opacity: 0 });
+  gsap.set(entrada, { opacity: 0, y: apilado ? 40 : 70, scale: 0.94 });
+  gsap.set(img, { filter: apagado });
+  gsap.set([halo, nucleo], { opacity: 0, scale: 0.6 });
+  gsap.set(giro, { transformPerspective: 1100 });
+
+  let enVista = true, vivos = [];
+  const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+  tl.to(fondo, { opacity: 1, scale: 1, duration: 1.1, ease: "power2.out" }, 0)
+    .to(rotulo, { opacity: 1, y: 0, duration: 0.5 }, 0.05)
+    .to(lineas, { yPercent: 0, duration: 0.55, stagger: 0.08 }, 0)                 // 0–0,6 s: fondo y titular
+    .to(despues, { opacity: 1, y: 0, duration: 0.7, stagger: 0.1 }, 0.3)          // 0,3–1,2 s: bajada y botón
+    .to(entrada, { opacity: 1, y: 0, scale: 1, duration: 0.9, ease: "power3.out" }, 0.7)   // 0,7–1,6 s: sube…
+    .to(img, { filter: encendido, duration: 0.75, ease: "power2.inOut" }, 0.85)           // …y se enciende
+    .to(halo, { opacity: 1, scale: 1, duration: 0.8 }, 0.95)
+    .to(nucleo, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(2.2)" }, 1.05)
+    .to(datos || {}, { opacity: 1, x: 0, duration: 0.7 }, 1.0)
+    .to(bajar, { opacity: 1, duration: 0.6 }, 1.3)
+    .add(() => { gsap.set(img, { clearProps: "filter" }); flotar(); respirar(nucleo, 0.7, 1, 0.9, 1.08, 1.6, 2.8); respirar(halo, 0.75, 1, 0.96, 1.04, 2.6, 4.2); }, 1.65);
+
+  // la flotación: cada tramo va a un punto nuevo al azar y dura la mitad de un ciclo de 6 a 9 s (nunca se repite)
+  const amplitud = apilado ? 0.6 : 1;
+  function flotar() {
+    const paso = () => {
+      const t = gsap.to(flota, {
+        y: gsap.utils.random(-16, 6) * amplitud, x: gsap.utils.random(-7, 7) * amplitud, rotation: gsap.utils.random(-1.8, 1.8),
+        duration: gsap.utils.random(3, 4.5), ease: "sine.inOut", onComplete: paso,
+      });
+      vivos[0] = t; if (!enVista) t.pause();
+    };
+    paso();
+  }
+  function respirar(el, o0, o1, s0, s1, d0, d1) {
+    const i = vivos.length;
+    const paso = () => {
+      const t = gsap.to(el, { opacity: gsap.utils.random(o0, o1), scale: gsap.utils.random(s0, s1), duration: gsap.utils.random(d0, d1), ease: "sine.inOut", onComplete: paso });
+      vivos[i] = t; if (!enVista) t.pause();
+    };
+    vivos[i] = null; paso();
+  }
+
+  // el puntero: gira hasta 6° (y en vertical hasta 4°), con inercia; sólo en escritorio
+  if (fino) {
+    const rx = gsap.quickTo(giro, "rotationX", { duration: 1.1, ease: "power3.out" });
+    const ry = gsap.quickTo(giro, "rotationY", { duration: 1.1, ease: "power3.out" });
+    window.addEventListener("pointermove", (e) => {
+      if (!enVista) return;
+      ry((e.clientX / window.innerWidth - 0.5) * 12);
+      rx((0.5 - e.clientY / window.innerHeight) * 8);
+    }, { passive: true });
+    document.documentElement.addEventListener("pointerleave", () => { rx(0); ry(0); });
+  }
+
+  // el scroll: el emblema se achica y se corre a un costado, el texto se va y el fondo baja apenas
+  if (ScrollTrigger) {
+    const st = gsap.timeline({ scrollTrigger: { trigger: sec, start: "top top", end: "bottom top", scrub: 0.6,
+      onToggle: (s) => { enVista = s.isActive; vivos.forEach((t) => t && (enVista ? t.resume() : t.pause())); } } });
+    if (apilado) {
+      st.to(emblema, { scale: 0.82, yPercent: -12, ease: "none" }, 0)
+        .to(emblema, { opacity: 0, ease: "power1.in", duration: 0.4 }, 0.6);
+    } else {
+      st.to(emblema, { scale: 0.5, xPercent: 40, yPercent: -16, ease: "none" }, 0)
+        .to(emblema, { opacity: 0, ease: "power1.in", duration: 0.35 }, 0.65)
+        .to(texto, { y: -70, opacity: 0, ease: "none", duration: 0.6 }, 0)
+        .to(datos || {}, { y: -40, opacity: 0, ease: "none", duration: 0.5 }, 0)
+        .to(fondo, { yPercent: 5, scale: 1.04, ease: "none" }, 0);
+    }
+  }
+  document.addEventListener("visibilitychange", () => vivos.forEach((t) => t && (document.hidden || !enVista ? t.pause() : t.resume())));
+  PAGINA.entrarHeroe = () => tl.play();
+})();
+
+/* ══════════════════════ la carga: la estrella se enciende ══════════════════════ */
+/* Lo que se mide de verdad: las letras (70 %) y la página (30 %). Lo que se muestra persigue a lo medido con un
+   suavizado y dura como mínimo 0,6 s, para que el ritmo se sostenga aunque todo ya esté. Tope: a los 1,4 s se abre. */
 const carga = document.getElementById("carga");
+const estrellaCarga = document.getElementById("carga-estrella");
 const cifra = document.getElementById("carga-cifra");
-const linea = document.getElementById("carga-linea");
 const inicio = performance.now();
-let medidoLetras = 0, medidoNave = 0, medidoPagina = 0, mostrado = 0, abierta = false, naveLista = false, sinNave = false;
-PAGINA.cargando = (p) => { medidoNave = Math.max(medidoNave, p); };
+let medidoLetras = 0, medidoPagina = 0, mostrado = 0, abierta = false;
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { medidoLetras = 1; });
 else medidoLetras = 1;
-setTimeout(() => { medidoLetras = 1; }, 2500);
+setTimeout(() => { medidoLetras = 1; }, 1200);
 if (document.readyState === "complete") medidoPagina = 1; else window.addEventListener("load", () => { medidoPagina = 1; });
 
 function pasoCarga(ahora) {
   if (abierta) return;
-  // la carga mide las letras y la página; la escena llega después, encima de la imagen quieta
   const medido = medidoLetras * 0.7 + medidoPagina * 0.3;
-  const dt = 1 / 60;
-  mostrado += (medido - mostrado) * (1 - Math.exp(-7 * dt));
-  // nunca más rápido que 1 por segundo: la carga mínima es de un segundo
-  mostrado = Math.min(mostrado, (ahora - inicio) / 550);
+  mostrado += (medido - mostrado) * (1 - Math.exp(-7 / 60));
+  mostrado = Math.min(mostrado, (ahora - inicio) / 600);
   if (medido >= 0.999 && mostrado > 0.985) mostrado = 1;
-  if (linea) linea.style.transform = `scaleX(${mostrado})`;
+  if (estrellaCarga) estrellaCarga.style.setProperty("--p", mostrado.toFixed(3));
   if (cifra) cifra.textContent = String(Math.round(mostrado * 100)).padStart(3, "0");
-  // tope: a los 1,8 s se abre igual; si la nave no llegó, mientras tanto se ve la imagen quieta
-  if (mostrado >= 1 || ahora - inicio > 900) {
-    abrir();
-    return;
-  }
+  if (mostrado >= 1 || ahora - inicio > 1400) { abrir(); return; }
   requestAnimationFrame(pasoCarga);
 }
-
 function abrir() {
   if (abierta) return;
   abierta = true;
+  if (estrellaCarga) estrellaCarga.style.setProperty("--p", "1");
   raiz.classList.remove("cargando");
   raiz.classList.add("abriendo");
-  // la luz se abre en un círculo desde el signo de la portada
-  const signo = document.getElementById("signo");
-  const r = signo ? signo.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight / 3, width: 0, height: 0 };
-  const x = r.left + r.width / 2, y = r.top + r.height / 2;
-  raiz.style.setProperty("--ax", x + "px");
-  raiz.style.setProperty("--ay", y + "px");
-  // el signo de la carga viaja hasta el lugar del signo de la portada y se queda ahí
-  const signoCarga = carga && carga.querySelector(".carga-signo");
-  if (signoCarga && r.width) {
-    const c = signoCarga.getBoundingClientRect();
-    const s = r.width / c.width;
-    raiz.style.setProperty("--viaje",
-      `translate(${x - (c.left + c.width / 2)}px, ${y - (c.top + c.height / 2)}px) scale(${s})`);
-  }
-  if (PAGINA.motor) PAGINA.motor.arrancar();
-  setTimeout(() => { raiz.classList.remove("abriendo"); raiz.classList.add("abierta"); }, quieto ? 50 : 1900);
+  setTimeout(() => { if (PAGINA.entrarHeroe) PAGINA.entrarHeroe(); }, 200);
+  setTimeout(() => { raiz.classList.remove("abriendo"); raiz.classList.add("abierta"); }, 700);
 }
-
 if (quieto || !carga) {
   // sin animaciones (o una página sin carga, como las legales): la página ya está puesta
   raiz.classList.remove("cargando");
@@ -227,152 +332,6 @@ if (quieto || !carga) {
 } else {
   requestAnimationFrame(pasoCarga);
 }
-
-/* ══════════════════════ el héroe por fases ══════════════════════ */
-/* Cinco paradas del scroll con una imagen quieta del libro cada una (Cycles, AVIF a 1280; 1920 sólo si la pantalla
-   lo pide). En escritorio la escena queda fija: la fase activa sale del recorrido y cambia con un fundido cruzado y
-   un zoom leve; el título entra palabra por palabra con resorte y los rótulos dibujan su línea hacia lo que la
-   imagen muestra. Con WebGL, un plano con shader suma el paralaje del puntero con el mapa de profundidad de cada
-   quieta (ninguna geometría). En el teléfono, o con menos movimiento, las fases van apiladas y sin nada de esto. */
-(function fases() {
-  const pista = document.getElementById("portada");
-  const lista = pista && [...pista.querySelectorAll(".fase")];
-  const escritorio = window.matchMedia("(min-width: 901px)");
-  if (!pista || !lista.length || quieto || !escritorio.matches) return;
-  pista.classList.add("con-fases");
-  const claroSistema = window.matchMedia("(prefers-color-scheme: light)");
-  const tema = () => (raiz.dataset.tema === "claro" || (raiz.dataset.tema !== "oscuro" && claroSistema.matches) ? "marmol" : "onix");
-  // las palabras de cada título, para que entren de a una
-  lista.forEach((f) => {
-    const t = f.querySelector(".fase-titulo");
-    t.innerHTML = t.textContent.split(" ").map((w, i) => `<span class="pal"><span style="--n:${i}">${w}</span></span>`).join(" ");
-  });
-  const pasos = [...pista.querySelectorAll(".fm-paso i")];
-  const svg = pista.querySelector(".fases-lineas");
-  const lienzo = pista.querySelector(".fases-lienzo");
-  let activa = 0, avance = 0;
-
-  // ── los rótulos: punto en la imagen (coordenadas del render 1920×1080), línea y etiqueta ──
-  const NS = svg.namespaceURI;
-  const rotulos = [];
-  lista.forEach((f, i) => f.querySelectorAll(".fase-rotulo").forEach((r) => {
-    const g = document.createElementNS(NS, "g");
-    const linea = document.createElementNS(NS, "path"); linea.setAttribute("pathLength", "1"); linea.classList.add("fl-linea");
-    const aro = document.createElementNS(NS, "circle"); aro.setAttribute("r", "11"); aro.classList.add("fl-aro");
-    const punto = document.createElementNS(NS, "circle"); punto.setAttribute("r", "4"); punto.classList.add("fl-punto");
-    g.append(linea, aro, punto); svg.append(g);
-    rotulos.push({ fase: i, r, g, linea, aro, punto, ancla: r.dataset.ancla.split(",").map(Number), k: f.querySelectorAll(".fase-rotulo").length });
-  }));
-  function cubrir(x, y) {                      // el mismo «cover» de las fotos (object-position 70 % 50 %)
-    const W = pista.clientWidth, H = window.innerHeight, s = Math.max(W / 1920, H / 1080);
-    return [(W - 1920 * s) * 0.7 + x * s, (H - 1080 * s) * 0.5 + y * s, W, H];
-  }
-  function ubicarRotulos() {
-    let porFase = {};
-    rotulos.forEach((o) => {
-      const [ax, ay, W, H] = cubrir(o.ancla[0], o.ancla[1]);
-      const n = (porFase[o.fase] = (porFase[o.fase] || 0) + 1);
-      const arriba = n % 2 === 1, dx = Math.min(110, W * 0.08), dy = Math.min(140, H * 0.16) * (arriba ? -1 : 1);
-      const ancho = o.r.offsetWidth || 180, izquierda = ax + dx + ancho + 30 > W;     // cerca del borde, la etiqueta va a la izquierda
-      const sx = izquierda ? -1 : 1, lx = ax + dx * sx, ly = ay + dy;
-      o.linea.setAttribute("d", `M${ax},${ay} L${ax + dx * 0.35 * sx},${ly} L${lx + 6 * sx},${ly}`);
-      [o.aro, o.punto].forEach((c) => { c.setAttribute("cx", ax); c.setAttribute("cy", ay); });
-      o.r.style.transform = `translate(${izquierda ? lx - 12 - ancho : lx + 12}px, ${ly - 13}px)`;
-      const visible = ax > W * 0.36 && ax < W - 40 && ay > 60 && ay < H - 60;     // no encima del texto ni fuera
-      o.r.classList.toggle("visible", visible); o.g.style.display = visible ? "" : "none";
-    });
-    svg.setAttribute("viewBox", `0 0 ${pista.clientWidth} ${window.innerHeight}`);
-  }
-
-  function marcar(i) {
-    if (i === activa && lista[i].classList.contains("activa")) return;
-    activa = i;
-    lista.forEach((f, k) => { f.classList.toggle("activa", k === i); f.classList.toggle("cerca", Math.abs(k - i) === 1); });
-    pasos.forEach((p, k) => p.classList.toggle("hecho", k <= i));
-    rotulos.forEach((o) => o.g.classList.toggle("fl-activa", o.fase === i));
-    if (plano) plano.a(i);
-  }
-  function alScroll() {
-    const r = pista.getBoundingClientRect(), recorrido = r.height - window.innerHeight;
-    const p = recorrido > 0 ? Math.max(0, Math.min(0.9999, -r.top / recorrido)) : 0;
-    const i = Math.floor(p * lista.length);
-    avance = p * lista.length - i;
-    marcar(i);
-    lista[i].style.setProperty("--avance", avance.toFixed(3));
-    if (plano) plano.pedir();
-  }
-
-  // ── el plano con shader: fundido entre dos quietas, zoom leve y paralaje con la profundidad ──
-  let plano = null;
-  try { plano = armarPlano(); } catch (e) { plano = null; }
-  function armarPlano() {
-    if (!window.matchMedia("(pointer: fine)").matches) return null;
-    const gl = lienzo.getContext("webgl", { alpha: false, antialias: false });
-    if (!gl) return null;
-    const sh = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o); return o; };
-    const pr = gl.createProgram();
-    gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 p; varying vec2 v; void main(){ v = p * 0.5 + 0.5; v.y = 1.0 - v.y; gl_Position = vec4(p, 0.0, 1.0); }"));
-    gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, [
-      "precision mediump float; varying vec2 v; uniform sampler2D uA, uB, uPA, uPB; uniform vec4 uCubre; uniform vec2 uRaton; uniform float uT, uZoomA, uZoomB;",
-      "vec3 toma(sampler2D c, sampler2D d, float z){ vec2 uv = v * uCubre.xy + uCubre.zw; uv = (uv - vec2(0.7, 0.5)) / (1.0 + z) + vec2(0.7, 0.5);",
-      "  float pr = texture2D(d, uv).r; uv += uRaton * (0.55 - pr) * 0.014 + vec2(0.0, (0.5 - pr) * z * 0.25);",
-      "  return texture2D(c, clamp(uv, 0.001, 0.999)).rgb; }",
-      "void main(){ gl_FragColor = vec4(mix(toma(uA, uPA, uZoomA), toma(uB, uPB, uZoomB), uT), 1.0); }"].join("\n")));
-    gl.linkProgram(pr);
-    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return null;
-    gl.useProgram(pr);
-    const b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
-    const loc = gl.getAttribLocation(pr, "p"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-    const U = (n) => gl.getUniformLocation(pr, n);
-    const texturas = [], profs = [];
-    const nueva = () => {
-      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
-      [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach((k) => gl.texParameteri(gl.TEXTURE_2D, k, gl.LINEAR));
-      [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach((k) => gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE));
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([128, 128, 128, 255]));
-      return t;
-    };
-    const listas = lista.map(() => false);
-    lista.forEach((f, i) => {
-      texturas[i] = nueva(); profs[i] = nueva();
-      const img = f.querySelector(".fase-foto img");
-      const subir = () => { gl.bindTexture(gl.TEXTURE_2D, texturas[i]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); listas[i] = true; pedir(); };
-      if (img.complete && img.naturalWidth) subir(); else img.addEventListener("load", subir, { once: true });
-      const p = new Image(); p.decoding = "async";
-      p.onload = () => { gl.bindTexture(gl.TEXTURE_2D, profs[i]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, p); pedir(); };
-      p.src = `imagenes/fases/f${i + 1}-${tema()}-prof.webp`;
-    });
-    let desde = 0, hacia = 0, t0 = 0, mezcla = 1, pedido = 0;
-    const raton = { x: 0, y: 0, ox: 0, oy: 0 };
-    window.addEventListener("pointermove", (e) => { raton.x = e.clientX / innerWidth * 2 - 1; raton.y = e.clientY / innerHeight * 2 - 1; pedir(); }, { passive: true });
-    function medida() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(lienzo.clientWidth * dpr), h = Math.round(lienzo.clientHeight * dpr);
-      if (w && (lienzo.width !== w || lienzo.height !== h)) { lienzo.width = w; lienzo.height = h; gl.viewport(0, 0, w, h); }
-    }
-    function pintar(ahora) {
-      pedido = 0; medida();
-      mezcla = Math.min(1, (ahora - t0) / 900); const m = mezcla * mezcla * (3 - 2 * mezcla);
-      raton.ox += (raton.x - raton.ox) * 0.08; raton.oy += (raton.y - raton.oy) * 0.08;
-      const W = lienzo.clientWidth, H = lienzo.clientHeight, s = Math.max(W / 1920, H / 1080), dw = 1920 * s, dh = 1080 * s;
-      gl.uniform4f(U("uCubre"), W / dw, H / dh, -((W - dw) * 0.7) / dw, -((H - dh) * 0.5) / dh);
-      [["uA", 0, texturas[desde]], ["uB", 1, texturas[hacia]], ["uPA", 2, profs[desde]], ["uPB", 3, profs[hacia]]].forEach(([n, u, t]) => {
-        gl.activeTexture(gl.TEXTURE0 + u); gl.bindTexture(gl.TEXTURE_2D, t); gl.uniform1i(U(n), u);
-      });
-      gl.uniform1f(U("uT"), m); gl.uniform2f(U("uRaton"), raton.ox, raton.oy);
-      gl.uniform1f(U("uZoomA"), 0.035 + 0.02 * m); gl.uniform1f(U("uZoomB"), 0.035 * (1 - avance) + 0.02 * (1 - m));
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      if (listas[hacia]) lienzo.classList.add("listo");
-      if (mezcla < 1 || Math.abs(raton.x - raton.ox) > 0.001 || Math.abs(raton.y - raton.oy) > 0.001) pedir();
-    }
-    function pedir() { if (!pedido && !document.hidden) pedido = requestAnimationFrame(pintar); }
-    return { a(i) { if (i === hacia) return; desde = mezcla < 1 ? hacia : hacia; hacia = i; t0 = performance.now(); mezcla = 0; pedir(); }, pedir };
-  }
-
-  window.addEventListener("scroll", alScroll, { passive: true });
-  window.addEventListener("resize", () => { ubicarRotulos(); alScroll(); }, { passive: true });
-  escritorio.addEventListener("change", () => location.reload());
-  ubicarRotulos(); marcar(0); alScroll();
-})();
 
 /* ══════════════════════ la cita al minuto ══════════════════════ */
 /* Al pasar el mouse por un sello (o al tocarlo, o con el foco del teclado) se ilumina el tramo de la clase que lo
@@ -430,13 +389,9 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
   window.addEventListener("scroll", () => { if (propio) { propio = false; return; } if (!andandoScroll) destino = window.scrollY; }, { passive: true });
 }
 
-/* ══════════════════════ sin escena 3D (v7, paso 0) ══════════════════════ */
-/* La escena en tiempo real se sacó: la página es texto, capturas reales y luz en CSS. Los visuales que vienen
-   (prerrenderizados, recorridos con el scroll) se cargan aparte cuando estén aprobados. */
-
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
-/* El marco se inclina hacia el puntero (hasta 6°); en las tarjetas, además, la pieza de
-   adelante y la pantalla de atrás se corren en sentidos opuestos: la profundidad sigue al mouse. */
+/* El marco de vidrio se inclina hacia el puntero (hasta 6°); en las tarjetas, además, la pieza de adelante y la
+   pantalla de atrás se corren en sentidos opuestos: la profundidad sigue al mouse. */
 if (!quieto && window.matchMedia("(pointer: fine)").matches) {
   document.querySelectorAll(".profundidad").forEach((fig) => {
     fig.addEventListener("pointermove", (e) => {
@@ -468,8 +423,7 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
 /* Se deslizan hasta la sección (sólo al tocarlos: el resto del desplazamiento es nativo).
    El viaje es propio y no el del navegador: el destino se vuelve a medir en cada cuadro, porque
    mientras se llega las secciones lejanas se maquetan (content-visibility: auto, con un alto
-   estimado) y las demos se montan y crecen; con el desplazamiento suave nativo, que mide una sola
-   vez al salir, «Descargar» caía en las tarjetas en celular. Un gesto del alumno corta el viaje. */
+   estimado) y las demos se montan y crecen. Un gesto del alumno corta el viaje. */
 let viaje = 0;
 function deslizarHasta(destino) {
   cancelAnimationFrame(viaje);
@@ -483,7 +437,6 @@ function deslizarHasta(destino) {
     const meta = arriba();
     if (t < 1) { window.scrollTo(0, desde + (meta - desde) * curva(t)); viaje = requestAnimationFrame(paso); return; }
     // al llegar, unos cuadros más midiendo: lo que se maqueta recién al acercarse corre el destino
-    // en ese mismo cuadro, y ahí el anclaje del navegador no lo compensa
     if (Math.abs(window.scrollY - meta) > 1) window.scrollTo(0, meta);
     if (asentando++ < 10) viaje = requestAnimationFrame(paso);
   };
@@ -523,11 +476,10 @@ if (demos.length) {
 }
 
 /* ══════════════════════ el sonido ══════════════════════ */
-/* Todo sintetizado en el momento (no se descarga ningún archivo): campanitas de piedra y
-   bronce afinadas en el acorde de la firma de la app (re · la · do# · mi · fa#), con
-   variantes que rotan para no repetir. Arranca con el primer gesto (el navegador lo exige),
-   se apaga con el botón (y lo recuerda), y calla con la pestaña oculta. */
-const SONIDO = (() => {
+/* Todo sintetizado en el momento (no se descarga ningún archivo): campanitas afinadas en el acorde de la firma de
+   la app (re · la · do# · mi · fa#), con variantes que rotan para no repetir. Arranca con el primer gesto (el
+   navegador lo exige), se apaga con el botón (y lo recuerda), y calla con la pestaña oculta. */
+(() => {
   const boton = document.getElementById("sonido");
   let ctx = null, maestro = null, prendido = true, cuenta = 0;
   try { prendido = localStorage.getItem("cathedra-sonido") !== "0"; } catch (e) { /* sin almacenamiento: queda prendido */ }
@@ -630,12 +582,11 @@ const SONIDO = (() => {
       estado(); redibujar();
     });
   }
-  return { tocar: tocarSonido };
 })();
 
 /* ══════════════════════ la cortina entre páginas ══════════════════════ */
 /* Los enlaces a las otras páginas del sitio: la página siguiente se pide apenas el puntero
-   se acerca, y al tocar, el negro se cierra en un círculo hacia el dedo antes de irse. */
+   se acerca, y al tocar, el fondo se cierra en un círculo hacia el dedo antes de irse. */
 const cortina = document.querySelector(".cortina");
 const pedidas = new Set();
 function esOtraPagina(a) {
@@ -659,7 +610,6 @@ if (cortina && !quieto) {
     raiz.style.setProperty("--cx", e.clientX ? e.clientX + "px" : "50%");
     raiz.style.setProperty("--cy", e.clientY ? e.clientY + "px" : "50%");
     raiz.classList.add("saliendo");
-    if (window.CATHEDRA_PAGINA && window.CATHEDRA_PAGINA.pausar) window.CATHEDRA_PAGINA.pausar();
     try { sessionStorage.setItem("cathedra-cortina", "1"); } catch (err) { /* nada */ }
     setTimeout(() => { location.href = a.href; }, 720);
   });
@@ -691,11 +641,10 @@ document.querySelectorAll("[data-quieto]").forEach((a) => {
 const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
+  const fuenteVisor = visor.querySelector("source");
   const textoVisor = visor.querySelector(".visor-texto");
-  /* La imagen tocada SE TRANSFORMA en la pantalla grande (FLIP): sale de su lugar, con su escala,
-     y llega con un resorte de segundo orden (amortiguación 0,9, unos 760 ms); al cerrar hace el
-     camino inverso hasta su lugar. Mientras se mueve no toma otros toques, salvo cerrar, que la
-     da vuelta desde donde esté. */
+  /* La imagen tocada SE TRANSFORMA en la pantalla grande (FLIP): sale de su lugar, con su escala, y llega con un
+     resorte de segundo orden (amortiguación 0,9, unos 760 ms); al cerrar hace el camino inverso hasta su lugar. */
   const resorte = (() => {
     const z = 0.9, dur = 0.76, w = 4.6 / (z * dur), wd = w * Math.sqrt(1 - z * z), pts = [];
     for (let k = 0; k <= 48; k++) {
@@ -703,16 +652,24 @@ if (visor && typeof visor.showModal === "function") {
       pts.push((1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t))).toFixed(4));
     }
     pts[48] = "1";
-    return CSS.supports && CSS.supports("animation-timing-function", "linear(0, 1)") ? `linear(${pts.join(", ")})` : "cubic-bezier(.22, .68, 0, 1)";
+    return CSS.supports && CSS.supports("animation-timing-function", "linear(0, 1)") ? `linear(${pts.join(", ")})` : "cubic-bezier(.2, 0, 0, 1)";
   })();
   let origen = null, animacion = null;
   const transformDesde = (el) => {
     const o = el.getBoundingClientRect(), f = visor.getBoundingClientRect();
     return `translate(${o.left - f.left}px, ${o.top - f.top}px) scale(${o.width / f.width}, ${o.height / f.height})`;
   };
-  const abrirVisor = (src, alt, titulo, texto, desde) => {
-    if (animacion) return;                                   // bloqueo: una a la vez
-    imgVisor.src = src; imgVisor.alt = alt || "";
+  /* Cada pantalla de la app vive en imagenes/app/<nombre>-{1280,1920}.{avif,webp} (d60): el visor recibe la base y el
+     navegador elige el tamaño y el formato (avif si lo entiende) con srcset y <source>. */
+  const ponerPantalla = (base) => {
+    const lista = (ext) => `${base}-1280.${ext} 1280w, ${base}-1920.${ext} 1920w`;
+    if (fuenteVisor) fuenteVisor.srcset = lista("avif");
+    imgVisor.srcset = lista("webp");
+    imgVisor.src = `${base}-1920.webp`;
+  };
+  const abrirVisor = (base, alt, titulo, texto, desde) => {
+    if (animacion) return;                                   // una a la vez
+    ponerPantalla(base); imgVisor.alt = alt || "";
     visor.classList.toggle("con-texto", !!texto);
     textoVisor.hidden = !texto;
     textoVisor.innerHTML = "";
@@ -724,9 +681,9 @@ if (visor && typeof visor.showModal === "function") {
     visor.showModal();
     if (!origen || quieto || !visor.animate) return;
     visor.style.transformOrigin = "0 0";
-    animacion = visor.animate([{ transform: transformDesde(origen), borderRadius: "14px" }, { transform: "none", borderRadius: "14px" }],
+    animacion = visor.animate([{ transform: transformDesde(origen), borderRadius: "16px" }, { transform: "none", borderRadius: "22px" }],
       { duration: 760, easing: resorte, fill: "both" });
-    if (texto) textoVisor.animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: 380, easing: "cubic-bezier(.22,.68,0,1)", fill: "both" });
+    if (texto) textoVisor.animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: 380, easing: "cubic-bezier(.05, .7, .1, 1)", fill: "both" });
     animacion.onfinish = () => { animacion.cancel(); animacion = null; };
   };
   const cerrarVisor = () => {
@@ -742,11 +699,12 @@ if (visor && typeof visor.showModal === "function") {
   document.querySelectorAll("[data-ampliar]").forEach((b) => {
     b.addEventListener("click", () => {
       const img = b.closest(".profundidad").querySelector(".pf-fondo");
-      abrirVisor(b.dataset.ampliar || img.currentSrc || img.src, img.alt, "", "", img);
+      abrirVisor(b.dataset.ampliar, img.alt, "", "", img);
     });
   });
   // las tarjetas crecen hasta pantalla completa, con lo que hace esa pantalla
   document.querySelectorAll(".tarjeta").forEach((t) => {
+    if (!t.dataset.grande) return;
     t.addEventListener("click", () => {
       const titulo = t.querySelector("b").textContent;
       abrirVisor(t.dataset.grande, "La pantalla de Cathedra: " + titulo, titulo, t.dataset.texto, t.querySelector(".tj-cuadro"));
@@ -756,6 +714,7 @@ if (visor && typeof visor.showModal === "function") {
 } else {
   document.querySelectorAll("[data-ampliar]").forEach((b) => { b.hidden = true; });
 }
+
 /* ══════════════════════ tu computadora ══════════════════════
    Estimación con lo que el navegador deja ver (memoria, núcleos, tarjeta de video);
    el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids

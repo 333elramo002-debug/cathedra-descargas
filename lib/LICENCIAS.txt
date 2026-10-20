@@ -1,6 +1,14 @@
 Recursos de terceros que viajan con la página, con su licencia.
 
-v7 (paso 0, 13/10/2026): la página ya no tiene escena 3D; no viajan three.js, Draco, modelos ni texturas.
+Identidad cuero (19/10/2026):
+  lib/gsap.min.js y lib/ScrollTrigger.min.js: GSAP 3.15.0 (GreenSock), licencia estándar de GSAP, de uso libre
+    (incluidos los complementos desde la 3.13). https://gsap.com/standard-license
+  fuentes/: Playfair Display (Claus Eggers Sørensen) e Inter (Rasmus Andersson), SIL Open Font License 1.1 (ver
+    fuentes/LICENCIAS.txt).
+  imagenes/trama-cuero.webp, imagenes/trama-marfil.webp: grano de «Leather029» de ambientCG, CC0 1.0.
+  imagenes/heroe/: renders propios de Cathedra (recursos_3d/emblema/ del repositorio privado); en la escena entran
+    texturas CC0 1.0 de Poly Haven (brown_leather, marble_01, brown_photostudio_02).
+  icono.svg, icono-claro.svg, favicon.ico, imagenes/icono-180.png: la marca de Cathedra (la estrella de cuatro puntas).
 
-IBM Plex Sans, IBM Plex Sans Condensed e IBM Plex Mono (fuentes/): SIL Open Font License 1.1.
-La marca (imagenes/marca.svg): de Cathedra.
+Lo de antes (las letras y la marca anteriores, el héroe anterior y la dirección visual) quedó en _anterior/,
+imagenes/_anterior/ y fuentes/_anterior/: está en el repositorio pero no se publica (.vercelignore).
