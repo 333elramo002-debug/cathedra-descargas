@@ -883,7 +883,9 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
 .pal > span { display: inline-block; }
 .rev-mascara .pal > span {
-  transform: translateY(calc((1 - clamp(0, var(--v) * 1.8 - var(--n) * .09, 1)) * 105%));
+  /* el escalonado se topa en .7: con títulos de más de 9 palabras, las últimas también llegan a su lugar (d60: «qué sigue»
+     quedaba cortado abajo, a medio subir) */
+  transform: translateY(calc((1 - clamp(0, var(--v) * 1.8 - min(var(--n) * .09, .7), 1)) * 105%));
 }
 .rev-imagen { opacity: clamp(0, var(--v) * 1.6, 1); }
 .rev-imagen .pf-fondo { clip-path: inset(calc((1 - var(--v)) * 10%) calc((1 - var(--v)) * 5%) round 15px); scale: calc(1.08 - var(--v) * .08); }
