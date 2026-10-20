@@ -5,7 +5,7 @@
      · el héroe: el emblema protagonista entra con GSAP (fondo y titular, después la bajada y el botón, al final
        el emblema sube y se enciende), flota sin repetirse (tramos de 6 a 9 s), gira hasta 6° hacia el puntero y,
        al bajar, se achica y se corre a un costado (ScrollTrigger). En el teléfono, arriba y sin seguir al puntero;
-     · las apariencias Cuero y Marfil: siguen al sistema hasta que se elige una en la cabecera (se recuerda);
+     · las apariencias Oscuro (cuero) y Claro (marfil): siguen al sistema hasta que se elige una en la cabecera (se recuerda);
      · las entradas de las secciones atadas al scroll, la cabecera, las demos, el visor y el sonido.
    Con «reducir movimiento» (del sistema o del pie) nada se anima y todo llega puesto. Sin JS, la página se ve igual
    de completa. El texto, los enlaces y los botones son HTML. */
@@ -45,8 +45,8 @@ document.querySelectorAll("[data-contacto-texto]").forEach((el) => { el.textCont
    fija la apariencia (lo pone ya el guion de la cabecera antes de pintar) y las fuentes de las imágenes se ajustan. */
 const claroSistema = window.matchMedia("(prefers-color-scheme: light)");
 const temaActual = () => raiz.dataset.tema || (claroSistema.matches ? "marfil" : "cuero");
-const NOMBRE_TEMA = { cuero: "Cuero", marfil: "Marfil" };
 const COLOR_TEMA = { cuero: "#1A0F0B", marfil: "#F1ECE4" };
+// el selector (20/10): «Oscuro» con la luna y «Claro» con el sol; por dentro siguen siendo cuero y marfil
 const botonTema = document.getElementById("tema");
 function fuentesSegunTema() {
   const elegido = raiz.dataset.tema;
@@ -58,16 +58,18 @@ function fuentesSegunTema() {
   });
   if (elegido) document.querySelectorAll('meta[name="theme-color"]').forEach((m) => m.setAttribute("content", COLOR_TEMA[elegido]));
   if (botonTema) {
-    const ahora = temaActual(), otro = ahora === "cuero" ? "marfil" : "cuero";
-    botonTema.setAttribute("aria-label", `Apariencia ${NOMBRE_TEMA[ahora]}: cambiar a ${NOMBRE_TEMA[otro]}`);
-    botonTema.title = `Cambiar a ${NOMBRE_TEMA[otro]}`;
+    const ahora = temaActual();
+    botonTema.querySelectorAll("[data-elegir]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.elegir === ahora)));
   }
 }
 fuentesSegunTema();
 if (botonTema) {
   botonTema.hidden = false;
-  botonTema.addEventListener("click", () => {
-    const nuevo = temaActual() === "cuero" ? "marfil" : "cuero";
+  botonTema.addEventListener("click", (ev) => {
+    const b = ev.target.closest("[data-elegir]");
+    if (!b) return;
+    const nuevo = b.dataset.elegir;
+    if (nuevo === temaActual() && raiz.dataset.tema === nuevo) return;
     const cambiar = () => {
       raiz.dataset.tema = nuevo;
       try { localStorage.setItem("cathedra-tema", nuevo); } catch (e) { /* sin almacenamiento: vale para esta visita */ }
@@ -639,6 +641,7 @@ document.querySelectorAll("[data-quieto]").forEach((a) => {
 const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
+  const fuenteVisor = visor.querySelector("source");
   const textoVisor = visor.querySelector(".visor-texto");
   /* La imagen tocada SE TRANSFORMA en la pantalla grande (FLIP): sale de su lugar, con su escala, y llega con un
      resorte de segundo orden (amortiguación 0,9, unos 760 ms); al cerrar hace el camino inverso hasta su lugar. */
@@ -656,9 +659,17 @@ if (visor && typeof visor.showModal === "function") {
     const o = el.getBoundingClientRect(), f = visor.getBoundingClientRect();
     return `translate(${o.left - f.left}px, ${o.top - f.top}px) scale(${o.width / f.width}, ${o.height / f.height})`;
   };
-  const abrirVisor = (src, alt, titulo, texto, desde) => {
+  /* Cada pantalla de la app vive en imagenes/app/<nombre>-{1280,1920}.{avif,webp} (d60): el visor recibe la base y el
+     navegador elige el tamaño y el formato (avif si lo entiende) con srcset y <source>. */
+  const ponerPantalla = (base) => {
+    const lista = (ext) => `${base}-1280.${ext} 1280w, ${base}-1920.${ext} 1920w`;
+    if (fuenteVisor) fuenteVisor.srcset = lista("avif");
+    imgVisor.srcset = lista("webp");
+    imgVisor.src = `${base}-1920.webp`;
+  };
+  const abrirVisor = (base, alt, titulo, texto, desde) => {
     if (animacion) return;                                   // una a la vez
-    imgVisor.src = src; imgVisor.alt = alt || "";
+    ponerPantalla(base); imgVisor.alt = alt || "";
     visor.classList.toggle("con-texto", !!texto);
     textoVisor.hidden = !texto;
     textoVisor.innerHTML = "";
@@ -688,7 +699,7 @@ if (visor && typeof visor.showModal === "function") {
   document.querySelectorAll("[data-ampliar]").forEach((b) => {
     b.addEventListener("click", () => {
       const img = b.closest(".profundidad").querySelector(".pf-fondo");
-      abrirVisor(b.dataset.ampliar || img.currentSrc || img.src, img.alt, "", "", img);
+      abrirVisor(b.dataset.ampliar, img.alt, "", "", img);
     });
   });
   // las tarjetas crecen hasta pantalla completa, con lo que hace esa pantalla

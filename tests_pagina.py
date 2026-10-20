@@ -13,7 +13,11 @@ Qué verifica (sin navegador):
   · ninguna palabra prohibida en el texto visible (precio, gratis, beta fuera de las legales,
     modelo, API, placa, tokens, JSON, WebGL, shader, nombres de proveedores...);
   · cada página declara lang="es-AR", charset utf-8 y viewport;
-  · el peso de lo público < 4 MB (sin lo de antes, en las carpetas _anterior, que no se publica);
+  · el peso: cada imagen servida <= 2 MB y lo público < 8 MB (sin lo de antes, en las carpetas _anterior, que no se
+    publica). Lo que baja de verdad un visitante (un solo tamaño y un solo formato de cada pantalla, y sólo al llegar)
+    se mide en el navegador: la portada, <= 1,5 MB;
+  · cada pantalla de la app (imagenes/app/<nombre>) tiene sus 1280 y 1920 en avif y webp, y el visor las encuentra;
+  · la sección de descarga dice la versión;
   · existen las legales (privacidad, términos, cookies) y 404.html; vercel.json sirve las direcciones
     limpias; todos los enlaces internos (y los anclas) resuelven;
   · el CSS respeta prefers-reduced-motion por sí solo y la página se ve sin JS.
@@ -48,7 +52,8 @@ HOJAS = ["estilos.css"]
 # lo de antes (la identidad Ónix/Candy, el héroe del libro, la dirección visual): queda en el repositorio pero no se
 # publica (.vercelignore), así que no cuenta en el peso
 NO_PUBLICO = {"_anterior", "imagenes/_anterior", "fuentes/_anterior"}
-PESO_MAXIMO = 4 * 1000 * 1000
+PESO_MAXIMO = 8 * 1000 * 1000          # d60: las 19 pantallas nuevas de la app, en dos tamaños y dos formatos
+IMAGEN_MAXIMA = 2 * 1000 * 1000        # cada imagen servida
 UA_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 UA_MAC = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 
@@ -96,6 +101,7 @@ class TextoVisible(HTMLParser):
         self.ids: set[str] = set()
         self.enlaces: list[tuple[str, str]] = []      # (atributo, valor) de todo lo que apunta a algo
         self.urls_meta: list[str] = []
+        self.pantallas: list[str] = []
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -108,8 +114,14 @@ class TextoVisible(HTMLParser):
                 continue
             if k in self.ATRIBUTOS:
                 self.trozos.append(v)
-            if k in ("href", "src", "poster", "data", "srcset"):
+            if k in ("href", "src", "poster", "data"):
                 self.enlaces.append((k, v))
+            elif k == "srcset":                       # cada candidato del srcset, no sólo el primero
+                for candidato in v.split(","):
+                    if candidato.strip():
+                        self.enlaces.append((k, candidato.strip().split()[0]))
+            elif k in ("data-grande", "data-ampliar"):  # la base de una pantalla de la app: <base>-{1280,1920}.{avif,webp}
+                self.pantallas.append(v)
         if tag == "meta":
             clave = a.get("name") or a.get("property") or ""
             if clave in self.METAS and a.get("content"):
@@ -254,11 +266,38 @@ def peso_publico() -> int:
     return total
 
 
-@estatico("peso de lo público < 4 MB")
+@estatico("cada imagen <= 2 MB y lo público < 8 MB")
 def peso() -> list[str]:
+    problemas = []
     total = peso_publico()
     if total >= PESO_MAXIMO:
-        return [f"pesa {total / 1e6:.2f} MB (tope {PESO_MAXIMO / 1e6:.0f} MB)"]
+        problemas.append(f"pesa {total / 1e6:.2f} MB (tope {PESO_MAXIMO / 1e6:.0f} MB)")
+    for archivo in (RAIZ / "imagenes").rglob("*"):
+        relativo = archivo.relative_to(RAIZ).as_posix()
+        if archivo.is_file() and not any(relativo.startswith(n + "/") for n in NO_PUBLICO) and archivo.stat().st_size > IMAGEN_MAXIMA:
+            problemas.append(f"{relativo}: {archivo.stat().st_size / 1e6:.2f} MB (tope {IMAGEN_MAXIMA / 1e6:.0f} MB por imagen)")
+    return problemas
+
+
+@estatico("cada pantalla de la app tiene sus tamaños y formatos")
+def pantallas_de_la_app() -> list[str]:
+    problemas = []
+    bases = analizar("index.html").pantallas
+    if len(bases) < 6:
+        problemas.append(f"index.html: {len(bases)} pantallas para ampliar (se esperaban las de cada tramo y las tarjetas)")
+    for base in bases:
+        for tam in ("1280", "1920"):
+            for ext in ("avif", "webp"):
+                if not (RAIZ / f"{base}-{tam}.{ext}").is_file():
+                    problemas.append(f"index.html: falta {base}-{tam}.{ext}")
+    return problemas
+
+
+@estatico("la sección de descarga dice la versión")
+def version_a_la_vista() -> list[str]:
+    seccion = sin_comentarios_html(leer("index.html")).split('id="descargar"', 1)[-1].split("</section>", 1)[0]
+    if not re.search(r"Versión \d+\.\d+\.\d+", seccion):
+        return ["index.html: la sección «Descargar» no dice «Versión X.Y.Z»"]
     return []
 
 

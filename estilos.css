@@ -57,6 +57,12 @@
   --radio-panel: 18px;
   --radio-tarjeta: 20px;
   --cereza-degrade: linear-gradient(180deg, #A51225 0%, #8E0F20 55%, #780D1C 100%);
+  /* el rojo laqueado del botón principal (20/10, el dueño): luminoso arriba (#C8102E con brillo blanco) y hondo abajo;
+     detrás de las letras (35-65 % del alto) queda en #A41125 o más oscuro, así el marfil mide 7:1 o más */
+  --cereza-laca:
+    linear-gradient(180deg, rgba(255, 255, 255, .34) 0%, rgba(255, 255, 255, .12) 12%, rgba(255, 255, 255, 0) 26%),
+    radial-gradient(60% 46% at 50% 118%, rgba(225, 59, 67, .5), rgba(225, 59, 67, 0) 100%),
+    linear-gradient(180deg, #C8102E 0%, #B81229 15%, #A81126 32%, #960F22 62%, #7A0D1C 100%);
 }
 
 /* ── Cuero oscuro: la de fábrica ── */
@@ -90,6 +96,7 @@
   --velo-bajo: #1A0F0B;
   --sombra-texto: 0 1px 2px rgba(10, 5, 3, .55);
   --relleno-chip: rgba(241, 236, 228, .05);
+  --relleno-elegido: rgba(241, 236, 228, .11);
   --relleno-campo: rgba(10, 5, 3, .38);
   --ventana-win: #0B4A84;
   --luz-estudio: rgba(140, 82, 52, .16);
@@ -127,6 +134,7 @@
     --velo-bajo: #F1ECE4;
     --sombra-texto: none;
     --relleno-chip: rgba(255, 255, 255, .6);
+    --relleno-elegido: rgba(255, 255, 255, .92);
     --relleno-campo: rgba(255, 255, 255, .8);
     --luz-estudio: rgba(255, 255, 255, .55);
     --capsula: rgba(250, 247, 242, .82);
@@ -162,6 +170,7 @@
   --velo-bajo: #F1ECE4;
   --sombra-texto: none;
   --relleno-chip: rgba(255, 255, 255, .6);
+  --relleno-elegido: rgba(255, 255, 255, .92);
   --relleno-campo: rgba(255, 255, 255, .8);
   --luz-estudio: rgba(255, 255, 255, .55);
   --capsula: rgba(250, 247, 242, .82);
@@ -293,23 +302,37 @@ main:focus, section:focus { outline: none; }
 .cab-nav a:hover::after { transform: scaleX(1); }
 .cab-nav .cab-ir {
   padding: 10px 18px; border-radius: 999px;
-  border: 1px solid rgba(255, 142, 150, .34); color: var(--sobre-cereza);
-  background: var(--cereza-degrade);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .26);
+  border: 1px solid rgba(255, 150, 158, .4); color: var(--sobre-cereza);
+  background: var(--cereza-laca);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
   transition: box-shadow var(--dur-medio) var(--curva), filter var(--dur-medio) var(--curva);
 }
 .cab-nav .cab-ir::after { display: none; }
-.cab-nav .cab-ir:hover { color: var(--sobre-cereza); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), var(--halo-cereza); filter: brightness(1.06); }
-.cab-tema, .cab-sonido {
+.cab-nav .cab-ir:hover { color: var(--sobre-cereza); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), var(--halo-cereza); }
+.cab-sonido {
   position: relative; display: grid; place-items: center;
   width: 38px; height: 38px; padding: 0; border-radius: 50%;
   border: 1px solid var(--linea); background: transparent; color: var(--texto);
   cursor: pointer;
   transition: border-color var(--dur-medio) var(--curva), background-color var(--dur-medio) var(--curva);
 }
-.cab-tema:hover, .cab-sonido:hover { border-color: var(--linea-viva); }
-.cab-tema svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
-.cab-tema .lleno { fill: currentColor; stroke: none; }
+.cab-sonido:hover { border-color: var(--linea-viva); }
+/* la apariencia (20/10): dos mitades, la luna (Oscuro) y el sol (Claro); la elegida, en vidrio con su canto */
+.cab-tema {
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px;
+  border-radius: 999px; border: 1px solid var(--linea);
+}
+.cab-tema[hidden] { display: none; }
+.cab-tema button {
+  all: unset; box-sizing: border-box; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px 0 10px;
+  border-radius: 999px; font: 500 14px/1 var(--texto-f); letter-spacing: .01em; color: var(--medio);
+  transition: color var(--dur-medio) var(--curva), background-color var(--dur-medio) var(--curva), box-shadow var(--dur-medio) var(--curva);
+}
+.cab-tema button:hover { color: var(--texto); }
+.cab-tema button[aria-pressed="true"] { color: var(--texto); background: var(--relleno-elegido); box-shadow: inset 0 0 0 1px var(--linea-viva), inset 0 1px 0 rgba(255, 255, 255, .14); }
+.cab-tema button:focus-visible { box-shadow: var(--foco); }
+.cab-tema svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .cab-sonido canvas { width: 22px; height: 22px; }
 .cab-seccion {
   margin-left: 22px; margin-right: auto;
@@ -433,12 +456,12 @@ main, .pie { position: relative; z-index: 1; }
   display: inline-flex; align-items: center; gap: 12px;
   min-height: 58px; padding: 0 28px 0 22px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 142, 150, .38);
-  background: var(--cereza-degrade);
+  border: 1px solid rgba(255, 150, 158, .42);
+  background: var(--cereza-laca);
   color: var(--sobre-cereza);
   font: 600 17px/1 var(--texto-f); letter-spacing: .01em;
   text-decoration: none;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 -1px 0 rgba(0, 0, 0, .26), var(--halo-cereza);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--halo-cereza);
   transition: box-shadow var(--dur-medio) var(--curva), transform var(--dur-toque) var(--curva), filter var(--dur-medio) var(--curva);
 }
 .boton-descarga::after {           /* el halo que respira: una luz detrás, sólo opacidad y escala */
@@ -450,8 +473,8 @@ main, .pie { position: relative; z-index: 1; }
 .bd-icono { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bd-punto { display: none; }
 .boton-descarga:hover, .boton-descarga:focus-visible {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .34), inset 0 -1px 0 rgba(0, 0, 0, .26), var(--halo-cereza-fuerte);
-  filter: brightness(1.06); transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), inset 0 -1px 0 rgba(0, 0, 0, .3), var(--halo-cereza-fuerte);
+  transform: translateY(-1px);
 }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva-enfasis) .05s both; }
 .boton-descarga:active { transform: translateY(1px) scale(.985); filter: brightness(.96); }
@@ -660,7 +683,7 @@ section.cita { position: relative; }
 .tarjeta:focus-visible .tj-cuadro { outline: 2px solid var(--acento); outline-offset: 4px; }
 .tj-fondo { position: absolute; inset: -4%; width: 108%; height: 108%; object-fit: cover; object-position: top left; filter: brightness(.5) saturate(.7) blur(3px); transform: translate(calc(var(--fx) * -.4), calc(var(--fy) * -.4)) scale(1.02); transition: transform var(--dur-escena) var(--curva); }
 .tj-frente {
-  position: absolute; left: 50%; top: 50%; width: 88%; height: auto; max-height: 86%; object-fit: contain; object-position: center;
+  position: absolute; left: 50%; top: 50%; width: auto; max-width: 88%; height: auto; max-height: 86%;   /* sin cajón: la imagen manda su proporción */
   border-radius: 10px; border: 1px solid rgba(255, 255, 255, .2);
   box-shadow: 0 24px 40px -16px rgba(6, 2, 1, .9);
   transform: translate(-50%, -50%) translate(var(--fx), var(--fy));
@@ -669,6 +692,11 @@ section.cita { position: relative; }
 .tarjeta b { display: block; margin-top: 18px; font: 600 21px/1.25 var(--titulo-f); }
 .tarjeta small { display: block; margin-top: 5px; font-size: 14.5px; line-height: 1.5; color: var(--medio); }
 .tarjeta-pronto { cursor: default; }
+.tarjeta-icono { cursor: default; }
+.tj-icono { display: grid; place-items: center; background: var(--vidrio); }
+.tj-icono svg { width: 25%; height: auto; fill: none; stroke: var(--cereza-luz); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+/* las capturas llegan en <picture> (avif o webp, d60): la imagen se acomoda como si el <picture> no estuviera */
+.profundidad picture, .tj-cuadro picture { display: contents; }
 .tj-pronto { display: grid; place-items: center; border-style: dashed; background: var(--vidrio); }
 .tj-pronto svg { width: 28%; height: auto; fill: none; stroke: var(--cereza-luz); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .pronto { font: 600 10px/1 var(--texto-f); font-style: normal; letter-spacing: .18em; text-transform: uppercase; color: var(--sobre-cereza); background: var(--cereza-degrade); padding: 5px 9px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
@@ -686,6 +714,7 @@ section.cita { position: relative; }
 .descargar .rotulo { justify-content: center; }
 .descargar .titular { font-size: clamp(32px, 4vw, 56px); }
 .descargar .boton-descarga { margin-top: 30px; min-height: 64px; padding: 0 34px 0 26px; font-size: 18px; }
+.version { margin: 16px 0 0; font: 500 13.5px/1.4 var(--texto-f); letter-spacing: .03em; color: var(--tenue); font-variant-numeric: tabular-nums; }
 .requisitos {
   margin: 36px 0 0; padding: 0;
   display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 0;
@@ -888,7 +917,8 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .cab-nav { gap: 8px; padding: 4px; }
   .cab-nav .cab-ir { padding: 9px 14px; font-size: 14px; }
   .cab-sonido { display: none !important; }
-  .cab-tema { width: 36px; height: 36px; }
+  .cab-tema button { padding: 0 9px; }
+  .cab-tema button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .portada-acciones { width: 100%; }
   .pildora { width: 100%; justify-content: center; min-height: 54px; }
   .boton-descarga { width: 100%; justify-content: center; }

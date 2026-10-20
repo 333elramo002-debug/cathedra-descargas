@@ -66,7 +66,11 @@
   <nav class="cab-nav" aria-label="Secciones">
     <a href="#cronograma">Cómo funciona</a>
     <a href="#todo">Todo lo que hace</a>
-    <button class="cab-tema" type="button" id="tema" aria-label="Cambiar la apariencia" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path class="lleno" d="M12 3.8a8.2 8.2 0 0 1 0 16.4z"/></svg></button>
+    <!-- la apariencia (20/10, el dueño): Oscuro / Claro con la luna y el sol; por dentro siguen siendo cuero y marfil -->
+    <div class="cab-tema" id="tema" role="group" aria-label="Apariencia" hidden>
+      <button type="button" data-elegir="cuero" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.6 14.6A7.9 7.9 0 0 1 9.4 4.4a7.9 7.9 0 1 0 10.2 10.2Z"/></svg><span>Oscuro</span></button>
+      <button type="button" data-elegir="marfil" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.9"/><path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M5.5 18.5 7 17M17 7l1.5-1.5"/></svg><span>Claro</span></button>
+    </div>
     <button class="cab-sonido" type="button" id="sonido" aria-pressed="true" aria-label="Sonido de la página" hidden><canvas width="44" height="44" aria-hidden="true"></canvas></button>
     <a href="#descargar" class="cab-ir">Descargar</a>
   </nav>
@@ -155,8 +159,7 @@
     </div>
   </section>
 
-  <!-- FASE 2: capturas nuevas. Las pantallas de cada tramo (imagenes/app/*) son las de antes, con datos inventados;
-       quedan como marcadores con estas mismas rutas hasta que lleguen las capturas con la identidad cuero. -->
+  <!-- las pantallas de cada tramo: capturas de la app 1.1.0 con datos de ejemplo (d60, 20/10/2026), en imagenes/app/<nombre>-{1280,1920}.{avif,webp} -->
 
   <!-- ═══ 1 · el cronograma ═══ -->
   <section class="tramo" id="cronograma" data-nombre="01 · Empezás" data-tramo="1" aria-labelledby="crono-tit">
@@ -180,8 +183,11 @@
       <div class="dc-ficha" data-ficha hidden aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/cronograma-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="La pantalla de materias de Cathedra con el cronograma de una materia de ejemplo: los días, el horario y las fechas de cada clase.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/cronograma-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/materias-1280.avif 1280w, imagenes/app/materias-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/materias-1280.webp" srcset="imagenes/app/materias-1280.webp 1280w, imagenes/app/materias-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="La pantalla Materias de Cathedra en la apariencia clara: cada materia de ejemplo con su docente, sus días y su horario.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/materias" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -190,16 +196,20 @@
     <div class="tramo-texto">
       <p class="paso-num"><span data-cuenta="2" data-cifras="2">02</span> · Subís</p>
       <h2 id="subir-tit" class="titular"><span class="palabras">Subís la clase.</span></h2>
-      <p class="tramo-bajada">Soltás el audio o el video de la clase sobre la ventana, o tocás «Importar clase». Si le das permiso, mira tu carpeta de descargas: cuando aparece una clase grabada la transcribe sola y la guarda en la materia que corresponde. El material de la cátedra (PDF, Word, PowerPoint) va a su materia.</p>
+      <p class="tramo-bajada">Soltás el audio o el video de la clase sobre la ventana, o tocás «Agregar clase grabada» en la materia. Si le das permiso, mira tu carpeta de descargas: cuando aparece una clase grabada la transcribe sola y la guarda en la materia que corresponde. El material de la cátedra (PDF, Word, PowerPoint) va a su materia.</p>
       <ul class="datos">
         <li><b>Transcribe en tu computadora</b>, con el módulo que bajás una sola vez: rápido, o preciso para nombres propios y aulas ruidosas.</li>
         <li><b>Te dice cuánto falta</b>: «transcribiendo: va por el minuto <span data-cuenta="40">40</span> de 112 · faltan unos <span data-cuenta="9">9</span> minutos».</li>
         <li><b>Sin conexión</b> también transcribe.</li>
+        <li><b>Cada clase con su etiqueta</b>: Lista, Falta transcribir, Sin guía o Sin material. El filtro deja a la vista sólo lo que falta, y tocando una te dice qué le falta.</li>
       </ul>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/subir-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="La lista de clases de una materia de ejemplo, con la clase que se está transcribiendo y cuánto falta.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/subir-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/materia-camino-1280.avif 1280w, imagenes/app/materia-camino-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/materia-camino-1280.webp" srcset="imagenes/app/materia-camino-1280.webp 1280w, imagenes/app/materia-camino-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="Una materia de ejemplo en la apariencia oscura: «Seguí por acá» con lo próximo para estudiar y las clases en orden, cada una con su etiqueta, Lista o Sin material, y el filtro Todas, Listas y Pendientes.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/materia-camino" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -208,7 +218,7 @@
     <div class="tramo-texto">
       <p class="paso-num"><span data-cuenta="3" data-cifras="2">03</span> · La lee</p>
       <h2 id="lee-tit" class="titular"><span class="palabras">Cathedra la lee y arma la guía.</span></h2>
-      <p class="tramo-bajada">De la clase cruda saca la guía por clase y por tema. Separa lo que es contenido de lo que dijo sobre el examen, sobre el práctico o sobre la cursada, y marca lo que el profesor dijo que toma. Cada bloque guarda la frase y el minuto en que se dijo.</p>
+      <p class="tramo-bajada">De la clase cruda saca la guía por clase y por tema. Separa lo que es contenido de lo que dijo sobre el examen, sobre el práctico o sobre la cursada, y marca lo que el profesor dijo que toma. Cada bloque guarda la frase y el minuto en que se dijo. Y cada clase queda como un camino en orden: leer la guía, practicar preguntas, repasar las fichas, rendir un simulacro corto y repasar la clase.</p>
     </div>
     <div class="demo demo-lee" data-demo="lee">
       <div class="dl-cab">
@@ -229,8 +239,11 @@
       </div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/guia-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="Lo importante de una materia de ejemplo: los temas en orden, con lo que el profesor dijo que toma.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/guia-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/clase-pasos-1280.avif 1280w, imagenes/app/clase-pasos-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/clase-pasos-1280.webp" srcset="imagenes/app/clase-pasos-1280.webp 1280w, imagenes/app/clase-pasos-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="Una clase de ejemplo en la apariencia clara con sus cinco pasos en orden: leer la guía, practicar preguntas, repasar las fichas, rendir un simulacro corto y repasar la clase.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/clase-pasos" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -240,7 +253,7 @@
       <p class="paso-num"><span data-cuenta="4" data-cifras="2">04</span> · Preguntás</p>
       <h2 id="preg-tit" class="titular"><span class="palabras">Preguntás, y te contesta con la clase y el minuto.</span></h2>
       <p class="tramo-bajada">Le preguntás como a un compañero que tomó todos los apuntes. Contesta desde lo que dijo el profesor y te muestra cómo lo dijo, de qué clase sale y desde qué minuto leerlo o escucharlo. Si suma un ejemplo propio, te avisa que no lo dijo el profesor.</p>
-      <p class="nota-al-pie">Por chat, en cualquier pantalla. Por voz (habla y escucha), según tu plan.</p>
+      <p class="nota-al-pie">Por chat, en cualquier pantalla, con «Preguntar» al costado. Por voz (habla y escucha), según tu plan.</p>
     </div>
     <div class="demo demo-preg" data-demo="preg">
       <p class="demo-rotulo">Tocá una pregunta</p>
@@ -252,8 +265,11 @@
       <div class="dp-hilo" data-hilo aria-live="polite"></div>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/chat-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="Una conversación con Cathedra en una materia de ejemplo: la respuesta con la cita de la clase y el minuto.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/chat-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/preguntar-1280.avif 1280w, imagenes/app/preguntar-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/preguntar-1280.webp" srcset="imagenes/app/preguntar-1280.webp 1280w, imagenes/app/preguntar-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="El panel para preguntar abierto al costado de una materia de ejemplo, con preguntas sugeridas sobre sus temas.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/preguntar" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -262,7 +278,7 @@
     <div class="tramo-texto">
       <p class="paso-num"><span data-cuenta="5" data-cifras="2">05</span> · Rendís</p>
       <h2 id="sim-tit" class="titular"><span class="palabras">Te toma un simulacro con el formato que anunció.</span></h2>
-      <p class="tramo-bajada">Si el profesor dijo «un verdadero o falso, dos minicasos y una a desarrollar, veinticinco puntos cada una», el simulacro sale así, y con lo que dijo que toma. Lo corrige con lo que se dio en clase, te pone la nota y te dice qué no dijiste y de dónde sale cada consigna.</p>
+      <p class="tramo-bajada">Si el profesor dijo «un verdadero o falso, dos minicasos y una a desarrollar, veinticinco puntos cada una», el simulacro sale así, y con lo que dijo que toma. Lo corrige con lo que se dio en clase, te pone la nota y te dice qué no dijiste y de dónde sale cada consigna. Antes de empezar, «Cómo lo va a tomar» te muestra lo que dijo del examen, con su clase y su minuto.</p>
     </div>
     <form class="demo demo-sim" data-demo="sim" novalidate>
       <p class="demo-rotulo">Contestá dos consignas</p>
@@ -288,8 +304,11 @@
       </div>
     </form>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/simulacro.webp" width="1600" height="900" loading="lazy" decoding="async" alt="El simulacro de una materia de ejemplo, con las consignas en el formato que anunció el profesor.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/simulacro.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/simulacro-1280.avif 1280w, imagenes/app/simulacro-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/simulacro-1280.webp" srcset="imagenes/app/simulacro-1280.webp 1280w, imagenes/app/simulacro-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="«Cómo lo va a tomar»: el parcial de una materia de ejemplo con las frases del profesor sobre el examen, cada una con su clase y su minuto.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/simulacro" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -297,12 +316,15 @@
   <section class="tramo tramo-der" id="repaso" data-nombre="06 · Repasás" data-tramo="6" aria-labelledby="rep-tit">
     <div class="tramo-texto">
       <p class="paso-num"><span data-cuenta="6" data-cifras="2">06</span> · Repasás</p>
-      <h2 id="rep-tit" class="titular"><span class="palabras">Repasás lo que te costó, y «Hoy» te dice qué estudiar.</span></h2>
-      <p class="tramo-bajada">Lo que erraste en el simulacro, en los juegos o en las fichas va a tu mazo de repaso, con la página de donde sale, y vuelve cuando toca. Al abrir, «Por dónde empezar» te da una tarea por materia, ordenada por los días que faltan para cada examen; «Cuánto por día» reparte lo que falta entre todas.</p>
+      <h2 id="rep-tit" class="titular"><span class="palabras">Repasás lo que te costó, y «Seguí por acá» te dice qué sigue.</span></h2>
+      <p class="tramo-bajada">Lo que erraste en el simulacro, en los juegos o en las fichas va a tu mazo de repaso, con la página de donde sale, y vuelve cuando toca. Al abrir, «Seguí por acá» te dice lo próximo de cada materia, con los días que faltan para cada entrega o parcial y las fichas para hoy; «Cuánto por día» reparte lo que falta entre todas.</p>
     </div>
     <figure class="profundidad" data-profundidad>
-      <img class="pf-fondo" src="imagenes/app/panel-grande.webp" width="1920" height="1080" loading="lazy" decoding="async" alt="El panel de inicio con las materias de ejemplo, lo que falta de cada una y las fichas para hoy.">
-      <button class="ampliar" type="button" data-ampliar="imagenes/app/panel-grande.webp" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+      <picture>
+        <source type="image/avif" srcset="imagenes/app/panel-1280.avif 1280w, imagenes/app/panel-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/app/panel-1280.webp" srcset="imagenes/app/panel-1280.webp 1280w, imagenes/app/panel-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="El panel de inicio con «Seguí por acá», las materias de ejemplo, los días que faltan para cada entrega o parcial y las fichas para hoy.">
+      </picture>
+      <button class="ampliar" type="button" data-ampliar="imagenes/app/panel" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
   </section>
 
@@ -314,19 +336,20 @@
       <p class="tramo-bajada">Cada tarjeta es una pantalla de Cathedra. Tocala para verla entera.</p>
     </header>
     <ul class="tarjetas" data-tarjetas>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-material.webp" data-texto="En cada materia, el material de la cátedra junto a las clases: lo abrís, recortás una página para tus apuntes y aparece en las respuestas con su miniatura."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-material.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-material-frente.webp" width="900" height="235" loading="lazy" decoding="async" alt=""></span><b>Material de la cátedra</b><small>PDF, Word y PowerPoint en su materia, con miniaturas</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-temas-grande.webp" data-texto="Los temas que entran, en el orden para entenderlos, con su peso en el examen, lo que marcó para el parcial y cómo lo dijo."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-temas.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""></span><b>Plan de la materia</b><small>Por tema, con lo que va a tomar primero</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-jugar.webp" data-texto="Juegos armados con tus clases: cazá el error, el hueco, conectá, clasificá contra reloj, poné en orden, duelo relámpago, sala de escape. Elegís el tema, el tipo y la dificultad. Y fichas con repetición espaciada."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-jugar.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-jugar-frente.webp" width="780" height="710" loading="lazy" decoding="async" alt=""></span><b>Juegos y fichas</b><small>Para fijar lo que ya leíste</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-calculadora.webp" data-texto="En las materias con números: básica, científica, álgebra, gráficos, matrices, sistemas, vectores, estadística, distribuciones y fórmulas, resolviendo con todos los pasos."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-calculadora.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-calculadora-frente.webp" width="900" height="295" loading="lazy" decoding="async" alt=""></span><b>Calculadora paso a paso</b><small>Resuelve mostrando todos los pasos</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-buscar.webp" data-texto="Buscás una palabra en todo lo que dijo el profesor, en una materia o en todas, y saltás a la clase en ese minuto."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-buscar.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-buscar-frente.webp" width="900" height="501" loading="lazy" decoding="async" alt=""></span><b>Buscar en todo lo que dijo</b><small>Y leer la clase desde ahí</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-cuanto-grande.webp" data-texto="Le decís hasta cuándo y cuánto podés por día, y reparte lo que falta entre todas las materias para llegar a cada examen."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-cuanto.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""></span><b>Cuánto por día</b><small>El plan de estudio hasta cada examen</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-asistente-grande.webp" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu plan), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-asistente.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-asistente-frente.webp" width="900" height="83" loading="lazy" decoding="async" alt=""></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-tp.webp" data-texto="Cada trabajo práctico partido en las partes a entregar, con la cuenta regresiva de la entrega."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-tp.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-tp-frente.webp" width="900" height="372" loading="lazy" decoding="async" alt=""></span><b>Trabajos prácticos</b><small>Con sus partes y su entrega</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-faltantes.webp" data-texto="Qué clases no tienen material subido todavía, materia por materia. Si de una clase no se subió nada, no es un faltante."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-faltantes.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-faltantes-frente.webp" width="900" height="372" loading="lazy" decoding="async" alt=""></span><b>Qué material falta</b><small>Clase por clase</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-sesion.webp" data-texto="Una sesión de estudio con descansos y una ventanita que queda adelante mientras estudiás."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-sesion.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-sesion-frente.webp" width="900" height="211" loading="lazy" decoding="async" alt=""></span><b>Sesión con descansos</b><small>Con la ventanita siempre adelante</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-apariencia.webp" data-texto="Fondos vivos, íconos 3D para cada materia, temas claros y oscuros, y el sonido de arranque que elijas."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-apariencia.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-apariencia-frente.webp" width="900" height="558" loading="lazy" decoding="async" alt=""></span><b>Apariencia</b><small>Fondos vivos, íconos 3D, claro y oscuro</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-modulos.webp" data-texto="Cathedra viene liviana: lo pesado se baja aparte, una sola vez, desde Ajustes › Módulos (la transcripción, la transcripción precisa, el Motor de Cathedra para contestar sin conexión, la voz natural, los fondos)."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-modulos.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-modulos-frente.webp" width="900" height="385" loading="lazy" decoding="async" alt=""></span><b>Módulos y sin conexión</b><small>Con el Motor de Cathedra contesta sin internet</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/g-papelera.webp" data-texto="Lo que sacás queda en la papelera hasta que decidas que no lo querés más, y vuelve a su lugar con un toque. Tus clases, guías y mazos son archivos en tu computadora."><span class="tj-cuadro"><img class="tj-fondo" src="imagenes/app/g-papelera.webp" width="1280" height="720" loading="lazy" decoding="async" alt=""><img class="tj-frente" src="imagenes/app/g-papelera-frente.webp" width="900" height="211" loading="lazy" decoding="async" alt=""></span><b>Nada se pierde</b><small>Papelera, y todo en tu computadora</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/material" data-texto="Al pie de cada materia, el material de la cátedra: lo abrís, recortás una página para tus apuntes y aparece en las respuestas con su miniatura. Si una clase no tiene grabación, la guía se arma leyendo el material."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/material-640.avif"><img class="tj-fondo" src="imagenes/app/material-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/material-frente.avif"><img class="tj-frente" src="imagenes/app/material-frente.webp" width="900" height="326" loading="lazy" decoding="async" alt=""></picture></span><b>Material de la cátedra</b><small>PDF, Word y PowerPoint al pie de su materia</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/plan-materia" data-texto="Los temas que entran, en el orden para entenderlos, con su peso en el examen, lo que marcó para el parcial y cómo lo dijo."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/plan-materia-640.avif"><img class="tj-fondo" src="imagenes/app/plan-materia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/plan-materia-frente.avif"><img class="tj-frente" src="imagenes/app/plan-materia-frente.webp" width="900" height="309" loading="lazy" decoding="async" alt=""></picture></span><b>Plan de la materia</b><small>Por tema, con lo que va a tomar primero</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/juegos" data-texto="Juegos armados con tus clases: cazá el error, el hueco, conectá, la escalera, clasificá contra reloj, poné en orden, duelo relámpago, memotest de conceptos y más. Elegís el tema, el tipo y la dificultad."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/juegos-640.avif"><img class="tj-fondo" src="imagenes/app/juegos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/juegos-frente.avif"><img class="tj-frente" src="imagenes/app/juegos-frente.webp" width="900" height="293" loading="lazy" decoding="async" alt=""></picture></span><b>Juegos con tus clases</b><small>Para fijar lo que ya leíste</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/fichas" data-texto="Cada clase trae sus fichas. Respondés «Otra vez», «Difícil», «Bien» o «Fácil»: las que fallás vuelven antes y las que sabés se espacian."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/fichas-640.avif"><img class="tj-fondo" src="imagenes/app/fichas-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/fichas-frente.avif"><img class="tj-frente" src="imagenes/app/fichas-frente.webp" width="900" height="497" loading="lazy" decoding="async" alt=""></picture></span><b>Fichas que vuelven solas</b><small>Repetición espaciada, clase por clase</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/calculadora" data-texto="En las materias con números: básica, científica, álgebra, gráficos, matrices, sistemas, vectores, estadística, distribuciones y fórmulas, resolviendo con todos los pasos."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/calculadora-640.avif"><img class="tj-fondo" src="imagenes/app/calculadora-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/calculadora-frente.avif"><img class="tj-frente" src="imagenes/app/calculadora-frente.webp" width="900" height="462" loading="lazy" decoding="async" alt=""></picture></span><b>Calculadora paso a paso</b><small>Resuelve mostrando todos los pasos</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/buscar" data-texto="Buscás una palabra en todo lo que dijo el profesor, en una materia o en todas, y saltás a la clase en ese minuto."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/buscar-640.avif"><img class="tj-fondo" src="imagenes/app/buscar-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/buscar-frente.avif"><img class="tj-frente" src="imagenes/app/buscar-frente.webp" width="900" height="324" loading="lazy" decoding="async" alt=""></picture></span><b>Buscar en todo lo que dijo</b><small>Y leer la clase desde ahí</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/cuanto-por-dia" data-texto="Le decís hasta cuándo y cuánto podés por día, y reparte lo que falta entre todas las materias para llegar a cada examen."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-640.avif"><img class="tj-fondo" src="imagenes/app/cuanto-por-dia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-frente.avif"><img class="tj-frente" src="imagenes/app/cuanto-por-dia-frente.webp" width="900" height="311" loading="lazy" decoding="async" alt=""></picture></span><b>Cuánto por día</b><small>El plan de estudio hasta cada examen</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/asistente" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu plan), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/asistente-640.avif"><img class="tj-fondo" src="imagenes/app/asistente-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/asistente-frente.avif"><img class="tj-frente" src="imagenes/app/asistente-frente.webp" width="900" height="309" loading="lazy" decoding="async" alt=""></picture></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/practicos" data-texto="Los trabajos prácticos de todas las materias con su fecha de entrega y cuántos días faltan; cada consigna, partida en las partes a entregar."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/practicos-640.avif"><img class="tj-fondo" src="imagenes/app/practicos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/practicos-frente.avif"><img class="tj-frente" src="imagenes/app/practicos-frente.webp" width="900" height="363" loading="lazy" decoding="async" alt=""></picture></span><b>Trabajos prácticos</b><small>Con sus partes y su entrega</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/que-le-falta" data-texto="Cada clase lleva su etiqueta: Lista, Falta transcribir, Sin guía o Sin material. Tocás una pendiente y al costado ves lo que tiene, lo que le falta y lo que podés hacer hoy, sin salir del camino."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-640.avif"><img class="tj-fondo" src="imagenes/app/que-le-falta-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-frente.avif"><img class="tj-frente" src="imagenes/app/que-le-falta-frente.webp" width="580" height="640" loading="lazy" decoding="async" alt=""></picture></span><b>Qué le falta a cada clase</b><small>Con su etiqueta, clase por clase</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/sesion" data-texto="Una sesión de estudio con descansos y una ventanita que queda adelante mientras estudiás."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/sesion-640.avif"><img class="tj-fondo" src="imagenes/app/sesion-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/sesion-frente.avif"><img class="tj-frente" src="imagenes/app/sesion-frente.webp" width="900" height="228" loading="lazy" decoding="async" alt=""></picture></span><b>Sesión con descansos</b><small>Con la ventanita siempre adelante</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/apariencia" data-texto="Dos apariencias, oscura y clara, con el emblema de cristal flotando detrás; íconos 3D de cada materia que se mueven al pasar el mouse, y el sonido de arranque que elijas."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/apariencia-640.avif"><img class="tj-fondo" src="imagenes/app/apariencia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/apariencia-frente.avif"><img class="tj-frente" src="imagenes/app/apariencia-frente.webp" width="900" height="406" loading="lazy" decoding="async" alt=""></picture></span><b>Apariencia</b><small>Oscura o clara, con el emblema detrás</small></button></li>
+      <li><div class="tarjeta tarjeta-icono"><span class="tj-cuadro tj-icono" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 5 41 14v20L24 43 7 34V14Z"/><path d="m7 14 17 9 17-9M24 23v20"/><path d="M24 9.5v8m0 0-3.4-3.4M24 17.5l3.4-3.4"/></svg></span><b>Módulos y sin conexión</b><small>Cathedra viene liviana: lo pesado se baja aparte, una sola vez, desde Ajustes › Módulos. La transcripción, la transcripción precisa, la voz natural y el Motor de Cathedra, que contesta sin internet.</small></div></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/papelera" data-texto="Lo que sacás queda en la papelera hasta que decidas que no lo querés más, y vuelve a su lugar con un toque. Tus clases, guías y mazos son archivos en tu computadora."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/papelera-640.avif"><img class="tj-fondo" src="imagenes/app/papelera-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/papelera-frente.avif"><img class="tj-frente" src="imagenes/app/papelera-frente.webp" width="900" height="296" loading="lazy" decoding="async" alt=""></picture></span><b>Nada se pierde</b><small>Papelera, y todo en tu computadora</small></button></li>
       <li><div class="tarjeta tarjeta-pronto"><span class="tj-cuadro tj-pronto" aria-hidden="true"><svg viewBox="0 0 48 48"><rect x="18" y="6" width="12" height="22" rx="6"/><path d="M11 22a13 13 0 0 0 26 0M24 35v7M17 42h14"/></svg></span><b>Grabar en vivo (opcional) <em class="pronto">pronto</em></b><small>Te sentás en el aula con el micrófono y Cathedra transcribe en el momento, con aviso si estás lejos o hay ruido. Todavía no está en la app.</small></div></li>
     </ul>
   </section>
@@ -340,6 +363,7 @@
         <svg class="bd-icono" viewBox="0 0 24 24" aria-hidden="true"><path class="bd-flecha" d="M12 3.5v11m0 0-4.6-4.6M12 14.5l4.6-4.6"/><path d="M4.5 15.5v3.2c0 1 .8 1.8 1.8 1.8h11.4c1 0 1.8-.8 1.8-1.8v-3.2"/></svg>
         <span class="bd-texto">Descargar para Windows</span>
       </a>
+      <p class="version" id="version">Versión 1.1.0 · instalador de 49 MB</p>
       <dl class="requisitos">
         <div><dt>Sistema</dt><dd>Windows 10 u 11 · 64 bits</dd></div>
         <div><dt>Espacio</dt><dd>Unos 2 GB libres</dd></div>
@@ -397,7 +421,7 @@
 </footer>
 
 <dialog class="visor" id="visor" aria-label="La pantalla en grande">
-  <img alt="" width="1600" height="900">
+  <picture><source type="image/avif" sizes="94vw"><img alt="" width="1920" height="1080" sizes="94vw"></picture>
   <p class="visor-texto" hidden></p>
   <button class="visor-cerrar" type="button" data-cerrar>Cerrar</button>
 </dialog>
