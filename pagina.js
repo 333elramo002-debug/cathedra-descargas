@@ -506,13 +506,18 @@ if (conGsap) document.querySelectorAll("[data-cuenta]").forEach((el) => {
    la rueda corre su destino lo mismo. */
 const conductor = (() => {
   let modo = null, raf = 0, escrito = -1, quietos = 0, destino = 0, viaje = null;
+  // con GSAP, el conductor va PRIMERO en su reloj: mueve la página con el maquetado limpio y recién después las
+  // animaciones escriben (si fuera al revés, cada scrollTo forzaría un maquetado a mitad de cuadro)
+  const reloj = gsap && gsap.ticker;
+  const tic = () => paso(performance.now());
   const tope = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
   // la sección puede pedir aire arriba (scroll-margin-top: en las legales, para no quedar bajo la cabecera)
   const arribaDe = (el) => el.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
   const ir = (y) => { window.scrollTo(0, y); escrito = window.scrollY; };
-  function parar() { cancelAnimationFrame(raf); raf = 0; modo = null; viaje = null; escrito = -1; quietos = 0; }
+  function soltar() { if (reloj) reloj.remove(tic); else cancelAnimationFrame(raf); raf = 0; }
+  function parar() { soltar(); modo = null; viaje = null; escrito = -1; quietos = 0; }
   function paso(ahora) {
-    raf = 0;
+    if (!reloj) raf = 0;
     const y = window.scrollY;
     if (modo === "rueda") {
       if (escrito >= 0 && Math.abs(y - escrito) > 2) destino += y - escrito;     // el anclaje corrió la página
@@ -531,10 +536,10 @@ const conductor = (() => {
         if (Math.abs(y - meta) > 1) ir(meta);
         if (++viaje.asentando > 12) { parar(); return; }                          // unos cuadros más midiendo y suelta
       }
-    } else return;
-    raf = requestAnimationFrame(paso);
+    } else { parar(); return; }
+    if (!reloj) raf = requestAnimationFrame(paso);
   }
-  const arrancar = () => { if (!raf) raf = requestAnimationFrame(paso); };
+  const arrancar = () => { if (raf) return; if (reloj) { raf = 1; reloj.add(tic, false, true); } else raf = requestAnimationFrame(paso); };
   return {
     rueda(delta) {
       if (modo !== "rueda") { parar(); modo = "rueda"; destino = window.scrollY; }
@@ -572,13 +577,19 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     // d80 · un reflejo ancho sobre la pantalla sigue al puntero (como el vidrio de un monitor bajo la luz de la ventana)
     const luz = document.createElement("i"); luz.className = "pf-luz"; luz.setAttribute("aria-hidden", "true");
     fig.appendChild(luz);
-    const lx = gsap ? gsap.quickTo(luz, "x", { duration: 0.7, ease: "power3.out" }) : null;
-    const ly = gsap ? gsap.quickTo(luz, "y", { duration: 0.7, ease: "power3.out" }) : null;
+    const a = (el, prop, d) => gsap.quickTo(el, prop, { duration: d, ease: "power3.out" });
+    const lx = gsap ? a(luz, "x", 0.7) : null, ly = gsap ? a(luz, "y", 0.7) : null;
+    const escena = fig.classList.contains("con-escena");            // la composición 3D no se inclina: ya tiene su perspectiva
+    // con GSAP, la inclinación es parte de la misma transformación que el revelado y el paralaje (sin variables CSS)
+    const base = { x: escena ? 0 : 1, y: escena ? 0 : (fig.closest(".tramo-der") ? 3 : -3) };
+    let gx = null, gy = null;
+    if (conGsap) { gsap.set(fig, { rotationX: base.x, rotationY: base.y, transformPerspective: 1700 }); if (!escena) { gx = a(fig, "rotationX", 0.9); gy = a(fig, "rotationY", 0.9); } }
     fig.addEventListener("pointermove", (e) => {
       const r = fig.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
       fig.classList.add("mirando");
-      if (!fig.classList.contains("con-escena")) {       // la composición 3D no se inclina: ya tiene su perspectiva
+      if (gx) { gy((x - 0.5) * 12); gx((0.5 - y) * 8); }
+      else if (!escena) {
         fig.style.setProperty("--ry", ((x - 0.5) * 12).toFixed(2) + "deg");
         fig.style.setProperty("--rx", ((0.5 - y) * 8).toFixed(2) + "deg");
       }
@@ -586,6 +597,7 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     });
     fig.addEventListener("pointerleave", () => {
       fig.classList.remove("mirando");
+      if (gx) { gx(base.x); gy(base.y); }
       fig.style.removeProperty("--ry"); fig.style.removeProperty("--rx");
     });
   });
@@ -638,8 +650,8 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     const datos = desde(t.querySelectorAll(".datos li"), { opacity: 0, x: -16 });
     if (datos.length) tl.to(datos, { opacity: 1, x: 0, duration: 0.8, stagger: 0.07 }, 0.4);
     if (fig) {
-      gsap.set(fig, { "--ps": 0.9, opacity: 0 });
-      tl.to(fig, { "--ps": 1, opacity: 1, duration: 1.4 }, 0.08);
+      gsap.set(fig, { scale: 0.9, opacity: 0 });
+      tl.to(fig, { scale: 1, opacity: 1, duration: 1.4 }, 0.08);
       if (img) {
         gsap.set(img, { clipPath: "inset(14% 12% 14% 12% round 15px)", scale: 1.26 });
         tl.to(img, { clipPath: "inset(0% 0% 0% 0% round 15px)", duration: 1.4, ease: "power3.inOut" }, 0.1)
@@ -651,11 +663,11 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
       tl.to(demo, { opacity: 1, y: 0, rotationX: 0, duration: 1.3 }, 0.34);
     }
     alLlegar(t, tl);
-    // el paralaje: la pantalla y el texto a distinta velocidad
+    // el paralaje: la pantalla y el texto a distinta velocidad (la demo queda en su lugar: su transformación es la del
+    // revelado; el texto se mueve poco, menos que el hueco de 30 px que los separa)
     const st = () => ({ trigger: t, start: "top bottom", end: "bottom top", scrub: 1 });
-    if (fig) gsap.fromTo(fig, { "--py": `${80 * k}px` }, { "--py": `${-80 * k}px`, ease: "none", scrollTrigger: st() });
-    const capa = [texto, demo].filter(Boolean);
-    if (capa.length) gsap.fromTo(capa, { "--py": `${30 * k}px` }, { "--py": `${-30 * k}px`, ease: "none", scrollTrigger: st() });
+    if (fig) gsap.fromTo(fig, { y: 80 * k }, { y: -80 * k, ease: "none", scrollTrigger: st() });
+    if (texto) gsap.fromTo(texto, { y: 18 * k }, { y: -18 * k, ease: "none", scrollTrigger: st() });
   });
 
   // la cita al minuto: el texto y el panel (la escritura la arma su bloque)
@@ -747,10 +759,12 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
   v.appendChild(pic); document.body.appendChild(v);
   fuentesSegunTema();                                  // la copia sigue a la apariencia elegida
   const facil = gsap.parseEase("power2.inOut");
-  let marcas = [], mw = 0, mh = 0, pedido = 0, listo = false;
+  // la posición y el alto de la ventana se leen en el evento (con el maquetado limpio) y no en el cuadro: leer scrollY
+  // después de que GSAP escribe fuerza un recálculo de estilo y un maquetado (medido en d80: 0,8 s en 5 s de rueda)
+  let marcas = [], mw = 0, mh = 0, pedido = false, listo = false, sy = window.scrollY, vh = window.innerHeight;
   const ahora = { x: 0, y: 0, rz: 0, ry: 0, s: 1, o: 0 };
   function medir() {
-    const sy = window.scrollY;
+    sy = window.scrollY; vh = window.innerHeight;
     mw = v.offsetWidth / 2; mh = v.offsetHeight / 2;
     marcas = tramos.map((t) => {
       const r = t.getBoundingClientRect(), f = t.querySelector(".profundidad");
@@ -762,7 +776,7 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     pedir();
   }
   function objetivo() {
-    const s = window.scrollY, m = marcas, vh = window.innerHeight;
+    const s = sy, m = marcas;
     let i = 0;
     while (i < m.length - 1 && s > m[i + 1].y) i++;
     const a = m[i], b = m[Math.min(i + 1, m.length - 1)];
@@ -773,8 +787,7 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     return { x: a.x + (b.x - a.x) * e - mw, y: vh / 2 - mh - arco * 48, rz: dir * arco * 18, ry: dir * arco * -32, s: 1 - arco * 0.18, o };
   }
   function paso() {
-    pedido = 0;
-    if (!marcas.length) return;
+    if (!marcas.length) { soltar(); return; }
     const t = objetivo();
     let falta = 0;
     for (const c of Object.keys(t)) {
@@ -784,10 +797,13 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     listo = true;
     v.style.transform = `translate3d(${ahora.x.toFixed(1)}px, ${ahora.y.toFixed(1)}px, 0) perspective(700px) rotateY(${ahora.ry.toFixed(2)}deg) rotate(${ahora.rz.toFixed(2)}deg) scale(${ahora.s.toFixed(3)})`;
     v.style.opacity = ahora.o.toFixed(3);
-    if (falta > 0.05) pedir();
+    if (falta <= 0.05) soltar();
   }
-  function pedir() { if (!pedido) pedido = requestAnimationFrame(paso); }
-  window.addEventListener("scroll", pedir, { passive: true });
+  // en el reloj de GSAP, al final (después de que ScrollTrigger leyó el scroll y las animaciones escribieron)
+  function pedir() { if (!pedido) { pedido = true; gsap.ticker.add(paso); } }
+  function soltar() { if (pedido) { pedido = false; gsap.ticker.remove(paso); } }
+  window.addEventListener("scroll", () => { sy = window.scrollY; pedir(); }, { passive: true });
+  window.addEventListener("resize", () => { vh = window.innerHeight; sy = window.scrollY; }, { passive: true });
   ScrollTrigger.addEventListener("refresh", medir);
   if (document.readyState === "complete") medir(); else window.addEventListener("load", medir);
   document.fonts && document.fonts.ready.then(medir);

@@ -1247,14 +1247,13 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 
 /* ═══════════════════════ el movimiento de las secciones (d80) ═══════════════════════ */
 /* Lo coreografía pagina.js con GSAP + ScrollTrigger (sólo transform, opacity y clip-path; nada de desenfoque). Sin JS, sin
-   GSAP o con «reducir movimiento», todo está puesto y quieto: acá no hay estados ocultos. El paralaje de cada tramo usa las
-   propiedades sueltas translate y scale con variables registradas (--py, --ps): así no pisa la inclinación hacia el
-   puntero (transform) del marco de la pantalla ni el revelado (transform) de la demo. */
-@property --py { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@property --ps { syntax: "<number>"; inherits: false; initial-value: 1; }
-.tramo > .tramo-texto, .tramo > .demo, .profundidad { translate: 0 var(--py); }
-.profundidad { scale: var(--ps); }
-.con-gsap .tramo > .tramo-texto, .con-gsap .tramo > .demo, .con-gsap .profundidad { will-change: transform; }
+   GSAP o con «reducir movimiento», todo está puesto y quieto: acá no hay estados ocultos. Con GSAP, el marco de la pantalla
+   lo mueve sólo GSAP (revelado, paralaje e inclinación hacia el puntero en una sola transformación): sin la transición del
+   CSS, que perseguiría cada cuadro. (Medido en d80: animar variables CSS para el paralaje costaba 3,2 s de estilo en 8 s
+   de rueda; con transformaciones de GSAP, casi nada.) */
+.con-gsap .profundidad { transition: none; }
+.con-gsap .tramo > .tramo-texto, .con-gsap .profundidad { will-change: transform; }
+.con-gsap .heroe-texto { will-change: transform, opacity; }      /* sube y se apaga con el scroll: en su capa, sin repintar */
 /* los títulos: cada palabra en su máscara */
 .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
 .pal > span { display: inline-block; }
