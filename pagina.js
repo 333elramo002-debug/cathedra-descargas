@@ -577,8 +577,10 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
       const r = fig.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
       fig.classList.add("mirando");
-      fig.style.setProperty("--ry", ((x - 0.5) * 12).toFixed(2) + "deg");
-      fig.style.setProperty("--rx", ((0.5 - y) * 8).toFixed(2) + "deg");
+      if (!fig.classList.contains("con-escena")) {       // la composición 3D no se inclina: ya tiene su perspectiva
+        fig.style.setProperty("--ry", ((x - 0.5) * 12).toFixed(2) + "deg");
+        fig.style.setProperty("--rx", ((0.5 - y) * 8).toFixed(2) + "deg");
+      }
       if (lx) { lx(x * r.width - r.width * 0.15); ly(y * r.height - r.height * 0.25); }
     });
     fig.addEventListener("pointerleave", () => {

@@ -380,7 +380,7 @@ main:focus, section:focus { outline: none; }
   border: 0;
   /* d75: el grano real ya iluminado (un mosaico opaco de 384 px, sin mezclas) sobre el espresso de respaldo */
   background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, #2A1912;
-  box-shadow: 1px 1px 2px rgba(12, 5, 3, .45), 4px 10px 18px -8px rgba(12, 5, 3, .3), 14px 34px 64px -26px rgba(12, 5, 3, .55);
+  box-shadow: 1px 2px 3px rgba(12, 5, 3, .48), 14px 34px 64px -26px rgba(12, 5, 3, .55);
 }
 /* la luz de la losa de cuero: charco satinado arriba a la izquierda, caída, canto iluminado y canto en sombra (9 cortes) */
 .cuero-tarjeta::after {
@@ -786,8 +786,8 @@ main, .pie { position: relative; z-index: 1; }
 /* d80 · la luz que sigue al puntero sobre la imagen (la mueve pagina.js con transform): un reflejo ancho y suave */
 .atlas-luz {
   position: absolute; left: -30%; top: -60%; width: 90%; height: 160%; z-index: 1; pointer-events: none; opacity: 0;
-  background: radial-gradient(closest-side, rgba(255, 240, 226, .30), rgba(255, 240, 226, .08) 55%, rgba(255, 240, 226, 0));
-  mix-blend-mode: screen; transition: opacity 500ms var(--curva);
+  background: radial-gradient(closest-side, rgba(255, 240, 226, .2), rgba(255, 240, 226, .06) 55%, rgba(255, 240, 226, 0));
+  transition: opacity 500ms var(--curva);
 }
 .atlas-panel:hover .atlas-luz { opacity: 1; }
 .atlas-cuadro::after {            /* un filo de luz abajo, donde la imagen se apoya en el cuero */
@@ -904,6 +904,11 @@ section.cita { position: relative; }
   border-radius: 15px; background: var(--sup-3);
 }
 .profundidad .ampliar { z-index: 3; }
+/* d80 · con la composición 3D de la sección (usar_secciones_d80.py la pone por nombre): la imagen ya trae la mesa, la luz de
+   ventana y la sombra del panel de vidrio (ref1); el marco de marfil, la placa y la inclinación sobran */
+.profundidad.con-escena { padding: 0; background: none; border: 0; border-radius: 22px; box-shadow: var(--sombra-larga); transform: none; }
+.profundidad.con-escena::before, .profundidad.con-escena::after { content: none; }
+.profundidad.con-escena .pf-fondo { aspect-ratio: auto; border-radius: 22px; background: none; }
 
 /* ── las demos: la interfaz con datos de una materia de ejemplo ── */
 .demo {
@@ -1054,7 +1059,7 @@ section.cita { position: relative; }
 .tj-frente {
   position: absolute; left: 50%; top: 50%; width: auto; max-width: 90%; height: auto; max-height: 84%;   /* la imagen manda su proporción */
   border-radius: 10px; border: 1px solid var(--borde);
-  box-shadow: 1px 1px 2px rgba(31, 15, 9, .12), 2px 5px 9px -4px rgba(31, 15, 9, .2), 10px 22px 40px -18px rgba(31, 15, 9, .45);
+  box-shadow: 1px 2px 3px rgba(31, 15, 9, .16), 10px 22px 40px -18px rgba(31, 15, 9, .45);
   transform: translate(-50%, -50%) translate(var(--fx), var(--fy));
   transition: transform var(--dur-escena) var(--curva);
 }
@@ -1264,15 +1269,15 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 /* el reflejo que sigue al puntero sobre la pantalla del marco (lo mueve pagina.js con transform) */
 .pf-luz {
   position: absolute; left: -25%; top: -50%; width: 80%; height: 150%; z-index: 2; pointer-events: none; opacity: 0;
-  background: radial-gradient(closest-side, rgba(255, 250, 244, .32), rgba(255, 250, 244, .08) 55%, rgba(255, 250, 244, 0));
-  mix-blend-mode: soft-light; transition: opacity 600ms var(--curva);
+  background: radial-gradient(closest-side, rgba(255, 250, 244, .16), rgba(255, 250, 244, .05) 55%, rgba(255, 250, 244, 0));
+  transition: opacity 600ms var(--curva);
 }
 .profundidad.mirando .pf-luz { opacity: 1; }
 /* los contadores de rodillo: cada cifra es una tira de 0 a 9 (dos vueltas) que sube dentro de su ventana */
 .odo { display: inline-flex; }
 .odo-c { position: relative; display: inline-block; clip-path: inset(0 -.06em); }
 .odo-c > i { font-style: normal; visibility: hidden; }
-.odo-tira { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; will-change: transform; }
+.odo-tira { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; }
 .odo-tira > i { font-style: normal; display: block; }
 /* la cita al minuto: la pregunta se escribe letra por letra, con su cursor (sólo mientras escribe) */
 .cd-pregunta .cursor-escribe { position: relative; display: inline-block; width: 0; height: 1em; }
