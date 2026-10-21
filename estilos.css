@@ -250,42 +250,46 @@
 }
 
 /* ═══════════════════════ las placas de material renderizadas (d75, 21/10: «los materiales no son realistas») ═══════════════════════
+   d80 · cuero, tarjeta marfil y vidrio con las placas v2 (imagenes/placas_v2, d81: más relieve, canto más luminoso y sombra
+   de contacto más honda; mismos nombres, tamaños y 9 cortes). La tarjeta espresso sigue en imagenes/materiales: con la v2,
+   en el teléfono oscuro los rótulos de las demos caían a 3,0–4,2 : 1 sobre su canto iluminado. La laca, la estrella y las
+   esferas siguen en imagenes/materiales.
    La luz, el canto, la sombra de contacto, el grano y el brillo vienen HORNEADOS en imágenes (Blender, Cycles; d73 y d75:
    recursos_3d/placas_ui y _relevamiento/capturas/d75 del repositorio privado). El CSS sólo las monta: 9 cortes
    (border-image) para cantos y sombras, mosaicos para el grano. Todo a 2x (1 px CSS = 2 px de placa), luz fija desde
    arriba a la izquierda como en las imágenes del dueño. Nada se anima salvo la opacidad. Sin las imágenes (o con
    «más contraste» del sistema) quedan los colores planos de siempre. */
 :root {
-  --mi-tarjeta-marfil: url(imagenes/materiales/tarjeta-marfil.webp);
+  --mi-tarjeta-marfil: url(imagenes/placas_v2/tarjeta-marfil.webp);
   --mi-tarjeta-espresso: url(imagenes/materiales/tarjeta-espresso.webp);
-  --mi-cuero-grano: url(imagenes/materiales/cuero-grano.webp);
-  --mi-cuero-luz: url(imagenes/materiales/cuero-luz.webp);
-  --mi-cuero-pespunte: url(imagenes/materiales/cuero-pespunte.webp);
+  --mi-cuero-grano: url(imagenes/placas_v2/cuero-grano.webp);
+  --mi-cuero-luz: url(imagenes/placas_v2/cuero-luz.webp);
+  --mi-cuero-pespunte: url(imagenes/placas_v2/cuero-pespunte.webp);
   --mi-laca-reposo: url(imagenes/materiales/laca-reposo.webp);
   --mi-laca-hover: url(imagenes/materiales/laca-hover.webp);
   --mi-laca-pulsado: url(imagenes/materiales/laca-pulsado.webp);
-  --mi-vidrio-capsula-claro: url(imagenes/materiales/vidrio-capsula-claro.webp);
-  --mi-vidrio-capsula-oscuro: url(imagenes/materiales/vidrio-capsula-oscuro.webp);
-  --mi-vidrio-claro: url(imagenes/materiales/vidrio-claro.webp);
-  --mi-vidrio-oscuro: url(imagenes/materiales/vidrio-oscuro.webp);
+  --mi-vidrio-capsula-claro: url(imagenes/placas_v2/vidrio-capsula-claro.webp);
+  --mi-vidrio-capsula-oscuro: url(imagenes/placas_v2/vidrio-capsula-oscuro.webp);
+  --mi-vidrio-claro: url(imagenes/placas_v2/vidrio-claro.webp);
+  --mi-vidrio-oscuro: url(imagenes/placas_v2/vidrio-oscuro.webp);
   --m-tarjeta: var(--mi-tarjeta-marfil);
   --m-capsula: var(--mi-vidrio-capsula-claro);
   --m-vidrio: var(--mi-vidrio-claro);
 }
-@supports (background-image: image-set(url("imagenes/materiales/tarjeta-marfil.avif") type("image/avif"))) {
+@supports (background-image: image-set(url("imagenes/placas_v2/tarjeta-marfil.avif") type("image/avif"))) {
   :root {
-    --mi-tarjeta-marfil: image-set(url(imagenes/materiales/tarjeta-marfil.avif) type("image/avif"), url(imagenes/materiales/tarjeta-marfil.webp) type("image/webp"));
+    --mi-tarjeta-marfil: image-set(url(imagenes/placas_v2/tarjeta-marfil.avif) type("image/avif"), url(imagenes/placas_v2/tarjeta-marfil.webp) type("image/webp"));
     --mi-tarjeta-espresso: image-set(url(imagenes/materiales/tarjeta-espresso.avif) type("image/avif"), url(imagenes/materiales/tarjeta-espresso.webp) type("image/webp"));
-    --mi-cuero-grano: image-set(url(imagenes/materiales/cuero-grano.avif) type("image/avif"), url(imagenes/materiales/cuero-grano.webp) type("image/webp"));
-    --mi-cuero-luz: image-set(url(imagenes/materiales/cuero-luz.avif) type("image/avif"), url(imagenes/materiales/cuero-luz.webp) type("image/webp"));
-    --mi-cuero-pespunte: image-set(url(imagenes/materiales/cuero-pespunte.avif) type("image/avif"), url(imagenes/materiales/cuero-pespunte.webp) type("image/webp"));
+    --mi-cuero-grano: image-set(url(imagenes/placas_v2/cuero-grano.avif) type("image/avif"), url(imagenes/placas_v2/cuero-grano.webp) type("image/webp"));
+    --mi-cuero-luz: image-set(url(imagenes/placas_v2/cuero-luz.avif) type("image/avif"), url(imagenes/placas_v2/cuero-luz.webp) type("image/webp"));
+    --mi-cuero-pespunte: image-set(url(imagenes/placas_v2/cuero-pespunte.avif) type("image/avif"), url(imagenes/placas_v2/cuero-pespunte.webp) type("image/webp"));
     --mi-laca-reposo: image-set(url(imagenes/materiales/laca-reposo.avif) type("image/avif"), url(imagenes/materiales/laca-reposo.webp) type("image/webp"));
     --mi-laca-hover: image-set(url(imagenes/materiales/laca-hover.avif) type("image/avif"), url(imagenes/materiales/laca-hover.webp) type("image/webp"));
     --mi-laca-pulsado: image-set(url(imagenes/materiales/laca-pulsado.avif) type("image/avif"), url(imagenes/materiales/laca-pulsado.webp) type("image/webp"));
-    --mi-vidrio-capsula-claro: image-set(url(imagenes/materiales/vidrio-capsula-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-claro.webp) type("image/webp"));
-    --mi-vidrio-capsula-oscuro: image-set(url(imagenes/materiales/vidrio-capsula-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-oscuro.webp) type("image/webp"));
-    --mi-vidrio-claro: image-set(url(imagenes/materiales/vidrio-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-claro.webp) type("image/webp"));
-    --mi-vidrio-oscuro: image-set(url(imagenes/materiales/vidrio-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-oscuro.webp) type("image/webp"));
+    --mi-vidrio-capsula-claro: image-set(url(imagenes/placas_v2/vidrio-capsula-claro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-capsula-claro.webp) type("image/webp"));
+    --mi-vidrio-capsula-oscuro: image-set(url(imagenes/placas_v2/vidrio-capsula-oscuro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-capsula-oscuro.webp) type("image/webp"));
+    --mi-vidrio-claro: image-set(url(imagenes/placas_v2/vidrio-claro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-claro.webp) type("image/webp"));
+    --mi-vidrio-oscuro: image-set(url(imagenes/placas_v2/vidrio-oscuro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-oscuro.webp) type("image/webp"));
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -761,7 +765,7 @@ main, .pie { position: relative; z-index: 1; }
   /* el degradé del cuero, ajustado al tamaño (§07: «ajustarla por tamaño de componente y contraste»): en una franja de
      1440 × 300 el de las tarjetas deja la esquina de abajo a la izquierda en #75452D y el secundario bajaba a 4,07 : 1 */
   background: var(--cuero-filo),
-    linear-gradient(155deg, rgba(36, 18, 11, .12) 0%, rgba(22, 11, 7, .42) 52%, rgba(14, 7, 4, .58) 100%),
+    linear-gradient(155deg, rgba(36, 18, 11, .22) 0%, rgba(22, 11, 7, .44) 52%, rgba(14, 7, 4, .58) 100%),   /* d80: .12 → .22 arriba a la izquierda (el grano v2 es más vivo: «01 · Leather» medía 7,00) */
     var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
     linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
   border-top: 1px solid rgba(255, 231, 211, .12);
