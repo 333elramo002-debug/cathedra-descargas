@@ -393,26 +393,73 @@ if (!quieto && "IntersectionObserver" in window) {
   cuentas.forEach((el) => ioc.observe(el));
 }
 
-/* ══════════════════════ el scroll con inercia ══════════════════════ */
-/* La rueda del mouse no salta: el destino se acumula y la página llega con un resorte suave. El teclado, la
-   barra, el táctil y los enlaces siguen siendo los del navegador (sólo se toma la rueda, con puntero fino). */
-if (!quieto && window.matchMedia("(pointer: fine)").matches) {
-  let destino = window.scrollY, andandoScroll = false, propio = false;
-  const tope = () => document.documentElement.scrollHeight - window.innerHeight;
-  const mover = () => {
-    const y = window.scrollY, d = destino - y;
-    if (Math.abs(d) < 0.6) { propio = true; window.scrollTo(0, destino); andandoScroll = false; return; }
-    propio = true; window.scrollTo(0, y + d * 0.14);
-    requestAnimationFrame(mover);
+/* ══════════════════════ el desplazamiento: la rueda con inercia y los enlaces de la misma página ══════════════════════ */
+/* d80 · UN SOLO conductor mueve la página. Antes eran dos bucles sueltos (la inercia de la rueda y el viaje de los
+   enlaces) y el de la rueda podía no terminar nunca: el navegador redondea scrollTo al píxel, y cuando faltaban entre
+   0,6 y unos 3,5 px el paso del 14 % se redondeaba a cero; el bucle quedaba vivo para siempre y, al tocar «Cómo
+   funciona» o «Todo lo que hace», llevaba a la sección y enseguida devolvía la página a donde había parado la rueda
+   (arriba). Ahora: un único bucle con dos modos (rueda / viaje), el paso de la rueda nunca es menor que un píxel, el
+   bucle termina al llegar o si la página no se mueve, y suelta el mando ante cualquier otro gesto (tocar, teclado,
+   la barra de desplazamiento). Si el contenido de arriba cambia de alto y el navegador corrige la posición (anclaje),
+   la rueda corre su destino lo mismo. */
+const conductor = (() => {
+  let modo = null, raf = 0, escrito = -1, quietos = 0, destino = 0, viaje = null;
+  const tope = () => Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  // la sección puede pedir aire arriba (scroll-margin-top: en las legales, para no quedar bajo la cabecera)
+  const arribaDe = (el) => el.getBoundingClientRect().top + window.scrollY - (parseFloat(getComputedStyle(el).scrollMarginTop) || 0);
+  const ir = (y) => { window.scrollTo(0, y); escrito = window.scrollY; };
+  function parar() { cancelAnimationFrame(raf); raf = 0; modo = null; viaje = null; escrito = -1; quietos = 0; }
+  function paso(ahora) {
+    raf = 0;
+    const y = window.scrollY;
+    if (modo === "rueda") {
+      if (escrito >= 0 && Math.abs(y - escrito) > 2) destino += y - escrito;     // el anclaje corrió la página
+      destino = Math.max(0, Math.min(destino, tope()));
+      const d = destino - y;
+      if (Math.abs(d) < 1) { ir(destino); parar(); return; }
+      const v = Math.sign(d) * Math.max(1, Math.abs(d) * 0.14);                  // nunca menos de un píxel
+      ir(Math.abs(v) >= Math.abs(d) ? destino : y + v);
+      if (Math.abs(escrito - y) < 0.5) { if (++quietos > 2) { parar(); return; } } else quietos = 0;   // no se mueve: listo
+    } else if (modo === "viaje") {
+      // el destino se vuelve a medir en cada cuadro: mientras se llega, las demos se montan y crecen
+      const t = viaje.dura ? Math.min(1, (ahora - viaje.t0) / viaje.dura) : 1;
+      const meta = Math.min(arribaDe(viaje.el), tope());
+      if (t < 1) ir(viaje.desde + (meta - viaje.desde) * curva(t));
+      else {
+        if (Math.abs(y - meta) > 1) ir(meta);
+        if (++viaje.asentando > 12) { parar(); return; }                          // unos cuadros más midiendo y suelta
+      }
+    } else return;
+    raf = requestAnimationFrame(paso);
+  }
+  const arrancar = () => { if (!raf) raf = requestAnimationFrame(paso); };
+  return {
+    rueda(delta) {
+      if (modo !== "rueda") { parar(); modo = "rueda"; destino = window.scrollY; }
+      destino = Math.max(0, Math.min(tope(), destino + delta));
+      arrancar();
+    },
+    viajar(el, dura) {
+      parar(); modo = "viaje";
+      viaje = { el, dura, desde: window.scrollY, t0: performance.now(), asentando: 0 };
+      if (!dura) ir(Math.min(arribaDe(el), tope()));
+      arrancar();
+    },
+    parar,
+    get activo() { return modo; },
   };
+})();
+PAGINA.conductor = conductor;
+// cualquier otro gesto toma el mando (la barra de desplazamiento y el clic llegan como pointerdown)
+["pointerdown", "touchstart", "keydown"].forEach((ev) => window.addEventListener(ev, () => conductor.parar(), { passive: true, capture: true }));
+// la rueda con inercia: sólo con puntero fino y con animaciones (el táctil, el teclado y la barra son los del navegador)
+if (!quieto && window.matchMedia("(pointer: fine)").matches) {
   window.addEventListener("wheel", (e) => {
-    if (e.ctrlKey || e.defaultPrevented || e.target.closest("dialog[open], textarea, select, [data-scroll-propio]")) return;
+    if (e.ctrlKey || e.defaultPrevented || e.deltaX && Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    if (e.target.closest && e.target.closest("dialog[open], textarea, select, [data-scroll-propio]")) return;
     e.preventDefault();
-    const paso = e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
-    destino = Math.max(0, Math.min(tope(), (andandoScroll ? destino : window.scrollY) + paso));
-    if (!andandoScroll) { andandoScroll = true; requestAnimationFrame(mover); }
+    conductor.rueda(e.deltaMode === 1 ? e.deltaY * 32 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY);
   }, { passive: false });
-  window.addEventListener("scroll", () => { if (propio) { propio = false; return; } if (!andandoScroll) destino = window.scrollY; }, { passive: true });
 }
 
 /* ══════════════════════ las pantallas con profundidad ══════════════════════ */
@@ -446,30 +493,8 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
 }
 
 /* ══════════════════════ los enlaces de la misma página ══════════════════════ */
-/* Se deslizan hasta la sección (sólo al tocarlos: el resto del desplazamiento es nativo).
-   El viaje es propio y no el del navegador: el destino se vuelve a medir en cada cuadro, porque
-   mientras se llega las secciones lejanas se maquetan (content-visibility: auto, con un alto
-   estimado) y las demos se montan y crecen. Un gesto del alumno corta el viaje. */
-let viaje = 0;
-function deslizarHasta(destino) {
-  cancelAnimationFrame(viaje);
-  // la sección puede pedir aire arriba (scroll-margin-top: en las legales, para no quedar bajo la cabecera)
-  const aire = parseFloat(getComputedStyle(destino).scrollMarginTop) || 0;
-  const arriba = () => destino.getBoundingClientRect().top + window.scrollY - aire;
-  const desde = window.scrollY, salida = performance.now(), dura = quieto ? 0 : 900;
-  let asentando = 0;
-  const paso = (ahora) => {
-    const t = dura ? Math.min(1, (ahora - salida) / dura) : 1;
-    const meta = arriba();
-    if (t < 1) { window.scrollTo(0, desde + (meta - desde) * curva(t)); viaje = requestAnimationFrame(paso); return; }
-    // al llegar, unos cuadros más midiendo: lo que se maqueta recién al acercarse corre el destino
-    if (Math.abs(window.scrollY - meta) > 1) window.scrollTo(0, meta);
-    if (asentando++ < 10) viaje = requestAnimationFrame(paso);
-  };
-  if (!dura) window.scrollTo(0, arriba());
-  viaje = requestAnimationFrame(paso);
-}
-["wheel", "touchstart", "keydown"].forEach((ev) => window.addEventListener(ev, () => cancelAnimationFrame(viaje), { passive: true }));
+/* Se deslizan hasta la sección con el conductor (un viaje de 0,9 s que vuelve a medir el destino en cada cuadro).
+   Un gesto del alumno corta el viaje. */
 document.querySelectorAll('a[href^="#"]').forEach((a) => {
   const id = a.getAttribute("href").slice(1);
   if (!id) return;
@@ -477,7 +502,9 @@ document.querySelectorAll('a[href^="#"]').forEach((a) => {
     const destino = document.getElementById(id);
     if (!destino) return;
     e.preventDefault();
-    deslizarHasta(destino);
+    // lejos, el viaje dura un poco más (hasta 1,3 s); cerca, 0,7 s
+    const lejos = Math.abs(destino.getBoundingClientRect().top) / Math.max(1, window.innerHeight);
+    conductor.viajar(destino, quieto ? 0 : Math.round(Math.min(1300, 700 + lejos * 60)));
     history.replaceState(null, "", "#" + id);
     // como el salto nativo: el foco (y el Tab siguiente) siguen desde la sección; vale para «Saltar al contenido»
     if (!destino.hasAttribute("tabindex")) destino.setAttribute("tabindex", "-1");
