@@ -23,3 +23,12 @@ Manual de producción visual (20/10/2026):
   imagenes/grano-marfil-384.webp: la microtextura de las tarjetas marfil, del relieve de «Plaster001» (ambientCG, CC0 1.0).
   imagenes/cuero-512.webp: la textura teselable del cuero de la app (app/estilos/cuero_seamless_512.webp, de «Leather029»
     de ambientCG, CC0 1.0).
+
+Materiales renderizados (d75, 21/10/2026):
+  imagenes/materiales/: placas de material de Cathedra (Blender, renders propios; recursos_3d/placas_ui y
+    _relevamiento/capturas/d75 del repositorio privado): la losa marfil y su gemela espresso con la sombra de contacto,
+    el grano del cuero ya iluminado con su capa de luz y su pespunte, la laca cereza del botón (tres estados), el vidrio
+    de la cápsula y del visor y las cuatro esferas de materiales. El grano del cuero sale de «Leather029» y el del marfil
+    de «Plaster001» (ambientCG, CC0 1.0); el vidrio y la laca son materiales propios.
+  icono.svg, icono-claro.svg, favicon.ico, imagenes/icono-180.png, imagenes/materiales/estrella-*.png: la estrella
+    laqueada de la marca (render propio). Los anteriores quedaron en imagenes/_anterior/icono_d66/.

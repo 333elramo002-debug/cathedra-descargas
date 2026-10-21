@@ -117,7 +117,7 @@
   --icono: #75452D;             /* íconos de línea: cuero cálido (7,5 : 1) */
   --boton-cuero: #382016;       /* las acciones de las demos: cuero, no cereza (el cherry queda para la principal) */
   --burbuja: #382016;           /* lo que preguntás, en cuero */
-  --superficie: linear-gradient(162deg, #FBF8F3 0%, #F6F1EA 48%, #EDE5DA 100%);   /* marfil mineral (§08) */
+  --superficie: #FAF7F2;        /* marfil mineral (§08): la caída satinada, el bisel y la sombra los pone la placa (d75) */
   --vidrio: linear-gradient(135deg, rgba(255, 255, 255, .86), rgba(250, 247, 242, .74));
   --vidrio-denso: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 253, 250, .9));
   --vidrio-borde: rgba(255, 255, 255, .7);
@@ -126,6 +126,7 @@
   /* sombras con profundidad (dueño 20/10 15:05): el contacto, una media y una larga y suave */
   --sombra-2: 0 1px 1px rgba(56, 32, 22, .07), 0 5px 12px -5px rgba(56, 32, 22, .13), 0 24px 46px -22px rgba(56, 32, 22, .34);
   --sombra-3: 0 2px 3px rgba(56, 32, 22, .07), 0 16px 32px -14px rgba(56, 32, 22, .22), 0 58px 104px -44px rgba(56, 32, 22, .46);
+  --sombra-larga: 0 34px 64px -34px rgba(56, 32, 22, .32);     /* la luz de ambiente lejos; el contacto, en la placa (d75) */
   --grano-fuerza: .7;           /* la microtextura de las tarjetas marfil: desvío de ~4 / 255 sobre el marfil */
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .9), 0 18px 48px rgba(38, 22, 14, .15);
   --halo-cereza: 0 6px 20px rgba(165, 18, 37, .26), 0 0 34px rgba(225, 59, 67, .14);
@@ -137,7 +138,7 @@
   --relleno-campo: rgba(255, 255, 255, .86);
   --ventana-win: #0B4A84;
   --luz-estudio: rgba(255, 255, 255, .6);
-  --capsula: rgba(250, 247, 242, .86);
+  --capsula: rgba(250, 247, 242, .58);     /* d75: el vidrio deja ver la escena (desenfocada) detrás */
   /* el campo del héroe: marfil ligeramente tonal, una luz suave arriba a la izquierda (§04: sin textura pesada) */
   --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(255, 255, 255, .62), rgba(255, 255, 255, 0) 62%),
                linear-gradient(180deg, rgba(226, 216, 204, 0) 55%, rgba(226, 216, 204, .5) 100%);
@@ -163,7 +164,7 @@
     --icono: #D9B79C;
     --boton-cuero: #5C3624;
     --burbuja: #4A2B1E;
-    --superficie: linear-gradient(162deg, #2D1A12 0%, #24140F 52%, #1E110C 100%);
+    --superficie: #27160F;
     --vidrio: linear-gradient(180deg, rgba(241, 236, 228, .075), rgba(241, 236, 228, .025)), rgba(28, 16, 11, .74);
     --vidrio-denso: linear-gradient(180deg, rgba(241, 236, 228, .08), rgba(241, 236, 228, .03)), rgba(26, 15, 11, .92);
     --vidrio-borde: rgba(255, 255, 255, .14);
@@ -171,6 +172,7 @@
     --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
     --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
     --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
+    --sombra-larga: 0 40px 80px -36px rgba(6, 2, 1, .75);
     --grano-fuerza: 1;
     --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
     --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
@@ -181,7 +183,7 @@
     --relleno-elegido: rgba(241, 236, 228, .11);
     --relleno-campo: rgba(10, 5, 3, .38);
     --luz-estudio: rgba(140, 82, 52, .14);
-    --capsula: rgba(22, 12, 9, .8);
+    --capsula: rgba(22, 12, 9, .68);
     --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(117, 69, 45, .22), rgba(117, 69, 45, 0) 62%),
                  linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, .4) 100%);
   }
@@ -222,7 +224,7 @@
   --icono: #D9B79C;
   --boton-cuero: #5C3624;
   --burbuja: #4A2B1E;
-  --superficie: linear-gradient(162deg, #2D1A12 0%, #24140F 52%, #1E110C 100%);
+  --superficie: #27160F;
   --vidrio: linear-gradient(180deg, rgba(241, 236, 228, .075), rgba(241, 236, 228, .025)), rgba(28, 16, 11, .74);
   --vidrio-denso: linear-gradient(180deg, rgba(241, 236, 228, .08), rgba(241, 236, 228, .03)), rgba(26, 15, 11, .92);
   --vidrio-borde: rgba(255, 255, 255, .14);
@@ -230,6 +232,7 @@
   --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
   --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
   --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
+  --sombra-larga: 0 40px 80px -36px rgba(6, 2, 1, .75);
   --grano-fuerza: 1;
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
   --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
@@ -240,10 +243,54 @@
   --relleno-elegido: rgba(241, 236, 228, .11);
   --relleno-campo: rgba(10, 5, 3, .38);
   --luz-estudio: rgba(140, 82, 52, .14);
-  --capsula: rgba(22, 12, 9, .8);
+  --capsula: rgba(22, 12, 9, .68);
   --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(117, 69, 45, .22), rgba(117, 69, 45, 0) 62%),
                linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, .4) 100%);
 }
+
+/* ═══════════════════════ las placas de material renderizadas (d75, 21/10: «los materiales no son realistas») ═══════════════════════
+   La luz, el canto, la sombra de contacto, el grano y el brillo vienen HORNEADOS en imágenes (Blender, Cycles; d73 y d75:
+   recursos_3d/placas_ui y _relevamiento/capturas/d75 del repositorio privado). El CSS sólo las monta: 9 cortes
+   (border-image) para cantos y sombras, mosaicos para el grano. Todo a 2x (1 px CSS = 2 px de placa), luz fija desde
+   arriba a la izquierda como en las imágenes del dueño. Nada se anima salvo la opacidad. Sin las imágenes (o con
+   «más contraste» del sistema) quedan los colores planos de siempre. */
+:root {
+  --mi-tarjeta-marfil: url(imagenes/materiales/tarjeta-marfil.webp);
+  --mi-tarjeta-espresso: url(imagenes/materiales/tarjeta-espresso.webp);
+  --mi-cuero-grano: url(imagenes/materiales/cuero-grano.webp);
+  --mi-cuero-luz: url(imagenes/materiales/cuero-luz.webp);
+  --mi-cuero-pespunte: url(imagenes/materiales/cuero-pespunte.webp);
+  --mi-laca-reposo: url(imagenes/materiales/laca-reposo.webp);
+  --mi-laca-hover: url(imagenes/materiales/laca-hover.webp);
+  --mi-laca-pulsado: url(imagenes/materiales/laca-pulsado.webp);
+  --mi-vidrio-capsula-claro: url(imagenes/materiales/vidrio-capsula-claro.webp);
+  --mi-vidrio-capsula-oscuro: url(imagenes/materiales/vidrio-capsula-oscuro.webp);
+  --mi-vidrio-claro: url(imagenes/materiales/vidrio-claro.webp);
+  --mi-vidrio-oscuro: url(imagenes/materiales/vidrio-oscuro.webp);
+  --m-tarjeta: var(--mi-tarjeta-marfil);
+  --m-capsula: var(--mi-vidrio-capsula-claro);
+  --m-vidrio: var(--mi-vidrio-claro);
+}
+@supports (background-image: image-set(url("imagenes/materiales/tarjeta-marfil.avif") type("image/avif"))) {
+  :root {
+    --mi-tarjeta-marfil: image-set(url(imagenes/materiales/tarjeta-marfil.avif) type("image/avif"), url(imagenes/materiales/tarjeta-marfil.webp) type("image/webp"));
+    --mi-tarjeta-espresso: image-set(url(imagenes/materiales/tarjeta-espresso.avif) type("image/avif"), url(imagenes/materiales/tarjeta-espresso.webp) type("image/webp"));
+    --mi-cuero-grano: image-set(url(imagenes/materiales/cuero-grano.avif) type("image/avif"), url(imagenes/materiales/cuero-grano.webp) type("image/webp"));
+    --mi-cuero-luz: image-set(url(imagenes/materiales/cuero-luz.avif) type("image/avif"), url(imagenes/materiales/cuero-luz.webp) type("image/webp"));
+    --mi-cuero-pespunte: image-set(url(imagenes/materiales/cuero-pespunte.avif) type("image/avif"), url(imagenes/materiales/cuero-pespunte.webp) type("image/webp"));
+    --mi-laca-reposo: image-set(url(imagenes/materiales/laca-reposo.avif) type("image/avif"), url(imagenes/materiales/laca-reposo.webp) type("image/webp"));
+    --mi-laca-hover: image-set(url(imagenes/materiales/laca-hover.avif) type("image/avif"), url(imagenes/materiales/laca-hover.webp) type("image/webp"));
+    --mi-laca-pulsado: image-set(url(imagenes/materiales/laca-pulsado.avif) type("image/avif"), url(imagenes/materiales/laca-pulsado.webp) type("image/webp"));
+    --mi-vidrio-capsula-claro: image-set(url(imagenes/materiales/vidrio-capsula-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-claro.webp) type("image/webp"));
+    --mi-vidrio-capsula-oscuro: image-set(url(imagenes/materiales/vidrio-capsula-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-oscuro.webp) type("image/webp"));
+    --mi-vidrio-claro: image-set(url(imagenes/materiales/vidrio-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-claro.webp) type("image/webp"));
+    --mi-vidrio-oscuro: image-set(url(imagenes/materiales/vidrio-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-oscuro.webp) type("image/webp"));
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="marfil"]) { --m-tarjeta: var(--mi-tarjeta-espresso); --m-capsula: var(--mi-vidrio-capsula-oscuro); --m-vidrio: var(--mi-vidrio-oscuro); }
+}
+:root[data-tema="cuero"] { --m-tarjeta: var(--mi-tarjeta-espresso); --m-capsula: var(--mi-vidrio-capsula-oscuro); --m-vidrio: var(--mi-vidrio-oscuro); }
 
 /* ═══════════════════════ base ═══════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
@@ -275,11 +322,27 @@ main:focus, section:focus { outline: none; }
 /* §08 · las superficies de lectura: marfil mineral (Ivory levantado, degradé amplio de baja amplitud, sombra suave).
    En la oscura, el mismo papel en cuero hondo. Nada de vidrio acá: el vidrio es para lo que flota. */
 .demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice {
+  --pm: 1;                       /* escala de la placa: radio CSS / 18 (la losa renderizada tiene radio 18) */
   position: relative; isolation: isolate;
   background: var(--superficie);
-  border: 1px solid var(--borde);
-  box-shadow: var(--sombra-2);
+  border: 1px solid transparent;
+  box-shadow: var(--sombra-larga);
 }
+/* d75 · la losa marfil renderizada: bisel claro e hilo de luz arriba a la izquierda, caída satinada, canto en sombra abajo a
+   la derecha y, afuera, la sombra de contacto (la placa se sale de la caja: 8 px arriba, 12 a los lados, 24 abajo). Debajo
+   del texto la placa es casi transparente (alfa <= 0,13 a 24 px del borde): el contraste lo mide la captura. */
+.demo::after, .cita-demo::after, .profundidad::after, .tj-cuadro::after, .legal-indice::after {
+  content: ""; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
+  border-style: solid; border-color: transparent;
+  border-width: calc(32px * var(--pm)) calc(36px * var(--pm)) calc(48px * var(--pm)) calc(36px * var(--pm));
+  border-image-source: var(--m-tarjeta);
+  border-image-slice: 64 72 96 72 fill;
+  border-image-width: calc(32px * var(--pm)) calc(36px * var(--pm)) calc(48px * var(--pm)) calc(36px * var(--pm));
+  border-image-outset: calc(8px * var(--pm)) calc(12px * var(--pm)) calc(24px * var(--pm)) calc(12px * var(--pm));
+  border-image-repeat: stretch;
+}
+.profundidad { --pm: 1.333; }    /* radio 24 */
+.cita-demo { --pm: 1.222; }      /* radio 22 */
 /* la microtextura del marfil (dueño 20/10 15:05, §08): se ve, pero NUNCA debajo del texto. En lo que no lleva texto (el
    paspartú de las pantallas, el cuadro de «Lo que también hace») cubre la superficie; en lo que sí (demos, cita, índice)
    queda en el canto: un filo de 7 px que el texto nunca toca (el relleno de esas tarjetas es de 16 px o más). Detrás
@@ -310,16 +373,25 @@ main:focus, section:focus { outline: none; }
 }
 /* §07 · la tarjeta de cuero (.leather-card del manual): para los mensajes de la marca */
 .cuero-tarjeta {
-  position: relative; isolation: isolate; overflow: hidden;
+  --pc: 1;                       /* escala de la capa de luz: radio CSS / 18 */
+  position: relative; isolation: isolate;
   color: var(--sobre-cuero);
-  border: 1px solid rgba(255, 231, 211, .14);
-  background: var(--cuero-filo), var(--cuero-degrade);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .09), 0 16px 36px rgba(31, 15, 9, .2);
+  border: 0;
+  /* d75: el grano real ya iluminado (un mosaico opaco de 384 px, sin mezclas) sobre el espresso de respaldo */
+  background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, #2A1912;
+  box-shadow: 0 1px 2px rgba(12, 5, 3, .45), 0 30px 60px -24px rgba(12, 5, 3, .55);
 }
+/* la luz de la losa de cuero: charco satinado arriba a la izquierda, caída, canto iluminado y canto en sombra (9 cortes) */
 .cuero-tarjeta::after {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: var(--textura-cuero) repeat; background-size: 320px 320px;
-  opacity: .18; mix-blend-mode: soft-light;
+  border: calc(24px * var(--pc)) solid transparent;
+  border-image: var(--mi-cuero-luz) 48 fill / calc(24px * var(--pc)) stretch;
+}
+/* el pespunte cereza: sólo en la tarjeta destacada (la de descargar) */
+.cuero-tarjeta.con-pespunte::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  border: calc(24px * var(--pc)) solid transparent;
+  border-image: var(--mi-cuero-pespunte) 48 / calc(24px * var(--pc)) round;
 }
 
 /* ═══════════════════════ rótulos y títulos ═══════════════════════ */
@@ -372,9 +444,13 @@ main:focus, section:focus { outline: none; }
 .cabecera.sobre {
   padding-top: 12px; padding-bottom: 12px;
   background: color-mix(in srgb, var(--fondo) 82%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-          backdrop-filter: blur(16px) saturate(1.2);
   box-shadow: 0 1px 0 var(--linea);
+}
+/* el desenfoque: arriba lo lleva la cápsula de vidrio (la escena del héroe se ve a través), al bajar toda la barra; nunca
+   los dos a la vez (la cápsula pierde su vidrio en .sobre) */
+.cabecera.sobre, .cabecera:not(.sobre) .cab-nav {
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+          backdrop-filter: blur(12px) saturate(1.2);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .cabecera.sobre { background: color-mix(in srgb, var(--fondo) 96%, transparent); }
@@ -384,16 +460,25 @@ main:focus, section:focus { outline: none; }
   text-decoration: none; color: var(--texto);
   font: 600 25px/1 var(--titulo-f); letter-spacing: .005em;
 }
-.cab-marca svg { width: 23px; height: 23px; flex: none; }
+.cab-marca svg, .cab-marca img { width: 23px; height: 23px; flex: none; }
 /* arriba del todo la barra no tiene fondo: los enlaces van en una cápsula (lo que flota es vidrio) sobre la escena */
 .cab-nav {
+  position: relative; isolation: isolate;
   display: flex; align-items: center; gap: clamp(12px, 2vw, 26px);
   padding: 5px 5px 5px 22px; border-radius: 999px;
-  background: var(--capsula); border: 1px solid var(--borde);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), var(--sombra-1);
+  background: var(--capsula); border: 1px solid transparent;
+  box-shadow: 0 12px 28px -16px rgba(38, 22, 14, .42);
   transition: background-color var(--dur-largo) var(--curva), border-color var(--dur-largo) var(--curva), box-shadow var(--dur-largo) var(--curva);
 }
+/* d75 · el canto de la cápsula: vidrio renderizado (losa de 2,4 mm de canto con hilo de luz blanco arriba a la izquierda
+   y cálido a la derecha, banda de lente); radio = medio alto, así las cuatro esquinas de la placa arman la píldora */
+.cab-nav::before {
+  content: ""; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
+  border: 25.7px solid transparent;
+  border-image: var(--m-capsula) 87 88 fill / 25.7px 26px stretch;   /* 2 px de placa en el medio: sin costura */
+}
 .sobre .cab-nav, .legal-pagina .cab-nav { background: transparent; border-color: transparent; box-shadow: none; }
+.sobre .cab-nav::before, .legal-pagina .cab-nav::before { content: none; }
 .cab-nav a {
   position: relative;
   font: 500 15px/1 var(--texto-f); letter-spacing: .01em;
@@ -409,14 +494,27 @@ main:focus, section:focus { outline: none; }
 .cab-nav a:hover { color: var(--texto); }
 .cab-nav a:hover::after { transform: scaleX(1); }
 .cab-nav .cab-ir {
-  padding: 10px 18px; border-radius: 999px;
-  border: 1px solid rgba(255, 150, 158, .4); color: var(--sobre-cereza);
-  background: var(--cereza-laca);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5);
-  transition: box-shadow var(--dur-medio) var(--curva);
+  --f: 1.045;                    /* 46 px: la letra (15 px) queda por debajo de la banda de luz de arriba (>= 7 : 1 medido) */
+  position: relative; isolation: isolate;
+  display: inline-flex; align-items: center; min-height: calc(44px * var(--f));
+  padding: 0 28px; border-radius: 999px; border: 0;      /* la letra fuera de las tapas redondas (allí la banda de luz baja) */
+  color: var(--sobre-cereza); background: transparent;
 }
-.cab-nav .cab-ir::after { display: none; }
-.cab-nav .cab-ir:hover { color: var(--sobre-cereza); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), var(--halo-cereza); }
+/* la misma laca del botón principal */
+.cab-nav .cab-ir::before, .cab-nav .cab-ir::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none; transform: none; left: auto; right: auto; bottom: auto; height: auto; background: none;
+  inset: calc(-10px * var(--f)) calc(-14px * var(--f)) calc(-34px * var(--f)) calc(-14px * var(--f));
+  border-style: solid; border-color: transparent;
+  border-width: calc(31.5px * var(--f)) calc(36px * var(--f)) calc(55.5px * var(--f)) calc(36px * var(--f));
+  border-image-source: var(--mi-laca-reposo);
+  border-image-slice: 63 72 111 72 fill;   /* 2 px de placa en el medio: sin costura a ningún alto */
+  border-image-width: calc(31.5px * var(--f)) calc(36px * var(--f)) calc(55.5px * var(--f)) calc(36px * var(--f));
+  border-image-repeat: stretch;
+}
+.cab-nav .cab-ir::after { display: block; border-image-source: var(--mi-laca-hover); opacity: 0; transition: opacity var(--dur-toque) ease-out; }
+.cab-nav .cab-ir:hover, .cab-nav .cab-ir:focus-visible { color: var(--sobre-cereza); }
+.cab-nav .cab-ir:hover::after, .cab-nav .cab-ir:focus-visible::after { opacity: 1; transform: none; }
+.cab-nav .cab-ir:active::before { border-image-source: var(--mi-laca-pulsado); }
 .cab-sonido {
   position: relative; display: grid; place-items: center;
   width: 38px; height: 38px; padding: 0; border-radius: 50%;
@@ -563,6 +661,7 @@ main, .pie { position: relative; z-index: 1; }
 /* hasta 1500 px los dos botones van en una fila dentro de las cinco columnas */
 @media (max-width: 1499px) {
   .heroe .boton-descarga, .heroe .pildora { min-height: 54px; font-size: 16px; }
+  .heroe .boton-descarga { --f: 1.227; }
   .heroe .boton-descarga { padding: 0 24px 0 20px; gap: 10px; }
   .heroe .pildora { padding: 0 22px; }
 }
@@ -570,38 +669,45 @@ main, .pie { position: relative; z-index: 1; }
 /* ═══════════════════════ botones (§10) ═══════════════════════ */
 /* el principal: cherry laqueado; al pasar, el halo crece y la flecha baja */
 .boton-descarga {
+  --f: 1.318;                    /* alto / 44 px (la píldora renderizada mide 44 px CSS de alto): 58 px */
   position: relative; isolation: isolate;
   display: inline-flex; align-items: center; gap: 12px;
-  min-height: 58px; padding: 0 28px 0 22px;
+  min-height: calc(44px * var(--f)); padding: 0 28px 0 22px;
   border-radius: 999px;
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
   color: var(--sobre-cereza);
   font: 600 17px/1 var(--texto-f); letter-spacing: .01em;
   text-decoration: none;
-  box-shadow: var(--halo-cereza);
-  transition: box-shadow var(--dur-medio) var(--curva), transform var(--dur-toque) var(--curva);
+  box-shadow: 0 10px 26px -12px rgba(165, 18, 37, .55);     /* el halo, quieto */
+  transition: transform var(--dur-toque) var(--curva);
 }
-/* la laca va en una capa propia, ENCIMA del halo: el halo que respira no aclara el rojo detrás de las letras (d60) */
-.boton-descarga::before {
-  content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; pointer-events: none;
-  border: 1px solid rgba(255, 150, 158, .42);
-  background: var(--cereza-laca);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(0, 0, 0, .3);
+/* d75 · la laca renderizada: base cereza bajo una capa clara pulida, banda de ventana nítida arriba (fuera de la zona de
+   las letras: blanco >= 7,8 : 1 en reposo, 7,1 en hover y 10,8 pulsado), el rojo sostenido hasta el filo de abajo y la
+   sombra de contacto en el margen de la placa (por eso la capa se sale de la caja: 10 px arriba, 14 a los lados y 34
+   abajo, escalados con el alto). */
+.boton-descarga::before, .boton-descarga::after {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  inset: calc(-10px * var(--f)) calc(-14px * var(--f)) calc(-34px * var(--f)) calc(-14px * var(--f));
+  border-style: solid; border-color: transparent;
+  border-width: calc(31.5px * var(--f)) calc(36px * var(--f)) calc(55.5px * var(--f)) calc(36px * var(--f));
+  border-image-source: var(--mi-laca-reposo);
+  border-image-slice: 63 72 111 72 fill;   /* 2 px de placa en el medio: sin costura a ningún alto */
+  border-image-width: calc(31.5px * var(--f)) calc(36px * var(--f)) calc(55.5px * var(--f)) calc(36px * var(--f));
+  border-image-repeat: stretch;
 }
-.boton-descarga::after {           /* el halo: una luz detrás, sólo opacidad y escala */
-  content: ""; position: absolute; inset: -14px -18px; z-index: -2; border-radius: 999px; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(225, 59, 67, .38), transparent 75%);
-  opacity: .5;
-}
-/* §10 cherry-breathe: SÓLO en el botón principal del héroe, lento y de baja amplitud (opacidad y escala, nada de filtros) */
+.boton-descarga::after { border-image-source: var(--mi-laca-hover); opacity: 0; transition: opacity var(--dur-toque) ease-out; }
+.boton-descarga:active::before { border-image-source: var(--mi-laca-pulsado); }
+/* §10 cherry-breathe: SÓLO en el botón principal del héroe, lento: la luz de la laca sube y baja (sólo opacidad) */
 .boton-principal::after { animation: cerezaRespira 5.6s ease-in-out infinite; }      /* lenta (dueño 20/10 15:05) */
-@keyframes cerezaRespira { 0%, 100% { opacity: .38; transform: scale(.97); } 50% { opacity: .78; transform: scale(1.03); } }
+@keyframes cerezaRespira { 0%, 100% { opacity: 0; } 50% { opacity: .42; } }
 .bd-icono { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .bd-texto { white-space: nowrap; }                  /* una sola línea siempre (en el teléfono se partía) */
-.boton-descarga:hover, .boton-descarga:focus-visible { box-shadow: var(--halo-cereza-fuerte); transform: translateY(-1px); }
+.boton-descarga:hover, .boton-descarga:focus-visible { transform: translateY(-1px); }
+.boton-descarga:hover::after, .boton-descarga:focus-visible::after { animation: none; opacity: 1; }
+.boton-descarga:active::after { animation: none; opacity: 0; }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva-enfasis) .05s both; }
-.boton-descarga:active { transform: translateY(1px) scale(.985); }
+.boton-descarga:active { transform: translateY(1px); }      /* sin escala: la placa «pulsado» ya baja la pieza (y escalar abre costuras en el 9 cortes) */
 .boton-descarga:focus-visible { outline: none; box-shadow: var(--foco), var(--halo-cereza); }
 @keyframes flechaBaja { 0% { transform: none; } 35% { transform: translateY(3px); } 60% { transform: translateY(-1px); } 100% { transform: none; } }
 /* el secundario: transparente con borde fino (§04) */
@@ -623,15 +729,14 @@ main, .pie { position: relative; z-index: 1; }
   color: #F1ECE4;
   /* el degradé del cuero, ajustado al tamaño (§07: «ajustarla por tamaño de componente y contraste»): en una franja de
      1440 × 300 el de las tarjetas deja la esquina de abajo a la izquierda en #75452D y el secundario bajaba a 4,07 : 1 */
-  background: var(--cuero-filo), linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
+  background: var(--cuero-filo),
+    linear-gradient(155deg, rgba(36, 18, 11, .12) 0%, rgba(22, 11, 7, .42) 52%, rgba(14, 7, 4, .58) 100%),
+    var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
+    linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
   border-top: 1px solid rgba(255, 231, 211, .12);
   border-bottom: 1px solid rgba(255, 231, 211, .08);
 }
-.atlas::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: var(--textura-cuero) repeat; background-size: 320px 320px;
-  opacity: .18; mix-blend-mode: soft-light;
-}
+.atlas::after { content: none; }      /* d75: el grano ya está en el fondo (mosaico iluminado, sin mezclas) */
 .atlas-pista { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: calc(var(--atlas-alto) - 2px); }   /* los 2 px: los filos de arriba y abajo */
 .atlas-pista:focus-visible { outline-offset: -3px; }
 .atlas-panel {
@@ -656,6 +761,7 @@ main, .pie { position: relative; z-index: 1; }
 .atlas-tit { margin: 0; display: flex; align-items: center; gap: 8px; font: 600 clamp(16px, 1.15vw, 19px)/1.22 var(--titulo-f); letter-spacing: -.005em; color: #F1ECE4; }
 .atlas-desc { margin: 6px 0 0; font: 400 13.5px/1.45 var(--texto-f); color: #DCD2C7; text-wrap: pretty; }
 .am-estrella { width: 15px; height: 15px; flex: none; }
+.pie-firma img { width: 14px; height: 14px; }
 /* la ficha técnica: neutra, en el lugar del panel */
 .atlas-ficha {
   position: absolute; inset: 0 0 40px 0; z-index: 2; margin: 0;
@@ -695,10 +801,12 @@ main, .pie { position: relative; z-index: 1; }
   padding: 0 var(--pad);
   background: radial-gradient(80% 90% at 30% 20%, rgba(117, 69, 45, .35), rgba(117, 69, 45, 0) 70%), #22130E;
 }
-.am-colores { list-style: none; margin: 0; padding: 0; display: flex; gap: 12px; }
-.am-colores li { display: grid; justify-items: center; gap: 6px; }
-.am-colores i { display: block; width: 30px; height: 30px; border-radius: 50%; background: var(--c); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .25), inset 0 -2px 4px rgba(0, 0, 0, .25), 0 0 0 1px rgba(241, 236, 228, .22); }
-.am-colores span { font: 500 11px/1 var(--texto-f); color: #DCD2C7; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+/* d75 · las cuatro esferas de materiales de ref2 (cuero, cristal, laca, marfil), renderizadas */
+.am-colores { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
+.am-colores li { display: grid; justify-items: center; gap: 7px; }
+.am-colores picture { display: contents; }
+.am-colores img { display: block; width: 42px; height: 42px; }
+.am-colores span { font: 600 10px/1 var(--texto-f); color: #DCD2C7; letter-spacing: .14em; text-transform: uppercase; }
 .am-letras { margin: 0; display: flex; align-items: baseline; gap: 14px; color: #F1ECE4; }
 .am-serif { font: 600 19px/1 var(--titulo-f); }
 .am-sans { font: 500 14px/1 var(--texto-f); color: #DCD2C7; }
@@ -743,7 +851,7 @@ section.cita { position: relative; }
   border-radius: 24px;
   transform: perspective(1700px) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform var(--dur-escena) var(--curva);
-  box-shadow: var(--sombra-3);
+  box-shadow: var(--sombra-larga);
 }
 .tramo-der .profundidad { --ry: 3deg; }
 .profundidad.mirando { transition-duration: var(--dur-largo); }
@@ -838,7 +946,7 @@ section.cita { position: relative; }
 /* preguntar: lo que preguntás va en cuero; la respuesta, en marfil con su filo cherry */
 .dp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .dp-hilo { margin-top: 14px; min-height: 170px; display: grid; gap: 10px; align-content: start; }
-.dp-vos { justify-self: end; max-width: 85%; padding: 9px 14px; border-radius: 16px 16px 4px 16px; background: var(--burbuja); color: var(--sobre-cuero); font-weight: 600; font-size: 14.5px; }
+.dp-vos { justify-self: end; max-width: 85%; padding: 9px 14px; border-radius: 16px 16px 4px 16px; background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, var(--burbuja); box-shadow: inset 0 1px 0 rgba(255, 236, 214, .16), inset 0 -1px 0 rgba(0, 0, 0, .35), 0 8px 16px -10px rgba(20, 9, 5, .55); color: var(--sobre-cuero); font-weight: 600; font-size: 14.5px; }
 .dp-resp { padding: 12px 14px; border-radius: 4px 16px 16px 16px; background: var(--sup-2); box-shadow: inset 2px 0 0 var(--cereza-luz); font-size: 14.5px; line-height: 1.6; color: var(--texto); }
 .dp-resp p { margin: 0 0 8px; }
 .dp-propio { margin-top: 8px; padding: 8px 10px; border-radius: 10px; border: 1px dashed var(--linea-viva); }
@@ -891,7 +999,7 @@ section.cita { position: relative; }
   all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%;
 }
 .tj-cuadro {
-  display: block; aspect-ratio: 16 / 10; overflow: hidden;
+  display: block; aspect-ratio: 16 / 10;
   border-radius: var(--radio-tarjeta);
   transform: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry));
   transition: transform var(--dur-escena) var(--curva), box-shadow var(--dur-escena) var(--curva);
@@ -930,12 +1038,12 @@ section.cita { position: relative; }
   color: var(--texto);
   overflow: visible;
 }
-.descargar-caja::after { border-radius: inherit; }
+.descargar-caja { --pc: 1.556; }     /* radio 28 */
 .descargar-emblema { display: block; width: clamp(130px, 13vw, 180px); margin: calc(clamp(28px, 4vw, 56px) * -1 - 70px) auto 8px; }
 .descargar-emblema img { width: 100%; height: auto; filter: drop-shadow(0 22px 26px rgba(10, 4, 2, .45)); }
 .descargar .rotulo { justify-content: center; }
 .descargar .titular { font-size: clamp(32px, 4vw, 56px); }
-.descargar .boton-descarga { margin-top: 30px; min-height: 64px; padding: 0 34px 0 26px; font-size: 18px; }
+.descargar .boton-descarga { --f: 1.4545; margin-top: 30px; min-height: 64px; padding: 0 34px 0 26px; font-size: 18px; }
 .version { margin: 16px 0 0; font: 500 13.5px/1.4 var(--texto-f); letter-spacing: .03em; color: var(--tenue); font-variant-numeric: tabular-nums; }
 .requisitos {
   margin: 36px 0 0; padding: 0;
@@ -1009,7 +1117,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .cita .titular { font-size: clamp(32px, 3.6vw, 56px); }
 .cita-demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 22px; border-radius: 22px; }
 .cd-materia { margin: 0 0 10px; font: 600 11px/1.2 var(--texto-f); letter-spacing: .2em; text-transform: uppercase; color: var(--tenue); }
-.cd-pregunta { margin: 0 0 14px; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: var(--burbuja); font: 600 16.5px/1.4 var(--texto-f); color: var(--sobre-cuero); }
+.cd-pregunta { margin: 0 0 14px; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, var(--burbuja); box-shadow: inset 0 1px 0 rgba(255, 236, 214, .16), inset 0 -1px 0 rgba(0, 0, 0, .35), 0 8px 16px -10px rgba(20, 9, 5, .55); font: 600 16.5px/1.4 var(--texto-f); color: var(--sobre-cuero); }
 .cd-respuesta p { margin: 0 0 14px; font: 400 15px/1.58 var(--texto-f); color: var(--medio); }
 .cd-respuesta .sello { margin-top: 8px; display: flex; width: max-content; max-width: 100%; }
 .cd-clase { list-style: none; margin: 0; padding: 14px; border-radius: 14px; background: var(--relleno-campo); border: 1px solid var(--linea); display: flex; flex-direction: column; gap: 8px; }
@@ -1036,14 +1144,19 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .ampliar {
   position: absolute; z-index: 3; top: 20px; right: 20px;
   width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: 50%; border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: 50%; border: 0;
   background: rgba(36, 20, 15, .72); color: #F1ECE4;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 6px 16px -6px rgba(10, 4, 2, .6);
+  box-shadow: 0 8px 18px -8px rgba(10, 4, 2, .65);
   cursor: zoom-in;
   opacity: .9; transition: opacity var(--dur-medio) var(--curva), background var(--dur-medio) var(--curva);
 }
 .ampliar:hover, .ampliar:focus-visible { opacity: 1; background: var(--cereza-degrade); color: var(--sobre-cereza); }
-.ampliar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ampliar::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
+  border: 19.8px solid transparent;
+  border-image: var(--mi-vidrio-capsula-oscuro) 87 88 fill / 19.8px 20px stretch;
+}
+.ampliar svg { position: relative; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .visor {
   width: min(96vw, 1600px); max-height: 94vh; padding: 0;
   border-radius: 22px; overflow: hidden; color: var(--texto);
@@ -1055,6 +1168,11 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .visor.flip[open] { animation: none; }
 @keyframes fondoEntra { from { opacity: 0; } }
 @keyframes visorEntra { from { opacity: 0; transform: scale(.96); } }
+.visor::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  border: 35px solid transparent;
+  border-image: var(--m-vidrio) 64 / 35px stretch;       /* sin «fill»: sólo el canto, la pantalla queda limpia */
+}
 .visor img { display: block; width: 100%; height: auto; max-height: calc(94vh - 2px); object-fit: contain; }
 .visor.con-texto img { max-height: calc(94vh - 150px); }
 .visor-texto { margin: 14px auto 0; max-width: 900px; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: var(--medio); text-align: center; }
@@ -1141,10 +1259,11 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .cabecera { padding: 14px var(--gutter); }
   .cab-nav a:not(.cab-ir) { display: none; }
   .cab-marca { font-size: 22px; gap: 9px; }
-  .cab-marca svg { width: 20px; height: 20px; }
+  .cab-marca svg, .cab-marca img { width: 20px; height: 20px; }
   .cab-seccion { display: none; }
   .cab-nav { gap: 8px; padding: 4px; }
-  .cab-nav .cab-ir { padding: 9px 14px; font-size: 14px; }
+  .cab-nav .cab-ir { --f: .955; padding: 0 24px; font-size: 14px; }
+  .cab-nav::before { border-width: 22.7px 23px; border-image-width: 22.7px 23px; }
   .cab-sonido { display: none !important; }
   .cab-tema button { padding: 0 9px; }
   .cab-tema button span { display: none; }           /* en el teléfono, la luna y el sol; el nombre va en aria-label */
@@ -1160,7 +1279,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .requisitos div + div { padding-left: 0; border-left: 0; border-top: 1px solid var(--linea); }
   .pasos-win { grid-template-columns: minmax(0, 1fr); }
   .ventanita { aspect-ratio: auto; min-height: 120px; }
-  .descargar-caja { padding: 26px 18px; }
+  .descargar-caja { --pc: 1; padding: 28px 26px; border-radius: 18px; }   /* el canto iluminado del cuero mide 24 px: la letra va más adentro */
   .descargar-emblema { margin-top: -96px; }
   .pie { flex-direction: column; align-items: flex-start; }
   .ampliar { top: 14px; right: 14px; }
@@ -1232,6 +1351,16 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .tramo, .tarjeta, .descargar-caja { contain: layout style; }
 .tramo { content-visibility: auto; contain-intrinsic-size: auto 1100px; }
 .todo { content-visibility: auto; contain-intrinsic-size: auto 2300px; }
+
+/* ═══════════════════════ sin materiales (d75) ═══════════════════════ */
+@media (prefers-contrast: more) {
+  .demo::after, .cita-demo::after, .profundidad::after, .tj-cuadro::after, .legal-indice::after,
+  .cuero-tarjeta::after, .cuero-tarjeta::before, .cab-nav::before, .ampliar::before, .visor::after { content: none; }
+  .demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice { border-color: var(--linea-viva); }
+  .cuero-tarjeta, .atlas, .cd-pregunta, .dp-vos { background: var(--espresso); }
+  .boton-descarga::before, .boton-descarga::after, .cab-nav .cab-ir::before, .cab-nav .cab-ir::after { border-image: none; inset: 0; border: 0; border-radius: 999px; background: #A51225; }
+  .boton-descarga::after, .cab-nav .cab-ir::after { display: none; }
+}
 
 /* ═══════════════════════ menos movimiento (§10, §16) ═══════════════════════ */
 /* Todo llega ya puesto: el emblema quieto sobre su peana, nada sube ni respira. */

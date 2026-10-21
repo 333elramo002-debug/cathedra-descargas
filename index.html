@@ -36,12 +36,12 @@
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 
-<!-- la estrella de la marca (✦): un solo dibujo, usado en la cabecera y en el pie -->
+<!-- la estrella de la marca (✦), en vector: la carga y las viñetas del héroe (la cabecera, el atlas y el pie usan el render) -->
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
   <defs>
-    <linearGradient id="e-cereza" gradientUnits="userSpaceOnUse" x1="66" y1="62" x2="190" y2="194"><stop offset="0" stop-color="#E8444B"/><stop offset="1" stop-color="#A51225"/></linearGradient>
-    <radialGradient id="e-brillo" gradientUnits="userSpaceOnUse" cx="100" cy="94" r="90"><stop offset="0" stop-color="#fff" stop-opacity=".24"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-    <symbol id="estrella" viewBox="0 0 256 256"><path d="M128 10C128 69 187 128 246 128C187 128 128 187 128 246C128 187 69 128 10 128C69 128 128 69 128 10Z" fill="url(#e-cereza)"/><path d="M128 10C128 69 187 128 246 128C187 128 128 187 128 246C128 187 69 128 10 128C69 128 128 69 128 10Z" fill="url(#e-brillo)"/></symbol>
+    <!-- d75: la estrella laqueada de ref1 (caras con los colores medidos en el render; el brillo del canto) -->
+    <linearGradient id="e-c0" gradientUnits="userSpaceOnUse" x1="133.2" y1="75.7" x2="145.7" y2="73.5"><stop offset="0" stop-color="#8A0000"/><stop offset="1" stop-color="#950000"/></linearGradient><linearGradient id="e-c1" gradientUnits="userSpaceOnUse" x1="180.3" y1="122.8" x2="182.5" y2="110.3"><stop offset="0" stop-color="#CE1510"/><stop offset="1" stop-color="#CB0608"/></linearGradient><linearGradient id="e-c2" gradientUnits="userSpaceOnUse" x1="180.3" y1="133.2" x2="182.5" y2="145.7"><stop offset="0" stop-color="#970500"/><stop offset="1" stop-color="#990900"/></linearGradient><linearGradient id="e-c3" gradientUnits="userSpaceOnUse" x1="133.2" y1="180.3" x2="145.7" y2="182.5"><stop offset="0" stop-color="#980600"/><stop offset="1" stop-color="#990B00"/></linearGradient><linearGradient id="e-c4" gradientUnits="userSpaceOnUse" x1="122.8" y1="180.3" x2="110.3" y2="182.5"><stop offset="0" stop-color="#CE150F"/><stop offset="1" stop-color="#CB0608"/></linearGradient><linearGradient id="e-c5" gradientUnits="userSpaceOnUse" x1="75.7" y1="133.2" x2="73.5" y2="145.7"><stop offset="0" stop-color="#8A0000"/><stop offset="1" stop-color="#950000"/></linearGradient><linearGradient id="e-c6" gradientUnits="userSpaceOnUse" x1="75.7" y1="122.8" x2="73.5" y2="110.3"><stop offset="0" stop-color="#EB716B"/><stop offset="1" stop-color="#EB8C84"/></linearGradient><linearGradient id="e-c7" gradientUnits="userSpaceOnUse" x1="122.8" y1="75.7" x2="110.3" y2="73.5"><stop offset="0" stop-color="#EB726C"/><stop offset="1" stop-color="#E99A97"/></linearGradient><linearGradient id="e-br" gradientUnits="userSpaceOnUse" x1="7.7" y1="128.0" x2="128.0" y2="7.7"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset=".45" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/></linearGradient><clipPath id="e-cl"><path d="M128.00 7.68C166.38 99.60 156.40 89.62 248.32 128.00C156.40 166.38 166.38 156.40 128.00 248.32C89.62 156.40 99.60 166.38 7.68 128.00C99.60 89.62 89.62 99.60 128.00 7.68Z"/></clipPath>
+    <symbol id="estrella" viewBox="0 0 256 256"><g clip-path="url(#e-cl)"><path d="M128.00 128.00L128.00 7.68C147.19 53.64 154.29 74.13 168.08 87.92Z" fill="url(#e-c0)"/><path d="M128.00 128.00L168.08 87.92C181.87 101.71 202.36 108.81 248.32 128.00Z" fill="url(#e-c1)"/><path d="M128.00 128.00L248.32 128.00C202.36 147.19 181.87 154.29 168.08 168.08Z" fill="url(#e-c2)"/><path d="M128.00 128.00L168.08 168.08C154.29 181.87 147.19 202.36 128.00 248.32Z" fill="url(#e-c3)"/><path d="M128.00 128.00L128.00 248.32C108.81 202.36 101.71 181.87 87.92 168.08Z" fill="url(#e-c4)"/><path d="M128.00 128.00L87.92 168.08C74.13 154.29 53.64 147.19 7.68 128.00Z" fill="url(#e-c5)"/><path d="M128.00 128.00L7.68 128.00C53.64 108.81 74.13 101.71 87.92 87.92Z" fill="url(#e-c6)"/><path d="M128.00 128.00L87.92 87.92C101.71 74.13 108.81 53.64 128.00 7.68Z" fill="url(#e-c7)"/><path d="M7.68 128.00C99.60 89.62 89.62 99.60 128.00 7.68" fill="none" stroke="url(#e-br)" stroke-width="4.80" stroke-linecap="round"/></g><path d="M128.00 7.68C166.38 99.60 156.40 89.62 248.32 128.00C156.40 166.38 166.38 156.40 128.00 248.32C89.62 156.40 99.60 166.38 7.68 128.00C99.60 89.62 89.62 99.60 128.00 7.68Z" fill="none" stroke="#5A0610" stroke-opacity=".55" stroke-width="1.80"/></symbol>
   </defs>
 </svg>
 
@@ -58,7 +58,7 @@
 
 <header class="cabecera" id="cabecera">
   <a class="cab-marca" href="#portada" aria-label="Cathedra, volver arriba">
-    <svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>
+    <img src="imagenes/materiales/estrella-23.png" srcset="imagenes/materiales/estrella-23.png 1x, imagenes/materiales/estrella-46.png 2x" width="23" height="23" alt="" decoding="async">
     <span>Cathedra</span>
   </a>
   <span class="cab-seccion vacio" aria-hidden="true"></span>
@@ -242,11 +242,8 @@
 
       <article class="atlas-panel atlas-marca" role="listitem" aria-labelledby="at-05-tit">
         <div class="atlas-cuadro atlas-muestras">
-          <ul class="am-colores" aria-label="Los colores de la marca">
-            <li style="--c:#382016"><i></i><span>#382016</span></li>
-            <li style="--c:#F1ECE4"><i></i><span>#F1ECE4</span></li>
-            <li style="--c:#6E625A"><i></i><span>#6E625A</span></li>
-            <li style="--c:#A51225"><i></i><span>#A51225</span></li>
+          <ul class="am-colores" aria-label="Los materiales de la marca: cuero, cristal, laca y marfil">
+            <li><picture><source type="image/avif" srcset="imagenes/materiales/esfera-cuero.avif"><img src="imagenes/materiales/esfera-cuero.webp" width="42" height="42" alt="" loading="lazy" decoding="async"></picture><span>Cuero</span></li><li><picture><source type="image/avif" srcset="imagenes/materiales/esfera-vidrio.avif"><img src="imagenes/materiales/esfera-vidrio.webp" width="42" height="42" alt="" loading="lazy" decoding="async"></picture><span>Cristal</span></li><li><picture><source type="image/avif" srcset="imagenes/materiales/esfera-laca.avif"><img src="imagenes/materiales/esfera-laca.webp" width="42" height="42" alt="" loading="lazy" decoding="async"></picture><span>Laca</span></li><li><picture><source type="image/avif" srcset="imagenes/materiales/esfera-lunar.avif"><img src="imagenes/materiales/esfera-lunar.webp" width="42" height="42" alt="" loading="lazy" decoding="async"></picture><span>Marfil</span></li>
           </ul>
           <p class="am-letras"><span class="am-serif">Playfair Display</span> <span class="am-sans">Inter</span></p>
           <p class="am-iconos" aria-hidden="true">
@@ -258,7 +255,7 @@
         </div>
         <div class="atlas-texto">
           <p class="atlas-num">05 · Brand system</p>
-          <h3 class="atlas-tit" id="at-05-tit"><svg class="am-estrella" viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>Cathedra</h3>
+          <h3 class="atlas-tit" id="at-05-tit"><img class="am-estrella" src="imagenes/materiales/estrella-15.png" srcset="imagenes/materiales/estrella-15.png 1x, imagenes/materiales/estrella-30.png 2x" width="15" height="15" alt="" loading="lazy" decoding="async">Cathedra</h3>
           <p class="atlas-desc">Los mismos colores, letras e íconos en la app.</p>
         </div>
         <dl class="atlas-ficha" id="ficha-05">
@@ -408,7 +405,7 @@
       <p class="paso-num"><span data-cuenta="4" data-cifras="2">04</span> · Preguntás</p>
       <h2 id="preg-tit" class="titular"><span class="palabras">Preguntás, y te contesta con la clase y el minuto.</span></h2>
       <p class="tramo-bajada">Le preguntás como a un compañero que tomó todos los apuntes. Contesta desde lo que dijo el profesor y te muestra cómo lo dijo, de qué clase sale y desde qué minuto leerlo o escucharlo. Si suma un ejemplo propio, te avisa que no lo dijo el profesor.</p>
-      <p class="nota-al-pie">Por chat, en cualquier pantalla, con «Preguntar» al costado. Por voz (habla y escucha), según tu plan.</p>
+      <p class="nota-al-pie">Por chat, en cualquier pantalla, con «Preguntar» al costado. Por voz (habla y escucha), según tu instalación.</p>
     </div>
     <div class="demo demo-preg" data-demo="preg">
       <p class="demo-rotulo">Tocá una pregunta</p>
@@ -498,7 +495,7 @@
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/calculadora" data-texto="En las materias con números: básica, científica, álgebra, gráficos, matrices, sistemas, vectores, estadística, distribuciones y fórmulas, resolviendo con todos los pasos."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/calculadora-640.avif"><img class="tj-fondo" src="imagenes/app/calculadora-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/calculadora-frente.avif"><img class="tj-frente" src="imagenes/app/calculadora-frente.webp" width="865" height="845" loading="lazy" decoding="async" alt=""></picture></span><b>Calculadora paso a paso</b><small>Resuelve mostrando todos los pasos</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/buscar" data-texto="Buscás una palabra en todo lo que dijo el profesor, en una materia o en todas, y saltás a la clase en ese minuto."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/buscar-640.avif"><img class="tj-fondo" src="imagenes/app/buscar-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/buscar-frente.avif"><img class="tj-frente" src="imagenes/app/buscar-frente.webp" width="900" height="433" loading="lazy" decoding="async" alt=""></picture></span><b>Buscar en todo lo que dijo</b><small>Y leer la clase desde ahí</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/cuanto-por-dia" data-texto="Le decís hasta cuándo y cuánto podés por día, y reparte lo que falta entre todas las materias para llegar a cada examen."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-640.avif"><img class="tj-fondo" src="imagenes/app/cuanto-por-dia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/cuanto-por-dia-frente.avif"><img class="tj-frente" src="imagenes/app/cuanto-por-dia-frente.webp" width="900" height="337" loading="lazy" decoding="async" alt=""></picture></span><b>Cuánto por día</b><small>El plan de estudio hasta cada examen</small></button></li>
-      <li><button class="tarjeta" type="button" data-grande="imagenes/app/asistente" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu plan), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/asistente-640.avif"><img class="tj-fondo" src="imagenes/app/asistente-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/asistente-frente.avif"><img class="tj-frente" src="imagenes/app/asistente-frente.webp" width="900" height="380" loading="lazy" decoding="async" alt=""></picture></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
+      <li><button class="tarjeta" type="button" data-grande="imagenes/app/asistente" data-texto="Tu asistente de estudio en cada materia: le escribís (o le hablás, según tu instalación), con su nombre. Sabe por dónde vas y qué te cuesta."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/asistente-640.avif"><img class="tj-fondo" src="imagenes/app/asistente-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/asistente-frente.avif"><img class="tj-frente" src="imagenes/app/asistente-frente.webp" width="900" height="380" loading="lazy" decoding="async" alt=""></picture></span><b>Tu asistente</b><small>Con nombre, en cada materia</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/practicos" data-texto="Los trabajos prácticos de todas las materias con su fecha de entrega y cuántos días faltan; cada consigna, partida en las partes a entregar."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/practicos-640.avif"><img class="tj-fondo" src="imagenes/app/practicos-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/practicos-frente.avif"><img class="tj-frente" src="imagenes/app/practicos-frente.webp" width="900" height="366" loading="lazy" decoding="async" alt=""></picture></span><b>Trabajos prácticos</b><small>Con sus partes y su entrega</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/que-le-falta" data-texto="Cada clase lleva su etiqueta: Lista, Falta transcribir, Sin guía o Sin material. Tocás una pendiente y al costado ves lo que tiene, lo que le falta y lo que podés hacer hoy, sin salir del camino."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-640.avif"><img class="tj-fondo" src="imagenes/app/que-le-falta-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/que-le-falta-frente.avif"><img class="tj-frente" src="imagenes/app/que-le-falta-frente.webp" width="575" height="620" loading="lazy" decoding="async" alt=""></picture></span><b>Qué le falta a cada clase</b><small>Con su etiqueta, clase por clase</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/sesion" data-texto="Una sesión de estudio con descansos y una ventanita que queda adelante mientras estudiás."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/sesion-640.avif"><img class="tj-fondo" src="imagenes/app/sesion-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/sesion-frente.avif"><img class="tj-frente" src="imagenes/app/sesion-frente.webp" width="900" height="302" loading="lazy" decoding="async" alt=""></picture></span><b>Sesión con descansos</b><small>Con la ventanita siempre adelante</small></button></li>
@@ -510,7 +507,7 @@
   </section>
 
   <section class="descargar" id="descargar" data-nombre="Descargar" data-tramo="8" aria-labelledby="descargar-tit">
-    <div class="descargar-caja cuero-tarjeta">
+    <div class="descargar-caja cuero-tarjeta con-pespunte">
       <picture class="descargar-emblema"><source type="image/avif" srcset="imagenes/heroe/emblema-espresso-474.avif 474w, imagenes/heroe/emblema-espresso-948.avif 948w" sizes="180px"><img src="imagenes/heroe/emblema-espresso-474.webp" srcset="imagenes/heroe/emblema-espresso-474.webp 474w, imagenes/heroe/emblema-espresso-948.webp 948w" sizes="180px" width="474" height="483" loading="lazy" decoding="async" alt=""></picture>
       <p class="rotulo">Para Windows</p>
       <h2 id="descargar-tit" class="titular"><span class="palabras">Bajala y empezá por la próxima clase.</span></h2>
@@ -572,7 +569,7 @@
     <a href="terminos#contacto" data-contacto>Contacto</a>
     <a href="#" data-quieto role="button">Ver sin animaciones</a>
   </nav>
-  <p class="pie-firma"><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#estrella"/></svg>© 2026 Cathedra</p>
+  <p class="pie-firma"><img src="imagenes/materiales/estrella-14.png" srcset="imagenes/materiales/estrella-14.png 1x, imagenes/materiales/estrella-28.png 2x" width="14" height="14" alt="" loading="lazy" decoding="async">© 2026 Cathedra</p>
 </footer>
 
 <dialog class="visor" id="visor" aria-label="La pantalla en grande">
