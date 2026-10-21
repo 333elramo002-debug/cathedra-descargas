@@ -276,7 +276,8 @@ cabeceraSegunScroll();
   tl.add(() => {
     gsap.set(escenario, { clearProps: "clipPath" }); gsap.set(emblema, { clearProps: "transform" });
     if (bajada) gsap.set(bajada, { clearProps: "clipPath" });
-    if (cuadros.length) gsap.set(cuadros, { clearProps: "clipPath" });
+    // el atlas vuelve a sus reglas (al pasar, la ficha tapa la leyenda: un estilo puesto acá le ganaría al CSS)
+    if (cuadros.length) { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(leyendas, { clearProps: "opacity,transform" }); }
     flotar(); luzCada();
   }, 2.8);
 
@@ -323,7 +324,7 @@ cabeceraSegunScroll();
       .to(fondoImg, { yPercent: apilado ? 1.5 : 2.5, ease: "none" }, 0)
       .to(frenteImg, { yPercent: -10, ease: "none" }, 0)
       .to(giro, { rotation: apilado ? 6 : 11, scale: 1.08, yPercent: -5, ease: "none", transformOrigin: "50% 55%" }, 0)
-      .to(texto, { y: apilado ? -24 : -96, opacity: 0.35, ease: "none" }, 0);
+      .to(texto, apilado ? { y: -24, ease: "none" } : { y: -96, opacity: 0.35, ease: "none" }, 0);   // en el teléfono se lee al bajar: no se apaga
   }
   document.addEventListener("visibilitychange", () => vivos.forEach((t) => t && (document.hidden || !enVista ? t.pause() : t.resume())));
   PAGINA.entrarHeroe = () => tl.play();
@@ -713,7 +714,7 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, stagger: 0.08, ease: "power3.inOut" }, 0)
       .to(fotos, { scale: 1, duration: 1.9, stagger: 0.08 }, 0)
       .to(ley, { opacity: 1, y: 0, duration: 0.9, stagger: 0.05 }, 0.25)
-      .add(() => gsap.set(cuadros, { clearProps: "clipPath" }));
+      .add(() => { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(ley, { clearProps: "opacity,transform" }); });
     ScrollTrigger.create({ trigger: document.getElementById("materiales"), start: "top 80%", once: true, onEnter: () => tl.play() });
   }
 

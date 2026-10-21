@@ -723,7 +723,7 @@ main, .pie { position: relative; z-index: 1; }
 .boton-descarga:hover, .boton-descarga:focus-visible { transform: translateY(-1px); }
 .boton-descarga:hover::after, .boton-descarga:focus-visible::after { animation: none; opacity: 1; }
 .boton-descarga:active::after { animation: none; opacity: 0; }
-/* d80 · el brillo que recorre la laca al pasar: una banda clara inclinada que cruza en 0,85 s (entra rápido y frena) y,
+/* d80 · el brillo que recorre la laca al pasar: una banda clara inclinada que cruza en 0,95 s (despacio en el medio) y,
    al salir, vuelve sin verse. Arriba de las placas, debajo de las letras. */
 .laca-brillo { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
 .laca-brillo i {
@@ -734,7 +734,7 @@ main, .pie { position: relative; z-index: 1; }
 .boton-descarga:hover .laca-brillo i, .boton-descarga:focus-visible .laca-brillo i,
 .cab-nav .cab-ir:hover .laca-brillo i, .cab-nav .cab-ir:focus-visible .laca-brillo i {
   transform: translateX(430%) skewX(-18deg); opacity: 1;
-  transition: transform 850ms cubic-bezier(.2, .7, .2, 1), opacity 120ms linear;
+  transition: transform 950ms cubic-bezier(.45, .05, .25, 1), opacity 120ms linear;
 }
 .boton-descarga > svg, .boton-descarga > .bd-texto, .cab-ir > .cab-ir-t { position: relative; z-index: 1; }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva-enfasis) .05s both; }
