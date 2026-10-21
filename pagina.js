@@ -106,67 +106,33 @@ document.querySelectorAll(".palabras").forEach((el) => {
   });
 });
 
-/* ══════════════════════ las transiciones atadas al scroll ══════════════════════ */
-/* Ningún texto aparece de golpe: cada título, párrafo, etiqueta, botón, tarjeta e imagen tiene un valor --v (0 a 1)
-   que sigue a su posición en la pantalla. Entra desde abajo (sólo opacidad y un desplazamiento corto; los títulos por
-   máscara y palabra por palabra; las pantallas con un revelado) y sale igual, en espejo, cuando se va por arriba.
-   Con «reducir movimiento» todo queda puesto desde el principio. */
-const TIPOS = [
-  [".tramo .titular, .todo .titular, .descargar .titular, .cita .titular", "rev-mascara"],
-  [".tramo .paso-num, .cita .paso-num, .tramo-bajada, .datos li, .nota-al-pie, .todo .rotulo, .todo .tramo-bajada, .descargar-caja > :not(.titular), .pie > *", "rev-texto"],
-  [".demo, .tarjeta, .cita-demo", "rev-panel"],
-  [".profundidad", "rev-imagen"],
-];
-const revelables = [];
-TIPOS.forEach(([sel, clase]) => document.querySelectorAll(sel).forEach((el) => {
-  if (el.dataset.rev !== undefined) return;
-  el.dataset.rev = ""; el.classList.add(clase); revelables.push(el);
-}));
+/* la curva de la casa para lo que no anima GSAP (el viaje de los enlaces): sale rápido y frena */
 const curva = (x) => { const t = Math.min(1, Math.max(0, x)); return 1 - Math.pow(1 - t, 3); };
-if (quieto || !("IntersectionObserver" in window)) {
-  revelables.forEach((el) => el.style.setProperty("--v", "1"));
-} else {
-  const activos = new Set();
-  let pedido = 0, antes = 0;
-  /* el scroll da el objetivo; cada elemento lo persigue con un resorte de segundo orden (amortiguación 0,9,
-     unos 2,2 Hz): entra y sale con peso, sin seguir la barra de desplazamiento al pie de la letra ni cortarse */
-  const resortes = new WeakMap();
-  const W = 2 * Math.PI * 2.2, Z = 0.9;
-  const actualizar = (ahora) => {
-    pedido = 0;
-    const dt = antes ? Math.min((ahora - antes) / 1000, 1 / 30) : 1 / 60; antes = ahora;
-    const vh = window.innerHeight;
-    let moviendo = false;
-    activos.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      // entra entero apenas asoma (el último 16 % de la pantalla) y sale sólo al irse por arriba (el primer 10 %)
-      const entra = curva((vh - r.top) / (vh * 0.16));
-      const sale = curva(r.bottom / (vh * 0.1));
-      const objetivo = Math.min(entra, sale);
-      let st = resortes.get(el);
-      if (!st) { st = { v: 0, d: 0 }; resortes.set(el, st); }
-      st.d += (W * W * (objetivo - st.v) - 2 * Z * W * st.d) * dt; st.v += st.d * dt;
-      if (Math.abs(objetivo - st.v) < 0.001 && Math.abs(st.d) < 0.002) { st.v = objetivo; st.d = 0; } else moviendo = true;
-      el.style.setProperty("--v", Math.min(1, Math.max(0, st.v)).toFixed(3));
-    });
-    if (moviendo) pedir(); else antes = 0;
-  };
-  const pedir = () => { if (!pedido) pedido = requestAnimationFrame(actualizar); };
-  // se observa cada sección (no cada elemento: un título recortado por su máscara no «se ve» y no avisaría)
-  const porSeccion = new Map();
-  revelables.forEach((el) => {
-    el.style.setProperty("--v", "0");
-    const sec = el.closest("section, footer, header") || el;
-    if (!porSeccion.has(sec)) porSeccion.set(sec, []);
-    porSeccion.get(sec).push(el);
-  });
-  const io = new IntersectionObserver((es) => {
-    es.forEach((e) => porSeccion.get(e.target).forEach((el) => (e.isIntersecting ? activos.add(el) : activos.delete(el))));
-    pedir();
-  }, { rootMargin: "15% 0px 15% 0px" });
-  porSeccion.forEach((_, sec) => io.observe(sec));
-  window.addEventListener("scroll", pedir, { passive: true });
-  window.addEventListener("resize", pedir);
+/* d80 · el movimiento lo coreografía GSAP + ScrollTrigger (lib/). Sin ellos, o quieto, todo queda puesto: los estados
+   ocultos los pone sólo este archivo, nunca el CSS. */
+const conGsap = !quieto && !!(gsap && ScrollTrigger);
+if (conGsap) {
+  raiz.classList.add("con-gsap");
+  ScrollTrigger.config({ ignoreMobileResize: true });
+}
+
+/* ══════════════════════ el brillo de la laca ══════════════════════ */
+/* Una banda clara que recorre el botón al pasar (CSS) y, una vez, cuando el botón entra (brillar). Debajo de las letras. */
+if (!quieto) document.querySelectorAll(".boton-descarga, .cab-nav .cab-ir").forEach((b) => {
+  if (b.classList.contains("cab-ir")) {
+    const t = document.createElement("span"); t.className = "cab-ir-t";
+    while (b.firstChild) t.appendChild(b.firstChild);
+    b.appendChild(t);
+  }
+  const l = document.createElement("span"); l.className = "laca-brillo"; l.setAttribute("aria-hidden", "true");
+  l.appendChild(document.createElement("i"));
+  b.prepend(l);
+});
+function brillar(boton) {
+  const i = boton && boton.querySelector(".laca-brillo i");
+  if (!i || !gsap) return;
+  gsap.fromTo(i, { x: 0, xPercent: -140, skewX: -18, opacity: 1 }, { xPercent: 430, duration: 1.15, ease: "power2.inOut",
+    onComplete: () => gsap.set(i, { clearProps: "all" }) });
 }
 
 /* la cabecera dice en qué sección estás (cambia con un fundido corto) */
@@ -199,43 +165,80 @@ window.addEventListener("scroll", cabeceraSegunScroll, { passive: true });
 cabeceraSegunScroll();
 
 /* ══════════════════════ el héroe (manual §04 y §14) ══════════════════════ */
-/* La entrada es la del manual, más cinemática (dueño 20/10 15:05): 0,0 s el titular (0,7 s); 0,3 s la composición entra
-   con un leve desplazamiento y escala (0,9 s) mientras el fondo se acerca despacio; 0,7 s aparece el emblema con escala
-   (1,0 s) y una luz le recorre los cantos; después el atlas. En reposo, una flotación mínima del emblema con ciclos de 6
-   a 10 s que no se repiten y, cada 8 a 10 s, un barrido de luz lento (los cantos y, apenas, la composición). Las cuatro
-   capas (fondo, mesa, emblema, primer plano) se separan apenas con el puntero y al bajar. Cada elemento tiene un solo
-   trabajo, así ninguna transformación pisa a otra:
-     .heroe-escenario (entrada) › .heroe-lienzo (scroll) › .capa-fondo (puntero, acercamiento) › img (scroll)
-                                                         › .capa-mesa (puntero)
-                                                         › .capa-emblema (entrada) › .emblema-mira (puntero) › .emblema-flota (reposo) › .emblema-luz i (luz)
-                                                         › .capa-frente (puntero) › img (scroll)
+/* d80 · La entrada por capas, a destiempo y superpuesta (nunca todo a la vez; cuaderno 4.3: fondo → objeto → titular →
+   texto → botones, escalonado de 50–150 ms, curvas expo/power3 de salida), dentro de los tiempos del manual §14:
+     0,00 s  la escena se abre como una ventana (recorte) y el fondo se acerca despacio (2,4 s); la barra baja
+     0,12 s  el titular, palabra por palabra, sube con un giro mínimo dentro de la máscara de su línea
+     0,30 s  la mesa sube y se asienta
+     0,45 s  la bajada se descubre de arriba hacia abajo
+     0,62 s  los botones; 0,86 s las tres claves
+     0,70 s  el emblema sube, crece y endereza su giro con un rebote mínimo (seguimiento); 1,15 s el núcleo cereza se
+             enciende y 1,2 s una luz le recorre los cantos; 1,5 s la luz cruza la laca del botón principal
+     0,60 s  los paneles del atlas que se ven se descubren de abajo hacia arriba
+   En reposo, una flotación mínima del emblema con ciclos de 6 a 10 s que no se repiten y, cada 8 a 10 s, un barrido de luz
+   lento. Al bajar (scrub), las capas se separan, el texto sube más rápido que la escena y el emblema gira y se acerca.
+   Cada elemento tiene un solo trabajo, así ninguna transformación pisa a otra:
+     .heroe-escenario (recorte) › .heroe-lienzo (scroll) › .capa-fondo (puntero, acercamiento) › img (scroll)
+                                                        › .capa-mesa (entrada, puntero)
+                                                        › .capa-emblema (entrada) › .emblema-giro (scroll) › .emblema-mira (puntero)
+                                                                                    › .emblema-flota (reposo) › .emblema-luz i, .emblema-nucleo
+                                                        › .capa-frente (puntero) › img (scroll)
                                  › .heroe-barrido i (luz)
-   Sólo transform y opacity. Todo se frena cuando el héroe sale de la pantalla o la pestaña se oculta. */
+   Sólo transform, opacity y clip-path. Todo se frena cuando el héroe sale de la pantalla o la pestaña se oculta. */
 (function heroe() {
   const sec = document.getElementById("portada");
   if (!sec || quieto || !gsap) return;           // quieto o sin GSAP: el héroe ya está puesto, con el emblema en su lugar
   const q = (s) => sec.querySelector(s);
-  const escenario = q(".heroe-escenario"), lienzo = q(".heroe-lienzo");
+  const escenario = q(".heroe-escenario"), lienzo = q(".heroe-lienzo"), texto = q(".heroe-texto");
   const fondo = q(".capa-fondo"), fondoImg = q(".capa-fondo img"), mesa = q(".capa-mesa");
-  const emblema = q(".capa-emblema"), mira = q(".emblema-mira"), flota = q(".emblema-flota");
+  const emblema = q(".capa-emblema"), giro = q(".emblema-giro"), mira = q(".emblema-mira"), flota = q(".emblema-flota");
+  const nucleo = q(".emblema-nucleo");
   const frente = q(".capa-frente"), frenteImg = q(".capa-frente img");
   const luzCantos = q(".emblema-luz i"), luzEscena = q(".heroe-barrido i");
-  const lineas = sec.querySelectorAll(".heroe-titular .linea > span");
-  const copia = [q(".rotulo"), q(".heroe-bajada"), q(".portada-acciones"), q(".requisito"), q(".heroe-datos")].filter(Boolean);
-  const atlas = [...document.querySelectorAll(".atlas-panel")].filter((p) => p.getBoundingClientRect().top < window.innerHeight);
+  // el titular, palabra por palabra (el texto y su orden no cambian: el lector lo lee igual)
+  const palabras = [];
+  sec.querySelectorAll(".heroe-titular .linea > span").forEach((linea) => {
+    [...linea.childNodes].forEach((n) => {
+      if (n.nodeType === Node.TEXT_NODE) {
+        const frag = document.createDocumentFragment();
+        n.textContent.split(/(\s+)/).forEach((trozo) => {
+          if (!trozo) return;
+          if (/^\s+$/.test(trozo)) { frag.appendChild(document.createTextNode(trozo)); return; }
+          const p = document.createElement("span"); p.className = "hp"; p.textContent = trozo;
+          frag.appendChild(p); palabras.push(p);
+        });
+        n.replaceWith(frag);
+      } else if (n.nodeType === Node.ELEMENT_NODE) { n.classList.add("hp"); palabras.push(n); }   // «profesor.», en cereza
+    });
+  });
+  const rotulo = q(".rotulo"), bajada = q(".heroe-bajada"), requisito = q(".requisito");
+  const botones = [...sec.querySelectorAll(".portada-acciones > a")], datos = [...sec.querySelectorAll(".heroe-datos li")];
+  // la barra: la marca baja (sus piezas: la barra misma se compacta con CSS al bajar) y la cápsula aparece
+  const marcaPiezas = [...document.querySelectorAll(".cab-marca > *")], capsula = document.querySelector(".cab-nav");
+  const paneles = [...document.querySelectorAll(".atlas-panel")].filter((p) => p.getBoundingClientRect().top < window.innerHeight);
+  PAGINA.atlasEnHeroe = new Set(paneles);
+  const cuadros = paneles.map((p) => p.querySelector(".atlas-cuadro"));
+  const fotos = paneles.map((p) => p.querySelector(".atlas-img")).filter(Boolean);
+  const leyendas = paneles.flatMap((p) => [...p.querySelectorAll(".atlas-texto, .atlas-ver")]);
   const apilado = window.matchMedia("(max-width: 860px), (max-aspect-ratio: 11/10)").matches;
   const fino = window.matchMedia("(pointer: fine)").matches && !apilado;
   const FONDO = 1.08;                             // el margen del fondo (el mismo de estilos.css)
 
   // el estado de partida (mientras la carga tapa la página)
-  gsap.set(lineas, { yPercent: 108 });
-  gsap.set(copia, { opacity: 0, y: 24 });
-  gsap.set(escenario, { opacity: 0, y: 32, scale: 0.985, transformOrigin: "60% 50%" });
-  gsap.set(fondo, { scale: FONDO + 0.06, transformOrigin: "55% 45%" });
-  gsap.set(mesa, { transformOrigin: "55.4% 75%", scale: 1.02 });
-  gsap.set(emblema, { opacity: 0, y: 18, rotation: -5, scale: 0.92, transformOrigin: "50% 55%" });
+  gsap.set(palabras, { yPercent: 118, rotation: 6, transformOrigin: "0% 100%" });
+  gsap.set([rotulo, requisito].filter(Boolean), { opacity: 0, y: 18 });
+  if (bajada) gsap.set(bajada, { opacity: 0, y: 22, clipPath: "inset(0% 0% 100% 0%)" });
+  gsap.set(botones, { opacity: 0, y: 26 });
+  gsap.set(datos, { opacity: 0, y: 18 });
+  gsap.set(marcaPiezas, { opacity: 0, y: -14 });
+  if (capsula) gsap.set(capsula, { opacity: 0 });
+  gsap.set(escenario, { clipPath: apilado ? "inset(7% 7% 9% 7%)" : "inset(9% 0% 12% 16%)" });
+  gsap.set(fondo, { scale: FONDO + 0.16, transformOrigin: "55% 45%" });
+  gsap.set(mesa, { opacity: 0, y: 60, scale: 1.06, transformOrigin: "55.4% 75%" });
+  gsap.set(emblema, { opacity: 0, y: 90, rotation: -16, scale: 0.74, transformOrigin: "50% 55%" });
+  if (nucleo) gsap.set(nucleo, { opacity: 0, scale: 0.4 });
   gsap.set([luzCantos, luzEscena], { xPercent: -110, opacity: 0 });
-  if (atlas.length) gsap.set(atlas, { opacity: 0, y: 16 });
+  if (cuadros.length) { gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 1.25 }); gsap.set(leyendas, { opacity: 0, y: 14 }); }
 
   let enVista = true;
   const vivos = [];
@@ -248,16 +251,34 @@ cabeceraSegunScroll();
       .set(luzEscena, { opacity: 0 });
     return t;
   }
-  const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
-  tl.to(lineas, { yPercent: 0, duration: 0.7, stagger: 0.07 }, 0)                         // 0,0 s · el titular
-    .to(copia, { opacity: 1, y: 0, duration: 0.7, stagger: 0.06 }, 0.08)
-    .to(escenario, { opacity: 1, y: 0, scale: 1, duration: 0.9 }, 0.3)                   // 0,3 s · la composición
-    .to(fondo, { scale: FONDO, duration: 1.8, ease: "power2.out" }, 0.3)                  //        el fondo se acerca
-    .to(emblema, { opacity: 1, y: 0, rotation: 0, scale: 1, duration: 1.0 }, 0.7)        // 0,7 s · el emblema
-    .add(() => barrido(false), 1.15)                                                       //        la luz en los cantos
-    .add(() => { gsap.set([escenario, emblema], { clearProps: "transform" }); flotar(); luzCada(); }, 1.75);
-
-  if (atlas.length) tl.to(atlas, { opacity: 1, y: 0, duration: 0.6, stagger: 0.07 }, 0.95);    // 0,95 s · el atlas
+  const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+  tl.to(escenario, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.5, ease: "power3.inOut" }, 0)      // 0,0 s · la escena se abre
+    .to(fondo, { scale: FONDO, duration: 2.4, ease: "power3.out" }, 0)                                //        y el fondo se acerca
+    .to(marcaPiezas, { opacity: 1, y: 0, duration: 0.9, stagger: 0.06 }, 0.05)
+    .to(capsula, { opacity: 1, duration: 0.9, ease: "power2.out" }, 0.15)
+    .to(rotulo, { opacity: 1, y: 0, duration: 0.8 }, 0.08)
+    .to(palabras, { yPercent: 0, rotation: 0, duration: 1.1, stagger: 0.06 }, 0.12)                    // el titular
+    .to(mesa, { opacity: 1, y: 0, scale: 1.02, duration: 1.3, ease: "power3.out" }, 0.3)              // 0,3 s · la mesa
+    .to(bajada, { opacity: 1, y: 0, clipPath: "inset(0% 0% -25% 0%)", duration: 1.1 }, 0.45)
+    .to(botones, { opacity: 1, y: 0, duration: 1.0, stagger: 0.1 }, 0.62)
+    .to(requisito, { opacity: 1, y: 0, duration: 0.8 }, 0.78)
+    .to(datos, { opacity: 1, y: 0, duration: 0.9, stagger: 0.08 }, 0.86)
+    .to(emblema, { opacity: 1, duration: 0.8, ease: "power2.out" }, 0.7)                              // 0,7 s · el emblema
+    .to(emblema, { y: 0, scale: 1, duration: 1.5 }, 0.7)
+    .to(emblema, { rotation: 0, duration: 1.8, ease: "back.out(1.6)" }, 0.7)                          //        endereza con seguimiento
+    .add(() => barrido(false), 1.2)                                                                    //        la luz en los cantos
+    .add(() => brillar(botones[0]), 1.5);                                                              //        la luz en la laca
+  if (nucleo) tl.to(nucleo, { opacity: 0.85, scale: 1, duration: 0.5, ease: "power2.out" }, 1.15)     //        el núcleo se enciende
+    .to(nucleo, { opacity: 0, duration: 1.6, ease: "sine.inOut" }, 1.65);
+  if (cuadros.length) tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, stagger: 0.07, ease: "power3.inOut" }, 0.6)    // 0,6 s · el atlas
+    .to(fotos, { scale: 1, duration: 1.9, stagger: 0.07 }, 0.6)
+    .to(leyendas, { opacity: 1, y: 0, duration: 0.9, stagger: 0.04 }, 0.85);
+  tl.add(() => {
+    gsap.set(escenario, { clearProps: "clipPath" }); gsap.set(emblema, { clearProps: "transform" });
+    if (bajada) gsap.set(bajada, { clearProps: "clipPath" });
+    if (cuadros.length) gsap.set(cuadros, { clearProps: "clipPath" });
+    flotar(); luzCada();
+  }, 2.8);
 
   // el reposo: cada tramo va a un punto nuevo al azar y dura la mitad de un ciclo de 6 a 10 s (nunca se repite)
   const amplitud = apilado ? 0.7 : 1;
@@ -293,20 +314,44 @@ cabeceraSegunScroll();
   }
 
   // el scroll: la composición se queda atrás (más lenta que el texto); dentro, el fondo se queda un poco más y el primer
-  // plano sube más rápido: las capas se separan apenas
+  // plano sube más rápido: las capas se separan. El emblema gira y se acerca al irse (la primera transición de fase) y el
+  // texto sube más rápido que la escena y se apaga un poco.
   if (ScrollTrigger) {
-    const st = gsap.timeline({ scrollTrigger: { trigger: sec, start: "top top", end: "bottom top", scrub: 0.6,
+    const st = gsap.timeline({ scrollTrigger: { trigger: sec, start: "top top", end: "bottom top", scrub: 0.8,
       onToggle: (s) => { enVista = s.isActive; vivos.forEach((t) => t && (enVista && !document.hidden ? t.resume() : t.pause())); } } });
     st.to(lienzo, { yPercent: apilado ? 6 : 9, ease: "none" }, 0)
       .to(fondoImg, { yPercent: apilado ? 1.5 : 2.5, ease: "none" }, 0)
-      .to(frenteImg, { yPercent: -10, ease: "none" }, 0);
+      .to(frenteImg, { yPercent: -10, ease: "none" }, 0)
+      .to(giro, { rotation: apilado ? 6 : 11, scale: 1.08, yPercent: -5, ease: "none", transformOrigin: "50% 55%" }, 0)
+      .to(texto, { y: apilado ? -24 : -96, opacity: 0.35, ease: "none" }, 0);
   }
   document.addEventListener("visibilitychange", () => vivos.forEach((t) => t && (document.hidden || !enVista ? t.pause() : t.resume())));
   PAGINA.entrarHeroe = () => tl.play();
 })();
 
 /* ══════════════════════ el atlas: la versión técnica de cada material (§05) ══════════════════════ */
-/* Con el mouse, la ficha aparece al pasar (CSS); con el dedo o el teclado, con «Ficha técnica». */
+/* Con el mouse, la ficha aparece al pasar (CSS: se descubre de abajo hacia arriba y sus filas llegan una tras otra); con
+   el dedo o el teclado, con «Ficha técnica». d80 · con el mouse, la imagen se inclina hacia el puntero (hasta 9° y 7°,
+   perspectiva de 800 px, con inercia de 0,9 s) y un reflejo ancho la sigue: el material se mira como un objeto. */
+if (!quieto && gsap && window.matchMedia("(pointer: fine)").matches) {
+  document.querySelectorAll(".atlas-panel").forEach((p) => {
+    const cuadro = p.querySelector(".atlas-cuadro"), img = p.querySelector(".atlas-img");
+    if (!cuadro) return;
+    const luz = document.createElement("i"); luz.className = "atlas-luz"; luz.setAttribute("aria-hidden", "true");
+    cuadro.appendChild(luz);
+    const a = (el, prop, d) => gsap.quickTo(el, prop, { duration: d, ease: "power3.out" });
+    const lx = a(luz, "x", 0.6), ly = a(luz, "y", 0.6);
+    let rx, ry, sc;
+    if (img) { gsap.set(img, { transformPerspective: 800 }); rx = a(img, "rotationX", 0.9); ry = a(img, "rotationY", 0.9); sc = a(img, "scale", 1.1); }
+    p.addEventListener("pointermove", (e) => {
+      const r = cuadro.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      if (img) { ry(x * 9); rx(-y * 7); sc(1.08); }
+      lx((x + 0.5) * r.width - r.width * 0.15); ly((y + 0.5) * r.height - r.height * 0.2);
+    });
+    p.addEventListener("pointerleave", () => { if (img) { rx(0); ry(0); sc(1); } });
+  });
+}
 document.querySelectorAll(".atlas-ver").forEach((b) => {
   const panel = b.closest(".atlas-panel"), texto = b.querySelector("span");
   b.addEventListener("click", () => {
@@ -361,7 +406,9 @@ if (quieto || !carga) {
 
 /* ══════════════════════ la cita al minuto ══════════════════════ */
 /* Al pasar el mouse por un sello (o al tocarlo, o con el foco del teclado) se ilumina el tramo de la clase que lo
-   respalda; el sello vacío muestra que eso no está en el material. */
+   respalda; el sello vacío muestra que eso no está en el material. d80 · con animaciones, la escena se arma sola al
+   llegar: la pregunta se escribe letra por letra con su cursor, las respuestas llegan una tras otra, cada sello aparece
+   con un rebote mínimo y su minuto corre hasta el de la clase, y se ilumina el tramo del primero. */
 document.querySelectorAll("[data-cita-demo]").forEach((demo) => {
   const sellos = [...demo.querySelectorAll("button.sello")];
   const lineas = [...demo.querySelectorAll(".cd-clase li")];
@@ -369,29 +416,83 @@ document.querySelectorAll("[data-cita-demo]").forEach((demo) => {
     sellos.forEach((s) => s.classList.toggle("activo", s.dataset.cita === clave));
     lineas.forEach((l) => l.classList.toggle("encendida", !!clave && l.dataset.cita === clave));
   };
+  let tocado = false;
   sellos.forEach((s) => {
     s.setAttribute("aria-pressed", "false");
-    const en = () => { encender(s.dataset.cita); sellos.forEach((o) => o.setAttribute("aria-pressed", String(o === s))); };
+    const en = () => { tocado = true; encender(s.dataset.cita); sellos.forEach((o) => o.setAttribute("aria-pressed", String(o === s))); };
     s.addEventListener("mouseenter", en); s.addEventListener("focus", en); s.addEventListener("click", en);
   });
-  encender("a"); sellos[0].setAttribute("aria-pressed", "true");     // de entrada, el primero encendido
+  const primero = () => { if (tocado) return; encender("a"); sellos[0].setAttribute("aria-pressed", "true"); };
+  if (!conGsap) { primero(); return; }                                  // de entrada, el primero encendido
+
+  const preg = demo.querySelector(".cd-pregunta"), resp = [...demo.querySelectorAll(".cd-respuesta > p")];
+  // la pregunta: entera para el lector; letra por letra para la vista (cada letra ya ocupa su lugar: nada se corre)
+  const texto = preg.textContent.trim();
+  preg.textContent = "";
+  const lector = document.createElement("span"); lector.className = "solo-lector"; lector.textContent = texto;
+  const vista = document.createElement("span"); vista.setAttribute("aria-hidden", "true");
+  const letras = [...texto].map((ch) => { const s = document.createElement("span"); s.textContent = ch; s.style.opacity = "0"; vista.appendChild(s); return s; });
+  const cursor = document.createElement("span"); cursor.className = "cursor-escribe";
+  preg.append(lector, vista);
+  // los minutos de los sellos corren desde 00:00 (cifras tabulares: el sello no cambia de ancho)
+  const minutos = new Map();
+  sellos.forEach((s) => {
+    const m = s.textContent.match(/(\d{2}):(\d{2})/);
+    if (!m) return;
+    s.setAttribute("aria-label", s.textContent);
+    const [antes, despues] = s.textContent.split(m[0]);
+    const span = document.createElement("span"); span.className = "sello-min"; span.textContent = "00:00";
+    s.textContent = ""; s.append(antes, span, despues);
+    minutos.set(s, () => { const o = { v: 0 }, fin = Number(m[1]) * 60 + Number(m[2]);
+      return gsap.to(o, { v: fin, duration: 0.9, ease: "expo.out", onUpdate: () => {
+        const v = Math.round(o.v); span.textContent = `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}`; } }); });
+  });
+  gsap.set(resp, { opacity: 0, y: 14 });
+  gsap.set(sellos, { opacity: 0, scale: 0.7, transformOrigin: "0% 50%" });
+  const tl = gsap.timeline({ paused: true });
+  vista.prepend(cursor);
+  let t = 0.35;
+  letras.forEach((s, i) => {
+    tl.call(() => { s.style.opacity = "1"; s.after(cursor); }, null, t);
+    t += 0.022 + Math.random() * 0.03 + (/[,¿?]/.test(texto[i]) ? 0.12 : 0) + (texto[i] === " " && Math.random() < 0.2 ? 0.08 : 0);
+  });
+  tl.call(() => cursor.remove(), null, t + 0.9);
+  resp.forEach((p, i) => {
+    const en = t + 0.3 + i * 0.55;
+    tl.to(p, { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, en);
+    const s = p.querySelector(".sello");
+    if (s) {
+      tl.to(s, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(2.2)" }, en + 0.3);
+      if (minutos.has(s)) tl.add(() => minutos.get(s)(), en + 0.3);
+    }
+    if (i === 0) tl.call(primero, null, en + 0.9);
+  });
+  tl.call(() => gsap.set(sellos, { clearProps: "transform" }), null, t + 0.3 + resp.length * 0.55 + 1);
+  ScrollTrigger.create({ trigger: demo, start: "top 72%", once: true, onEnter: () => tl.play() });
 });
 
 /* ══════════════════════ los números que cuentan ══════════════════════ */
-/* Cada [data-cuenta] cuenta desde cero hasta su valor cuando entra en pantalla (con la curva de la casa). */
-if (!quieto && "IntersectionObserver" in window) {
-  const cuentas = document.querySelectorAll("[data-cuenta]");
-  const ioc = new IntersectionObserver((es) => es.forEach((e) => {
-    if (!e.isIntersecting) return;
-    ioc.unobserve(e.target);
-    const el = e.target, fin = Number(el.dataset.cuenta), cifras = Number(el.dataset.cifras || 0), t0 = performance.now(), dura = 900 + Math.min(900, fin * 12);
-    const escribir = (v) => { el.textContent = String(v).padStart(cifras, "0"); };
-    escribir(0);
-    const paso = (ahora) => { const t = Math.min(1, (ahora - t0) / dura); escribir(Math.round(fin * (1 - Math.pow(1 - t, 3)))); if (t < 1) requestAnimationFrame(paso); };
-    requestAnimationFrame(paso);
-  }), { threshold: 0.6 });
-  cuentas.forEach((el) => ioc.observe(el));
-}
+/* d80 · Cada [data-cuenta] es un contador de rodillo: cada cifra es una tira de 0 a 9 (dos vueltas) que gira dentro de su
+   ventana hasta su valor cuando entra en pantalla (sólo transform; cada cifra un poco después de la anterior). Para el
+   lector, el número entero. */
+if (conGsap) document.querySelectorAll("[data-cuenta]").forEach((el) => {
+  const fin = Number(el.dataset.cuenta), cifras = Math.max(Number(el.dataset.cifras || 0), String(fin).length);
+  const txt = String(fin).padStart(cifras, "0");
+  el.textContent = "";
+  const lector = document.createElement("span"); lector.className = "solo-lector"; lector.textContent = txt;
+  const odo = document.createElement("span"); odo.className = "odo"; odo.setAttribute("aria-hidden", "true");
+  const tiras = [...txt].map((d) => {
+    const c = document.createElement("span"); c.className = "odo-c";
+    const medida = document.createElement("i"); medida.textContent = d;
+    const tira = document.createElement("span"); tira.className = "odo-tira";
+    for (let k = 0; k < 20; k++) { const i = document.createElement("i"); i.textContent = String(k % 10); tira.appendChild(i); }
+    c.append(medida, tira); odo.appendChild(c);
+    return [tira, Number(d)];
+  });
+  el.append(lector, odo);
+  ScrollTrigger.create({ trigger: el, start: "top 90%", once: true, onEnter: () => tiras.forEach(([tira, d], i) =>
+    gsap.fromTo(tira, { yPercent: 0 }, { yPercent: -(10 + d) * 5, duration: 1.3 + i * 0.15, delay: 0.15 + i * 0.07, ease: "expo.out" })) });
+});
 
 /* ══════════════════════ el desplazamiento: la rueda con inercia y los enlaces de la misma página ══════════════════════ */
 /* d80 · UN SOLO conductor mueve la página. Antes eran dos bucles sueltos (la inercia de la rueda y el viaje de los
@@ -467,12 +568,18 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
    pantalla de atrás se corren en sentidos opuestos: la profundidad sigue al mouse. */
 if (!quieto && window.matchMedia("(pointer: fine)").matches) {
   document.querySelectorAll(".profundidad").forEach((fig) => {
+    // d80 · un reflejo ancho sobre la pantalla sigue al puntero (como el vidrio de un monitor bajo la luz de la ventana)
+    const luz = document.createElement("i"); luz.className = "pf-luz"; luz.setAttribute("aria-hidden", "true");
+    fig.appendChild(luz);
+    const lx = gsap ? gsap.quickTo(luz, "x", { duration: 0.7, ease: "power3.out" }) : null;
+    const ly = gsap ? gsap.quickTo(luz, "y", { duration: 0.7, ease: "power3.out" }) : null;
     fig.addEventListener("pointermove", (e) => {
       const r = fig.getBoundingClientRect();
       const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
       fig.classList.add("mirando");
       fig.style.setProperty("--ry", ((x - 0.5) * 12).toFixed(2) + "deg");
       fig.style.setProperty("--rx", ((0.5 - y) * 8).toFixed(2) + "deg");
+      if (lx) { lx(x * r.width - r.width * 0.15); ly(y * r.height - r.height * 0.25); }
     });
     fig.addEventListener("pointerleave", () => {
       fig.classList.remove("mirando");
@@ -491,6 +598,197 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     t.addEventListener("pointerleave", () => { ["--rx", "--ry", "--fx", "--fy"].forEach((v) => t.style.removeProperty(v)); });
   });
 }
+
+/* ══════════════════════ las secciones entran (d80) ══════════════════════ */
+/* Cada sección tiene su coreografía, que corre al llegar (a 72 % de la pantalla) y se deshace, más rápida, si se vuelve
+   a subir por arriba de su comienzo. Patrones del cuaderno 4.3: título por palabra en máscara (escalonado 55 ms), el
+   texto a destiempo, la pantalla se descubre por recorte mientras se «desembala» (escala 1,26 → 1), la demo se levanta
+   desde un leve giro en X; y mientras se baja, paralaje con scrub de 1 s: la pantalla viaja 160 px y el texto 60 (a
+   distinta velocidad, como capas). Sólo transform, opacity y clip-path (el paralaje usa translate/scale con variables
+   registradas para no pisar la inclinación hacia el puntero). */
+(function secciones() {
+  if (!conGsap) return;
+  const angosta = window.matchMedia("(max-width: 900px)").matches;
+  const k = angosta ? 0.35 : 1;
+  const palabrasDe = (el) => (el ? [...el.querySelectorAll(".pal > span")] : []);
+  const titulo = (tl, el, en) => {
+    const p = palabrasDe(el);
+    if (!p.length) return;
+    gsap.set(p, { yPercent: 118, rotation: 5, transformOrigin: "0% 100%" });
+    tl.to(p, { yPercent: 0, rotation: 0, duration: 1.05, ease: "expo.out", stagger: 0.055 }, en);
+  };
+  const desde = (els, estado) => { els = [...els].filter(Boolean); if (els.length) gsap.set(els, estado); return els; };
+  const alLlegar = (sec, tl, start = "top 72%") => ScrollTrigger.create({ trigger: sec, start,
+    onEnter: () => { sec.classList.add("entro"); tl.timeScale(1).play(); },
+    onLeaveBack: () => { sec.classList.remove("entro"); tl.timeScale(1.8).reverse(); } });
+
+  // los seis tramos de la película
+  document.querySelectorAll(".tramo").forEach((t) => {
+    const texto = t.querySelector(".tramo-texto"), fig = t.querySelector(".profundidad"), demo = t.querySelector(".demo");
+    const img = fig && fig.querySelector(".pf-fondo");
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    const num = desde(t.querySelectorAll(".paso-num"), { opacity: 0, x: -18 });
+    tl.to(num, { opacity: 1, x: 0, duration: 0.8 }, 0);
+    titulo(tl, t.querySelector(".titular"), 0.06);
+    const baj = desde(t.querySelectorAll(".tramo-bajada, .nota-al-pie"), { opacity: 0, y: 28 });
+    tl.to(baj, { opacity: 1, y: 0, duration: 1.0, stagger: 0.1 }, 0.26);
+    const datos = desde(t.querySelectorAll(".datos li"), { opacity: 0, x: -16 });
+    if (datos.length) tl.to(datos, { opacity: 1, x: 0, duration: 0.8, stagger: 0.07 }, 0.4);
+    if (fig) {
+      gsap.set(fig, { "--ps": 0.9, opacity: 0 });
+      tl.to(fig, { "--ps": 1, opacity: 1, duration: 1.4 }, 0.08);
+      if (img) {
+        gsap.set(img, { clipPath: "inset(14% 12% 14% 12% round 15px)", scale: 1.26 });
+        tl.to(img, { clipPath: "inset(0% 0% 0% 0% round 15px)", duration: 1.4, ease: "power3.inOut" }, 0.1)
+          .to(img, { scale: 1, duration: 1.9 }, 0.1);
+      }
+    }
+    if (demo) {
+      gsap.set(demo, { opacity: 0, y: 70, rotationX: 9, transformPerspective: 1400, transformOrigin: "50% 0%" });
+      tl.to(demo, { opacity: 1, y: 0, rotationX: 0, duration: 1.3 }, 0.34);
+    }
+    alLlegar(t, tl);
+    // el paralaje: la pantalla y el texto a distinta velocidad
+    const st = () => ({ trigger: t, start: "top bottom", end: "bottom top", scrub: 1 });
+    if (fig) gsap.fromTo(fig, { "--py": `${80 * k}px` }, { "--py": `${-80 * k}px`, ease: "none", scrollTrigger: st() });
+    const capa = [texto, demo].filter(Boolean);
+    if (capa.length) gsap.fromTo(capa, { "--py": `${30 * k}px` }, { "--py": `${-30 * k}px`, ease: "none", scrollTrigger: st() });
+  });
+
+  // la cita al minuto: el texto y el panel (la escritura la arma su bloque)
+  const cita = document.querySelector("section.cita");
+  if (cita) {
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    tl.to(desde(cita.querySelectorAll(".paso-num"), { opacity: 0, x: -18 }), { opacity: 1, x: 0, duration: 0.8 }, 0);
+    titulo(tl, cita.querySelector(".titular"), 0.06);
+    tl.to(desde(cita.querySelectorAll(".tramo-bajada"), { opacity: 0, y: 28 }), { opacity: 1, y: 0, duration: 1.0 }, 0.3);
+    const panel = cita.querySelector(".cita-demo");
+    if (panel) {
+      gsap.set(panel, { opacity: 0, y: 80, rotationX: 8, transformPerspective: 1600, transformOrigin: "50% 0%" });
+      tl.to(panel, { opacity: 1, y: 0, rotationX: 0, duration: 1.4 }, 0.2);
+    }
+    alLlegar(cita, tl);
+  }
+
+  // «lo que también hace»: la cabecera y las tarjetas, de a tandas, que se levantan desde un giro en X
+  const todo = document.querySelector("section.todo");
+  if (todo) {
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    tl.to(desde(todo.querySelectorAll(".sec-cab .rotulo"), { opacity: 0, y: 16 }), { opacity: 1, y: 0, duration: 0.8 }, 0);
+    titulo(tl, todo.querySelector(".titular"), 0.06);
+    tl.to(desde(todo.querySelectorAll(".sec-cab .tramo-bajada"), { opacity: 0, y: 22 }), { opacity: 1, y: 0, duration: 1.0 }, 0.3);
+    alLlegar(todo, tl, "top 70%");
+    const fichas = [...todo.querySelectorAll(".tarjetas > li")];
+    gsap.set(fichas, { opacity: 0, y: 90, rotationX: 14, transformPerspective: 1200, transformOrigin: "50% 0%" });
+    ScrollTrigger.batch(fichas, { start: "top 90%",
+      onEnter: (els) => gsap.to(els, { opacity: 1, y: 0, rotationX: 0, duration: 1.2, ease: "expo.out", stagger: 0.09, overwrite: true }),
+      onLeaveBack: (els) => gsap.to(els, { opacity: 0, y: 90, rotationX: 14, duration: 0.5, ease: "power2.in", stagger: 0.03, overwrite: true }) });
+  }
+
+  // descargar: la tarjeta de cuero sube, el emblema baja girando a su lugar y la luz cruza la laca
+  const desc = document.querySelector("section.descargar");
+  if (desc) {
+    const caja = desc.querySelector(".descargar-caja"), emb = desc.querySelector(".descargar-emblema");
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    gsap.set(caja, { opacity: 0, y: 110, scale: 0.97, transformOrigin: "50% 100%" });
+    tl.to(caja, { opacity: 1, y: 0, scale: 1, duration: 1.3 }, 0);
+    if (emb) { gsap.set(emb, { opacity: 0, y: -70, rotation: -28, scale: 0.6 }); tl.to(emb, { opacity: 1, y: 0, rotation: 0, scale: 1, duration: 1.5, ease: "back.out(1.5)" }, 0.3); }
+    titulo(tl, caja.querySelector(".titular"), 0.3);
+    const resto = desde(caja.querySelectorAll(":scope > :not(.titular):not(.descargar-emblema)"), { opacity: 0, y: 24 });
+    tl.to(resto, { opacity: 1, y: 0, duration: 0.9, stagger: 0.07 }, 0.45);
+    tl.add(() => brillar(caja.querySelector(".boton-descarga")), 1.3);
+    alLlegar(desc, tl, "top 65%");
+  }
+
+  // el atlas que no entró con el héroe (pantallas bajas, el teléfono)
+  const resto = [...document.querySelectorAll(".atlas-panel")].filter((p) => !(PAGINA.atlasEnHeroe && PAGINA.atlasEnHeroe.has(p)));
+  if (resto.length) {
+    const cuadros = resto.map((p) => p.querySelector(".atlas-cuadro"));
+    const fotos = resto.map((p) => p.querySelector(".atlas-img")).filter(Boolean);
+    const ley = resto.flatMap((p) => [...p.querySelectorAll(".atlas-texto, .atlas-ver")]);
+    gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 1.25 }); gsap.set(ley, { opacity: 0, y: 14 });
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+    tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, stagger: 0.08, ease: "power3.inOut" }, 0)
+      .to(fotos, { scale: 1, duration: 1.9, stagger: 0.08 }, 0)
+      .to(ley, { opacity: 1, y: 0, duration: 0.9, stagger: 0.05 }, 0.25)
+      .add(() => gsap.set(cuadros, { clearProps: "clipPath" }));
+    ScrollTrigger.create({ trigger: document.getElementById("materiales"), start: "top 80%", once: true, onEnter: () => tl.play() });
+  }
+
+  // si el alto de la página cambia (las demos se montan y crecen, llegan las letras), ScrollTrigger vuelve a medir
+  if ("ResizeObserver" in window) {
+    let alto = document.documentElement.scrollHeight, espera = 0;
+    new ResizeObserver(() => {
+      const h = document.documentElement.scrollHeight;
+      if (Math.abs(h - alto) < 2) return;
+      alto = h; clearTimeout(espera);
+      espera = setTimeout(() => ScrollTrigger.refresh(), 250);
+    }).observe(document.body);
+  }
+})();
+
+/* ══════════════════════ el emblema viajero (d80) ══════════════════════ */
+/* La transición entre fases: a lo largo de los seis tramos, el emblema acompaña por la junta entre el texto y la
+   pantalla. Como los tramos se alternan (la pantalla a la derecha, a la izquierda…), en cada cambio de tramo el emblema
+   cruza a la otra junta en un arco, girando en el plano y en Y y achicándose un poco a mitad de camino; quieto en la
+   junta mientras se lee. Ligado al scroll (persigue al objetivo con un suavizado de ~0,15 por cuadro, como un scrub).
+   Es el mismo render del héroe (ya bajado). Sólo transform y opacity; sólo con espacio (>= 1180 px) y con animaciones. */
+(function viajero() {
+  if (!conGsap || window.matchMedia("(max-width: 1179px)").matches) return;
+  const tramos = [...document.querySelectorAll(".tramo")];
+  const modelo = document.querySelector(".capa-emblema picture");
+  if (tramos.length < 2 || !modelo) return;
+  const v = document.createElement("div"); v.className = "viajero"; v.setAttribute("aria-hidden", "true");
+  const pic = modelo.cloneNode(true);
+  pic.querySelectorAll("img").forEach((i) => { i.removeAttribute("fetchpriority"); i.alt = ""; });
+  v.appendChild(pic); document.body.appendChild(v);
+  fuentesSegunTema();                                  // la copia sigue a la apariencia elegida
+  const facil = gsap.parseEase("power2.inOut");
+  let marcas = [], mw = 0, mh = 0, pedido = 0, listo = false;
+  const ahora = { x: 0, y: 0, rz: 0, ry: 0, s: 1, o: 0 };
+  function medir() {
+    const sy = window.scrollY;
+    mw = v.offsetWidth / 2; mh = v.offsetHeight / 2;
+    marcas = tramos.map((t) => {
+      const r = t.getBoundingClientRect(), f = t.querySelector(".profundidad");
+      const hueco = parseFloat(getComputedStyle(t).columnGap) || 0;
+      const izq = r.left + f.offsetLeft;                // offsetLeft: sin el paralaje ni la escala del marco
+      return { y: r.top + sy + r.height / 2 - window.innerHeight / 2,
+        x: t.classList.contains("tramo-der") ? izq + f.offsetWidth + hueco / 2 : izq - hueco / 2 };
+    });
+    pedir();
+  }
+  function objetivo() {
+    const s = window.scrollY, m = marcas, vh = window.innerHeight;
+    let i = 0;
+    while (i < m.length - 1 && s > m[i + 1].y) i++;
+    const a = m[i], b = m[Math.min(i + 1, m.length - 1)];
+    const p = b === a ? 0 : Math.min(1, Math.max(0, (s - a.y) / (b.y - a.y)));
+    const e = p < 0.3 ? 0 : p > 0.7 ? 1 : facil((p - 0.3) / 0.4);   // quieto en la junta; cruza en el medio
+    const arco = Math.sin(e * Math.PI), dir = Math.sign(b.x - a.x) || 1;
+    const o = Math.max(0, Math.min(1, (s - (m[0].y - vh * 0.45)) / (vh * 0.25), ((m[m.length - 1].y + vh * 0.4) - s) / (vh * 0.25)));
+    return { x: a.x + (b.x - a.x) * e - mw, y: vh / 2 - mh - arco * 48, rz: dir * arco * 18, ry: dir * arco * -32, s: 1 - arco * 0.18, o };
+  }
+  function paso() {
+    pedido = 0;
+    if (!marcas.length) return;
+    const t = objetivo();
+    let falta = 0;
+    for (const c of Object.keys(t)) {
+      ahora[c] = listo ? ahora[c] + (t[c] - ahora[c]) * 0.15 : t[c];
+      falta = Math.max(falta, Math.abs(t[c] - ahora[c]));
+    }
+    listo = true;
+    v.style.transform = `translate3d(${ahora.x.toFixed(1)}px, ${ahora.y.toFixed(1)}px, 0) perspective(700px) rotateY(${ahora.ry.toFixed(2)}deg) rotate(${ahora.rz.toFixed(2)}deg) scale(${ahora.s.toFixed(3)})`;
+    v.style.opacity = ahora.o.toFixed(3);
+    if (falta > 0.05) pedir();
+  }
+  function pedir() { if (!pedido) pedido = requestAnimationFrame(paso); }
+  window.addEventListener("scroll", pedir, { passive: true });
+  ScrollTrigger.addEventListener("refresh", medir);
+  if (document.readyState === "complete") medir(); else window.addEventListener("load", medir);
+  document.fonts && document.fonts.ready.then(medir);
+})();
 
 /* ══════════════════════ los enlaces de la misma página ══════════════════════ */
 /* Se deslizan hasta la sección con el conductor (un viaje de 0,9 s que vuelve a medir el destino en cada cuadro).
@@ -774,8 +1072,8 @@ if (visor && typeof visor.showModal === "function") {
    el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
    son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
 const PAQUETES = {
-  liviano: { nombre: "Liviano", lema: "Todo anda por conexión; casi no ocupa lugar." },
-  local_4b: { nombre: "Local", lema: "Preguntas y voz también sin conexión." }
+  liviano: { nombre: "Liviano", lema: "En «Personalizar», conviene quitar el Motor local; lo demás se instala igual." },
+  local_4b: { nombre: "Local", lema: "Con todo instalado: preguntas y voz también sin conexión." }
 };
 function estimarPaquete() {
   const memoria = navigator.deviceMemory || 0;        // el navegador la topa en 8
