@@ -13,7 +13,7 @@ Qué verifica (sin navegador):
   · ninguna palabra prohibida en el texto visible (precio, gratis, beta fuera de las legales,
     modelo, API, placa, tokens, JSON, WebGL, shader, nombres de proveedores...);
   · cada página declara lang="es-AR", charset utf-8 y viewport;
-  · el peso: cada imagen servida <= 2 MB y lo público < 8 MB (sin lo de antes, en las carpetas _anterior, que no se
+  · el peso: cada imagen servida <= 2 MB y lo público < 16 MB (sin lo de antes, en las carpetas _anterior, que no se
     publica). Lo que baja de verdad un visitante (un solo tamaño y un solo formato de cada pantalla, y sólo al llegar)
     se mide en el navegador: la portada, <= 1,5 MB;
   · cada pantalla de la app (imagenes/app/<nombre>) tiene sus 1280 y 1920 en avif y webp, y el visor las encuentra;
@@ -57,7 +57,9 @@ HOJAS = ["estilos.css"]
 # lo de antes (la identidad Ónix/Candy, el héroe del libro, la dirección visual): queda en el repositorio pero no se
 # publica (.vercelignore), así que no cuenta en el peso
 NO_PUBLICO = {"_anterior", "imagenes/_anterior", "fuentes/_anterior"}
-PESO_MAXIMO = 8 * 1000 * 1000          # d60: las 19 pantallas nuevas de la app, en dos tamaños y dos formatos
+PESO_MAXIMO = 16 * 1000 * 1000         # d60: las 19 pantallas nuevas de la app, en dos tamaños y dos formatos; d80: más las
+                                       # composiciones 3D de las secciones (imagenes/secciones, ~7 MB: 10 × 2 temas × 2 anchos ×
+                                       # 2 formatos). Un visitante baja una sola variante y sólo al acercarse (la portada, <= 1,5 MB)
 IMAGEN_MAXIMA = 2 * 1000 * 1000        # cada imagen servida
 UA_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 UA_MAC = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
@@ -271,7 +273,7 @@ def peso_publico() -> int:
     return total
 
 
-@estatico("cada imagen <= 2 MB y lo público < 8 MB")
+@estatico("cada imagen <= 2 MB y lo público < 16 MB")
 def peso() -> list[str]:
     problemas = []
     total = peso_publico()

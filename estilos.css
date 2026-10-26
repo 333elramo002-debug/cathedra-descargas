@@ -124,9 +124,10 @@
   --vidrio-canto: linear-gradient(145deg, rgba(255, 255, 255, 1), rgba(255, 255, 255, .4) 36%, rgba(255, 255, 255, .2) 62%, rgba(255, 255, 255, .85));
   --sombra-1: 0 2px 6px rgba(31, 15, 9, .08);
   /* sombras con profundidad (dueño 20/10 15:05): el contacto, una media y una larga y suave */
-  --sombra-2: 0 1px 1px rgba(56, 32, 22, .07), 0 5px 12px -5px rgba(56, 32, 22, .13), 0 24px 46px -22px rgba(56, 32, 22, .34);
-  --sombra-3: 0 2px 3px rgba(56, 32, 22, .07), 0 16px 32px -14px rgba(56, 32, 22, .22), 0 58px 104px -44px rgba(56, 32, 22, .46);
-  --sombra-larga: 0 34px 64px -34px rgba(56, 32, 22, .32);     /* la luz de ambiente lejos; el contacto, en la placa (d75) */
+  /* d80 · la luz viene de arriba a la izquierda (como en las placas y en ref1): las sombras caen abajo a la derecha */
+  --sombra-2: 1px 1px 1px rgba(56, 32, 22, .07), 3px 6px 12px -5px rgba(56, 32, 22, .14), 10px 24px 46px -22px rgba(56, 32, 22, .34);
+  --sombra-3: 1px 2px 3px rgba(56, 32, 22, .08), 7px 16px 32px -14px rgba(56, 32, 22, .24), 22px 58px 104px -44px rgba(56, 32, 22, .46);
+  --sombra-larga: 12px 34px 64px -34px rgba(56, 32, 22, .34), 3px 8px 18px -10px rgba(56, 32, 22, .12);     /* el contacto, en la placa (d75) */
   --grano-fuerza: .7;           /* la microtextura de las tarjetas marfil: desvío de ~4 / 255 sobre el marfil */
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .9), 0 18px 48px rgba(38, 22, 14, .15);
   --halo-cereza: 0 6px 20px rgba(165, 18, 37, .26), 0 0 34px rgba(225, 59, 67, .14);
@@ -170,9 +171,9 @@
     --vidrio-borde: rgba(255, 255, 255, .14);
     --vidrio-canto: linear-gradient(145deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .08) 34%, rgba(255, 255, 255, .03) 62%, rgba(255, 236, 214, .26));
     --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
-    --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
-    --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
-    --sombra-larga: 0 40px 80px -36px rgba(6, 2, 1, .75);
+    --sombra-2: inset 1px 1px 0 rgba(255, 255, 255, .05), 8px 18px 40px -20px rgba(8, 3, 2, .8);
+    --sombra-3: inset 1px 1px 0 rgba(255, 255, 255, .05), 18px 50px 100px -40px rgba(6, 2, 1, .9);
+    --sombra-larga: 14px 40px 80px -36px rgba(6, 2, 1, .75);
     --grano-fuerza: 1;
     --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
     --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
@@ -230,9 +231,9 @@
   --vidrio-borde: rgba(255, 255, 255, .14);
   --vidrio-canto: linear-gradient(145deg, rgba(255, 255, 255, .5), rgba(255, 255, 255, .08) 34%, rgba(255, 255, 255, .03) 62%, rgba(255, 236, 214, .26));
   --sombra-1: 0 2px 6px rgba(8, 3, 2, .4);
-  --sombra-2: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 40px -20px rgba(8, 3, 2, .8);
-  --sombra-3: inset 0 1px 0 rgba(255, 255, 255, .05), 0 50px 100px -40px rgba(6, 2, 1, .9);
-  --sombra-larga: 0 40px 80px -36px rgba(6, 2, 1, .75);
+  --sombra-2: inset 1px 1px 0 rgba(255, 255, 255, .05), 8px 18px 40px -20px rgba(8, 3, 2, .8);
+  --sombra-3: inset 1px 1px 0 rgba(255, 255, 255, .05), 18px 50px 100px -40px rgba(6, 2, 1, .9);
+  --sombra-larga: 14px 40px 80px -36px rgba(6, 2, 1, .75);
   --grano-fuerza: 1;
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(0, 0, 0, .3), 0 24px 60px -24px rgba(8, 3, 2, .8);
   --halo-cereza: 0 8px 26px rgba(225, 59, 67, .32), 0 0 46px rgba(225, 59, 67, .18);
@@ -249,42 +250,46 @@
 }
 
 /* ═══════════════════════ las placas de material renderizadas (d75, 21/10: «los materiales no son realistas») ═══════════════════════
+   d80 · cuero, tarjeta marfil y vidrio con las placas v2 (imagenes/placas_v2, d81: más relieve, canto más luminoso y sombra
+   de contacto más honda; mismos nombres, tamaños y 9 cortes). La tarjeta espresso sigue en imagenes/materiales: con la v2,
+   en el teléfono oscuro los rótulos de las demos caían a 3,0–4,2 : 1 sobre su canto iluminado. La laca, la estrella y las
+   esferas siguen en imagenes/materiales.
    La luz, el canto, la sombra de contacto, el grano y el brillo vienen HORNEADOS en imágenes (Blender, Cycles; d73 y d75:
    recursos_3d/placas_ui y _relevamiento/capturas/d75 del repositorio privado). El CSS sólo las monta: 9 cortes
    (border-image) para cantos y sombras, mosaicos para el grano. Todo a 2x (1 px CSS = 2 px de placa), luz fija desde
    arriba a la izquierda como en las imágenes del dueño. Nada se anima salvo la opacidad. Sin las imágenes (o con
    «más contraste» del sistema) quedan los colores planos de siempre. */
 :root {
-  --mi-tarjeta-marfil: url(imagenes/materiales/tarjeta-marfil.webp);
+  --mi-tarjeta-marfil: url(imagenes/placas_v2/tarjeta-marfil.webp);
   --mi-tarjeta-espresso: url(imagenes/materiales/tarjeta-espresso.webp);
-  --mi-cuero-grano: url(imagenes/materiales/cuero-grano.webp);
-  --mi-cuero-luz: url(imagenes/materiales/cuero-luz.webp);
-  --mi-cuero-pespunte: url(imagenes/materiales/cuero-pespunte.webp);
+  --mi-cuero-grano: url(imagenes/placas_v2/cuero-grano.webp);
+  --mi-cuero-luz: url(imagenes/placas_v2/cuero-luz.webp);
+  --mi-cuero-pespunte: url(imagenes/placas_v2/cuero-pespunte.webp);
   --mi-laca-reposo: url(imagenes/materiales/laca-reposo.webp);
   --mi-laca-hover: url(imagenes/materiales/laca-hover.webp);
   --mi-laca-pulsado: url(imagenes/materiales/laca-pulsado.webp);
-  --mi-vidrio-capsula-claro: url(imagenes/materiales/vidrio-capsula-claro.webp);
-  --mi-vidrio-capsula-oscuro: url(imagenes/materiales/vidrio-capsula-oscuro.webp);
-  --mi-vidrio-claro: url(imagenes/materiales/vidrio-claro.webp);
-  --mi-vidrio-oscuro: url(imagenes/materiales/vidrio-oscuro.webp);
+  --mi-vidrio-capsula-claro: url(imagenes/placas_v2/vidrio-capsula-claro.webp);
+  --mi-vidrio-capsula-oscuro: url(imagenes/placas_v2/vidrio-capsula-oscuro.webp);
+  --mi-vidrio-claro: url(imagenes/placas_v2/vidrio-claro.webp);
+  --mi-vidrio-oscuro: url(imagenes/placas_v2/vidrio-oscuro.webp);
   --m-tarjeta: var(--mi-tarjeta-marfil);
   --m-capsula: var(--mi-vidrio-capsula-claro);
   --m-vidrio: var(--mi-vidrio-claro);
 }
-@supports (background-image: image-set(url("imagenes/materiales/tarjeta-marfil.avif") type("image/avif"))) {
+@supports (background-image: image-set(url("imagenes/placas_v2/tarjeta-marfil.avif") type("image/avif"))) {
   :root {
-    --mi-tarjeta-marfil: image-set(url(imagenes/materiales/tarjeta-marfil.avif) type("image/avif"), url(imagenes/materiales/tarjeta-marfil.webp) type("image/webp"));
+    --mi-tarjeta-marfil: image-set(url(imagenes/placas_v2/tarjeta-marfil.avif) type("image/avif"), url(imagenes/placas_v2/tarjeta-marfil.webp) type("image/webp"));
     --mi-tarjeta-espresso: image-set(url(imagenes/materiales/tarjeta-espresso.avif) type("image/avif"), url(imagenes/materiales/tarjeta-espresso.webp) type("image/webp"));
-    --mi-cuero-grano: image-set(url(imagenes/materiales/cuero-grano.avif) type("image/avif"), url(imagenes/materiales/cuero-grano.webp) type("image/webp"));
-    --mi-cuero-luz: image-set(url(imagenes/materiales/cuero-luz.avif) type("image/avif"), url(imagenes/materiales/cuero-luz.webp) type("image/webp"));
-    --mi-cuero-pespunte: image-set(url(imagenes/materiales/cuero-pespunte.avif) type("image/avif"), url(imagenes/materiales/cuero-pespunte.webp) type("image/webp"));
+    --mi-cuero-grano: image-set(url(imagenes/placas_v2/cuero-grano.avif) type("image/avif"), url(imagenes/placas_v2/cuero-grano.webp) type("image/webp"));
+    --mi-cuero-luz: image-set(url(imagenes/placas_v2/cuero-luz.avif) type("image/avif"), url(imagenes/placas_v2/cuero-luz.webp) type("image/webp"));
+    --mi-cuero-pespunte: image-set(url(imagenes/placas_v2/cuero-pespunte.avif) type("image/avif"), url(imagenes/placas_v2/cuero-pespunte.webp) type("image/webp"));
     --mi-laca-reposo: image-set(url(imagenes/materiales/laca-reposo.avif) type("image/avif"), url(imagenes/materiales/laca-reposo.webp) type("image/webp"));
     --mi-laca-hover: image-set(url(imagenes/materiales/laca-hover.avif) type("image/avif"), url(imagenes/materiales/laca-hover.webp) type("image/webp"));
     --mi-laca-pulsado: image-set(url(imagenes/materiales/laca-pulsado.avif) type("image/avif"), url(imagenes/materiales/laca-pulsado.webp) type("image/webp"));
-    --mi-vidrio-capsula-claro: image-set(url(imagenes/materiales/vidrio-capsula-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-claro.webp) type("image/webp"));
-    --mi-vidrio-capsula-oscuro: image-set(url(imagenes/materiales/vidrio-capsula-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-capsula-oscuro.webp) type("image/webp"));
-    --mi-vidrio-claro: image-set(url(imagenes/materiales/vidrio-claro.avif) type("image/avif"), url(imagenes/materiales/vidrio-claro.webp) type("image/webp"));
-    --mi-vidrio-oscuro: image-set(url(imagenes/materiales/vidrio-oscuro.avif) type("image/avif"), url(imagenes/materiales/vidrio-oscuro.webp) type("image/webp"));
+    --mi-vidrio-capsula-claro: image-set(url(imagenes/placas_v2/vidrio-capsula-claro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-capsula-claro.webp) type("image/webp"));
+    --mi-vidrio-capsula-oscuro: image-set(url(imagenes/placas_v2/vidrio-capsula-oscuro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-capsula-oscuro.webp) type("image/webp"));
+    --mi-vidrio-claro: image-set(url(imagenes/placas_v2/vidrio-claro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-claro.webp) type("image/webp"));
+    --mi-vidrio-oscuro: image-set(url(imagenes/placas_v2/vidrio-oscuro.avif) type("image/avif"), url(imagenes/placas_v2/vidrio-oscuro.webp) type("image/webp"));
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -379,7 +384,7 @@ main:focus, section:focus { outline: none; }
   border: 0;
   /* d75: el grano real ya iluminado (un mosaico opaco de 384 px, sin mezclas) sobre el espresso de respaldo */
   background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, #2A1912;
-  box-shadow: 0 1px 2px rgba(12, 5, 3, .45), 0 30px 60px -24px rgba(12, 5, 3, .55);
+  box-shadow: 1px 2px 3px rgba(12, 5, 3, .48), 14px 34px 64px -26px rgba(12, 5, 3, .55);
 }
 /* la luz de la losa de cuero: charco satinado arriba a la izquierda, caída, canto iluminado y canto en sombra (9 cortes) */
 .cuero-tarjeta::after {
@@ -438,22 +443,29 @@ main:focus, section:focus { outline: none; }
   position: fixed; inset: 0 0 auto 0; z-index: 50;
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding: 20px var(--gutter);
-  transition: background-color var(--dur-largo) var(--curva), box-shadow var(--dur-largo) var(--curva), padding var(--dur-largo) var(--curva);
 }
-/* al bajar, la barra toma su vidrio (el único desenfoque que queda a la vista mientras se lee: §08 y §16) */
-.cabecera.sobre {
-  padding-top: 12px; padding-bottom: 12px;
+/* d80 · al bajar, la barra se compacta SIN tocar el alto (nada de padding animado): su vidrio baja desde arriba y se queda
+   en 80 px (16 menos), el contenido sube 8 px y la marca se achica un 10 %. Sólo transform y opacity. El vidrio es el
+   único desenfoque que queda a la vista mientras se lee (§08 y §16). */
+.cabecera::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: color-mix(in srgb, var(--fondo) 82%, transparent);
-  box-shadow: 0 1px 0 var(--linea);
+  box-shadow: 0 1px 0 var(--linea), 6px 14px 30px -24px rgba(38, 22, 14, .5);
+  opacity: 0; transform: translateY(-100%);
+  transition: opacity 320ms var(--curva), transform 620ms var(--curva-enfasis);
 }
-/* el desenfoque: arriba lo lleva la cápsula de vidrio (la escena del héroe se ve a través), al bajar toda la barra; nunca
-   los dos a la vez (la cápsula pierde su vidrio en .sobre) */
-.cabecera.sobre, .cabecera:not(.sobre) .cab-nav {
+.cabecera.sobre::before { opacity: 1; transform: translateY(-16px); }
+.cabecera > .cab-marca, .cabecera > .cab-nav { transition: transform 620ms var(--curva-enfasis); }
+.cabecera.sobre > .cab-nav { transform: translateY(-8px); }
+.cabecera.sobre > .cab-marca { transform: translateY(-8px) scale(.9); transform-origin: 0 50%; }
+/* el desenfoque: arriba lo lleva la cápsula de vidrio (la escena del héroe se ve a través), al bajar el vidrio de la barra;
+   nunca los dos a la vez (la cápsula pierde su vidrio en .sobre) */
+.cabecera.sobre::before, .cabecera:not(.sobre) .cab-nav {
   -webkit-backdrop-filter: blur(12px) saturate(1.2);
           backdrop-filter: blur(12px) saturate(1.2);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cabecera.sobre { background: color-mix(in srgb, var(--fondo) 96%, transparent); }
+  .cabecera.sobre::before { background: color-mix(in srgb, var(--fondo) 96%, transparent); }
 }
 .cab-marca {
   display: inline-flex; align-items: center; gap: 11px;
@@ -546,6 +558,8 @@ main:focus, section:focus { outline: none; }
   transition: opacity var(--dur-toque) var(--curva), transform var(--dur-toque) var(--curva);
 }
 .cab-seccion.cambiando { opacity: 0; transform: translateY(-6px); }
+.cabecera.sobre .cab-seccion { transform: translateY(-8px); }
+.cabecera.sobre .cab-seccion.cambiando { transform: translateY(-14px); }
 .cab-seccion.vacio { opacity: 0; }
 
 main, .pie { position: relative; z-index: 1; }
@@ -590,9 +604,15 @@ main, .pie { position: relative; z-index: 1; }
 .capa-mesa { transform-origin: 55.4% 75%; transform: scale(1.02); }
 /* el emblema, en la MISMA caja del cuadro que usa hacer_imagenes_d66.py (x 37–74 %, y 10–77 %) */
 .capa-emblema { position: absolute; left: 37%; top: 10%; width: 37%; height: 67%; }
-.emblema-mira, .emblema-flota, .capa-emblema picture { position: absolute; inset: 0; }
+.emblema-giro, .emblema-mira, .emblema-flota, .capa-emblema picture { position: absolute; inset: 0; }
+/* d80 · el núcleo cereza se enciende una vez en la entrada (una luz localizada, sin halo afuera del emblema: §13) */
+.emblema-nucleo {
+  position: absolute; left: 36%; top: 35%; width: 28%; height: 30%; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255, 196, 180, .95), rgba(240, 90, 84, .55) 45%, rgba(200, 16, 46, 0) 100%);
+  mix-blend-mode: screen;
+}
 .emblema-img { position: absolute; inset: 0; width: 100%; height: 100%; }
-.heroe-escenario, .heroe-lienzo, .capa-fondo, .capa-fondo img, .capa-mesa, .capa-emblema, .emblema-mira, .emblema-flota, .capa-frente, .capa-frente img { will-change: transform; }
+.heroe-escenario, .heroe-lienzo, .capa-fondo, .capa-fondo img, .capa-mesa, .capa-emblema, .emblema-giro, .emblema-mira, .emblema-flota, .capa-frente, .capa-frente img { will-change: transform; }
 /* §14 · la luz que recorre los cantos del emblema: una franja cálida que cruza, recortada por la máscara de los cantos
    del MISMO render (el filo, los biseles y los brillos que ya tiene), en trama «screen» sobre el emblema. Apagada sin
    JS o con menos movimiento. Sólo transform y opacity. */
@@ -638,6 +658,7 @@ main, .pie { position: relative; z-index: 1; }
 }
 .heroe-titular .linea { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
 .heroe-titular .linea > span { display: inline-block; }
+.heroe-titular .hp { display: inline-block; }               /* d80 · cada palabra sube por su lado dentro de la máscara de la línea */
 .heroe-titular em { font-style: normal; color: var(--acento-grande); }
 .heroe-bajada {
   margin: 24px 0 0; max-width: 30em;
@@ -679,7 +700,7 @@ main, .pie { position: relative; z-index: 1; }
   color: var(--sobre-cereza);
   font: 600 17px/1 var(--texto-f); letter-spacing: .01em;
   text-decoration: none;
-  box-shadow: 0 10px 26px -12px rgba(165, 18, 37, .55);     /* el halo, quieto */
+  box-shadow: 5px 12px 26px -12px rgba(165, 18, 37, .5);     /* el halo, quieto, abajo a la derecha (la luz, arriba a la izquierda) */
   transition: transform var(--dur-toque) var(--curva);
 }
 /* d75 · la laca renderizada: base cereza bajo una capa clara pulida, banda de ventana nítida arriba (fuera de la zona de
@@ -706,6 +727,20 @@ main, .pie { position: relative; z-index: 1; }
 .boton-descarga:hover, .boton-descarga:focus-visible { transform: translateY(-1px); }
 .boton-descarga:hover::after, .boton-descarga:focus-visible::after { animation: none; opacity: 1; }
 .boton-descarga:active::after { animation: none; opacity: 0; }
+/* d80 · el brillo que recorre la laca al pasar: una banda clara inclinada que cruza en 0,95 s (despacio en el medio) y,
+   al salir, vuelve sin verse. Arriba de las placas, debajo de las letras. */
+.laca-brillo { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.laca-brillo i {
+  position: absolute; top: -40%; bottom: -40%; left: 0; width: 30%;
+  background: linear-gradient(100deg, rgba(255, 236, 228, 0) 0%, rgba(255, 236, 228, .22) 36%, rgba(255, 252, 250, .58) 50%, rgba(255, 236, 228, .22) 64%, rgba(255, 236, 228, 0) 100%);
+  transform: translateX(-140%) skewX(-18deg); opacity: 0;
+}
+.boton-descarga:hover .laca-brillo i, .boton-descarga:focus-visible .laca-brillo i,
+.cab-nav .cab-ir:hover .laca-brillo i, .cab-nav .cab-ir:focus-visible .laca-brillo i {
+  transform: translateX(430%) skewX(-18deg); opacity: 1;
+  transition: transform 950ms cubic-bezier(.45, .05, .25, 1), opacity 120ms linear;
+}
+.boton-descarga > svg, .boton-descarga > .bd-texto, .cab-ir > .cab-ir-t { position: relative; z-index: 1; }
 .boton-descarga:hover .bd-flecha, .boton-descarga:focus-visible .bd-flecha { animation: flechaBaja .9s var(--curva-enfasis) .05s both; }
 .boton-descarga:active { transform: translateY(1px); }      /* sin escala: la placa «pulsado» ya baja la pieza (y escalar abre costuras en el 9 cortes) */
 .boton-descarga:focus-visible { outline: none; box-shadow: var(--foco), var(--halo-cereza); }
@@ -730,7 +765,7 @@ main, .pie { position: relative; z-index: 1; }
   /* el degradé del cuero, ajustado al tamaño (§07: «ajustarla por tamaño de componente y contraste»): en una franja de
      1440 × 300 el de las tarjetas deja la esquina de abajo a la izquierda en #75452D y el secundario bajaba a 4,07 : 1 */
   background: var(--cuero-filo),
-    linear-gradient(155deg, rgba(36, 18, 11, .12) 0%, rgba(22, 11, 7, .42) 52%, rgba(14, 7, 4, .58) 100%),
+    linear-gradient(155deg, rgba(36, 18, 11, .22) 0%, rgba(22, 11, 7, .44) 52%, rgba(14, 7, 4, .58) 100%),   /* d80: .12 → .22 arriba a la izquierda (el grano v2 es más vivo: «01 · Leather» medía 7,00) */
     var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
     linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
   border-top: 1px solid rgba(255, 231, 211, .12);
@@ -751,8 +786,14 @@ main, .pie { position: relative; z-index: 1; }
   background: #24140F;
 }
 .atlas-cuadro picture { display: contents; }
-.atlas-img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.1s var(--curva), opacity var(--dur-largo) var(--curva); }
-.ficha-abierta .atlas-img { transform: scale(1.05); }
+.atlas-img { width: 100%; height: 100%; object-fit: cover; transition: opacity var(--dur-largo) var(--curva); }
+/* d80 · la luz que sigue al puntero sobre la imagen (la mueve pagina.js con transform): un reflejo ancho y suave */
+.atlas-luz {
+  position: absolute; left: -30%; top: -60%; width: 90%; height: 160%; z-index: 1; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255, 240, 226, .2), rgba(255, 240, 226, .06) 55%, rgba(255, 240, 226, 0));
+  transition: opacity 500ms var(--curva);
+}
+.atlas-panel:hover .atlas-luz { opacity: 1; }
 .atlas-cuadro::after {            /* un filo de luz abajo, donde la imagen se apoya en el cuero */
   content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: rgba(255, 231, 211, .14);
 }
@@ -768,9 +809,16 @@ main, .pie { position: relative; z-index: 1; }
   padding: calc(var(--pad) * .8) var(--pad) 0;
   display: grid; align-content: start; gap: 8px;
   background: linear-gradient(180deg, rgba(26, 15, 11, .97), rgba(26, 15, 11, .93));
-  opacity: 0; transform: translateY(8px); pointer-events: none;
-  transition: opacity var(--dur-largo) var(--curva), transform var(--dur-largo) var(--curva);
+  opacity: 0; pointer-events: none;
+  clip-path: inset(100% 0 0 0);
+  transition: opacity 260ms var(--curva), clip-path 640ms var(--curva-enfasis);
 }
+/* d80 · las filas de la ficha llegan una tras otra, después del recorte */
+.atlas-ficha > div { opacity: 0; transform: translateY(10px); transition: opacity 360ms var(--curva), transform 520ms var(--curva-enfasis); }
+.ficha-abierta .atlas-ficha > div { opacity: 1; transform: none; }
+.atlas-ficha > div:nth-child(2) { transition-delay: 50ms; }
+.atlas-ficha > div:nth-child(3) { transition-delay: 100ms; }
+.atlas-ficha > div:nth-child(4) { transition-delay: 150ms; }
 .atlas-ficha > div { display: grid; gap: 2px; padding-bottom: 7px; border-bottom: 1px solid rgba(241, 236, 228, .1); }
 .atlas-ficha dt { font: 600 11px/1.4 var(--texto-f); letter-spacing: .14em; text-transform: uppercase; color: #B9AEA3; }
 .atlas-ficha dd { margin: 0; font: 500 13.5px/1.4 var(--texto-f); color: #F1ECE4; font-variant-numeric: tabular-nums; }
@@ -787,12 +835,12 @@ main, .pie { position: relative; z-index: 1; }
 .atlas-ver:hover, .atlas-ver[aria-expanded="true"] { color: #F1ECE4; }
 .atlas-ver:hover i, .atlas-ver[aria-expanded="true"] i { width: 30px; }
 .atlas-ver:focus-visible { box-shadow: inset 0 0 0 2px #F4636A; border-radius: 4px; }
-.ficha-abierta .atlas-ficha { opacity: 1; transform: none; pointer-events: auto; }
+.ficha-abierta .atlas-ficha { opacity: 1; clip-path: inset(0 0 0 0); pointer-events: auto; }
 /* abierta, la versión editorial se va del todo (también para el lector de pantalla): en su lugar queda la técnica */
 .ficha-abierta .atlas-texto, .ficha-abierta .atlas-muestras > * { opacity: 0; visibility: hidden; transition: opacity var(--dur-largo) var(--curva), visibility 0s linear var(--dur-largo); }
 @media (hover: hover) and (pointer: fine) {
-  .atlas-panel:hover .atlas-img { transform: scale(1.05); }
-  .atlas-panel:hover .atlas-ficha { opacity: 1; transform: none; }
+  .atlas-panel:hover .atlas-ficha { opacity: 1; clip-path: inset(0 0 0 0); }
+  .atlas-panel:hover .atlas-ficha > div { opacity: 1; transform: none; }
   .atlas-panel:hover .atlas-texto { opacity: 0; }
 }
 /* el panel del sistema de la marca: muestras de color con HEX, las dos letras y los íconos de línea */
@@ -860,6 +908,11 @@ section.cita { position: relative; }
   border-radius: 15px; background: var(--sup-3);
 }
 .profundidad .ampliar { z-index: 3; }
+/* d80 · con la composición 3D de la sección (usar_secciones_d80.py la pone por nombre): la imagen ya trae la mesa, la luz de
+   ventana y la sombra del panel de vidrio (ref1); el marco de marfil, la placa y la inclinación sobran */
+.profundidad.con-escena { padding: 0; background: none; border: 0; border-radius: 22px; box-shadow: var(--sombra-larga); transform: none; }
+.profundidad.con-escena::before, .profundidad.con-escena::after { content: none; }
+.profundidad.con-escena .pf-fondo { aspect-ratio: auto; border-radius: 22px; background: none; }
 
 /* ── las demos: la interfaz con datos de una materia de ejemplo ── */
 .demo {
@@ -994,6 +1047,14 @@ section.cita { position: relative; }
 .todo > .sec-cab { margin: 0 auto 8vh; text-align: center; display: grid; justify-items: center; }
 .todo > .sec-cab .tramo-bajada { margin-inline: auto; max-width: 560px; }
 .tarjetas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 36px); }
+/* d87 · la vitrina: cuatro pantallas más como composición 3D (panel de vidrio sobre el escritorio, la misma luz de ventana
+   que los tramos), de a dos, antes de las tarjetas; el pie va afuera de la imagen, con la letra de las tarjetas */
+.vitrina { list-style: none; margin: 0 0 clamp(72px, 12vh, 132px); padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(36px, 5vh, 64px) clamp(24px, 3vw, 48px); }
+.vitrina-item { margin: 0; min-width: 0; }
+.vitrina-pie { margin: 22px 6px 0; }
+.vitrina-pie b { display: block; font: 600 22px/1.25 var(--titulo-f); }
+.vitrina-pie small { display: block; margin-top: 6px; font-size: 15px; line-height: 1.5; color: var(--medio); }
 .tarjeta {
   --rx: 0deg; --ry: 0deg; --fx: 0px; --fy: 0px;
   all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%;
@@ -1010,7 +1071,7 @@ section.cita { position: relative; }
 .tj-frente {
   position: absolute; left: 50%; top: 50%; width: auto; max-width: 90%; height: auto; max-height: 84%;   /* la imagen manda su proporción */
   border-radius: 10px; border: 1px solid var(--borde);
-  box-shadow: 0 1px 2px rgba(31, 15, 9, .1), 0 20px 40px -18px rgba(31, 15, 9, .45);
+  box-shadow: 1px 2px 3px rgba(31, 15, 9, .16), 10px 22px 40px -18px rgba(31, 15, 9, .45);
   transform: translate(-50%, -50%) translate(var(--fx), var(--fy));
   transition: transform var(--dur-escena) var(--curva);
 }
@@ -1196,20 +1257,56 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .entrando .cortina { --cr: 0px; }
 .entro .cortina { --cr: 160vmax; transition: --cr 1s var(--curva) .05s; }
 
-/* ═══════════════════════ las transiciones atadas al scroll ═══════════════════════ */
-/* pagina.js pone --v de 0 a 1 según la posición: sólo opacidad, desplazamiento y máscara (nada de desenfoque) */
-[data-rev] { --v: 1; }
-.rev-texto { opacity: var(--v); transform: translateY(calc((1 - var(--v)) * 26px)); }
-.rev-panel { opacity: var(--v); transform: translateY(calc((1 - var(--v)) * 44px)) scale(calc(.97 + var(--v) * .03)); }
-.rev-mascara { clip-path: inset(-.2em -.2em calc((1 - var(--v)) * 110%) -.2em); }
+/* ═══════════════════════ el movimiento de las secciones (d80) ═══════════════════════ */
+/* Lo coreografía pagina.js con GSAP + ScrollTrigger (sólo transform, opacity y clip-path; nada de desenfoque). Sin JS, sin
+   GSAP o con «reducir movimiento», todo está puesto y quieto: acá no hay estados ocultos. Con GSAP, el marco de la pantalla
+   lo mueve sólo GSAP (revelado, paralaje e inclinación hacia el puntero en una sola transformación): sin la transición del
+   CSS, que perseguiría cada cuadro. (Medido en d80: animar variables CSS para el paralaje costaba 3,2 s de estilo en 8 s
+   de rueda; con transformaciones de GSAP, casi nada.) */
+.con-gsap .profundidad { transition: none; }
+.con-gsap .tramo > .tramo-texto, .con-gsap .profundidad { will-change: transform; }
+.con-gsap .heroe-texto { will-change: transform, opacity; }      /* sube y se apaga con el scroll: en su capa, sin repintar */
+/* los títulos: cada palabra en su máscara */
 .pal { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
 .pal > span { display: inline-block; }
-.rev-mascara .pal > span {
-  /* el escalonado se topa en .7: con títulos de más de 9 palabras, las últimas también llegan a su lugar (d60) */
-  transform: translateY(calc((1 - clamp(0, var(--v) * 1.8 - min(var(--n) * .09, .7), 1)) * 105%));
+/* la rayita de los rótulos crece cuando la sección entra */
+.con-gsap .tramo .paso-num::before, .con-gsap .cita .paso-num::before, .con-gsap .sec-cab .rotulo::before {
+  transform: scaleX(0); transform-origin: 0 50%; transition: transform 900ms var(--curva-enfasis) 120ms;
 }
-.rev-imagen { opacity: clamp(0, var(--v) * 1.6, 1); }
-.rev-imagen .pf-fondo { clip-path: inset(calc((1 - var(--v)) * 10%) calc((1 - var(--v)) * 5%) round 15px); scale: calc(1.08 - var(--v) * .08); }
+.con-gsap .entro .paso-num::before, .con-gsap .entro .rotulo::before { transform: none; }
+/* el pozo de luz de cada tramo se enciende con la sección */
+.con-gsap .tramo::before, .con-gsap section.cita::before { opacity: 0; transition: opacity 1.2s var(--curva) .1s; }
+.con-gsap .tramo.entro::before, .con-gsap section.cita.entro::before { opacity: 1; }
+/* el reflejo que sigue al puntero sobre la pantalla del marco (lo mueve pagina.js con transform) */
+.pf-luz {
+  position: absolute; left: -25%; top: -50%; width: 80%; height: 150%; z-index: 2; pointer-events: none; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255, 250, 244, .16), rgba(255, 250, 244, .05) 55%, rgba(255, 250, 244, 0));
+  transition: opacity 600ms var(--curva);
+}
+.profundidad.mirando .pf-luz { opacity: 1; }
+/* los contadores de rodillo: cada cifra es una tira de 0 a 9 (dos vueltas) que sube dentro de su ventana */
+.odo { display: inline-flex; }
+.odo-c { position: relative; display: inline-block; clip-path: inset(0 -.06em); }
+.odo-c > i { font-style: normal; visibility: hidden; }
+.odo-tira { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; }
+.odo-tira > i { font-style: normal; display: block; }
+/* la cita al minuto: la pregunta se escribe letra por letra, con su cursor (sólo mientras escribe) */
+.cd-pregunta .cursor-escribe { position: relative; display: inline-block; width: 0; height: 1em; }
+.cd-pregunta .cursor-escribe::after {
+  content: ""; position: absolute; left: 2px; top: .02em; width: 2px; height: 1.05em; border-radius: 1px;
+  background: currentColor; animation: titila 1s steps(1) infinite;
+}
+.sello-min { font-variant-numeric: tabular-nums; }
+/* el emblema viajero: acompaña la película de los seis tramos por la junta entre el texto y la pantalla, y cambia de lado
+   girando con el scroll. Decorativo (aria-hidden); sólo con espacio (>= 1180 px) y con animaciones. */
+.viajero {
+  position: fixed; left: 0; top: 0; z-index: 4; pointer-events: none;
+  width: clamp(46px, 3.3vw, 66px); aspect-ratio: 474 / 483;
+  opacity: 0; will-change: transform, opacity;
+  filter: drop-shadow(6px 14px 12px rgba(38, 22, 14, .26)) drop-shadow(1px 3px 2px rgba(38, 22, 14, .2));
+}
+.viajero picture, .viajero img { display: block; width: 100%; height: 100%; }
+@media (max-width: 1179px) { .viajero { display: none; } }
 
 /* ═══════════════════════ pantallas angostas y teléfono ═══════════════════════ */
 /* el atlas angosto: un carrusel que se desliza, sin comprimir las etiquetas (§05) */
@@ -1230,6 +1327,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .profundidad, .tramo-der .profundidad { --rx: 0deg; --ry: 0deg; }
   .tramo > .demo { max-width: none; }
   .tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vitrina { grid-template-columns: minmax(0, 1fr); }
   section.cita { grid-template-columns: minmax(0, 1fr); padding: 10vh var(--gutter); }
   .cita-demo { grid-template-columns: minmax(0, 1fr); padding: 16px; }
 }
@@ -1283,8 +1381,6 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .descargar-emblema { margin-top: -96px; }
   .pie { flex-direction: column; align-items: flex-start; }
   .ampliar { top: 14px; right: 14px; }
-  /* a una columna, las tarjetas miden unos 4400 px: el alto estimado tiene que parecerse */
-  .todo { contain-intrinsic-size: auto 4400px; }
 }
 
 /* ═══════════════════════ las páginas legales ═══════════════════════ */
@@ -1349,8 +1445,8 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 /* ── lo que está lejos de la pantalla no se maqueta ni se dibuja hasta acercarse ── */
 .legal section { content-visibility: auto; contain-intrinsic-size: auto 420px; }
 .tramo, .tarjeta, .descargar-caja { contain: layout style; }
-.tramo { content-visibility: auto; contain-intrinsic-size: auto 1100px; }
-.todo { content-visibility: auto; contain-intrinsic-size: auto 2300px; }
+/* d80 · los tramos y «todo lo demás» ya no usan content-visibility: con altos estimados, ScrollTrigger calculaba sus
+   puntos de partida sobre posiciones falsas (y el viaje de los enlaces tenía que perseguir el destino) */
 
 /* ═══════════════════════ sin materiales (d75) ═══════════════════════ */
 @media (prefers-contrast: more) {
@@ -1375,4 +1471,4 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .quieto .carga, .quieto .cortina { display: none; }
 .quieto .profundidad, .quieto .tj-cuadro { transform: none !important; }
 .quieto .dc-clases li { opacity: 1; translate: none; }
-.quieto [data-rev] { --v: 1 !important; }
+.quieto .viajero, .quieto .laca-brillo, .quieto .atlas-luz, .quieto .pf-luz { display: none; }

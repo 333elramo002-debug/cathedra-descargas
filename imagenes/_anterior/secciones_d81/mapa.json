@@ -1,0 +1,485 @@
+{
+ "_": "Composiciones 3D de las secciones (d81): un panel de vidrio sobre el escritorio con una pantalla de la app. Archivos <sec>_<tema>-<ancho>.{avif,webp}; tema claro = la app en Claro (Ivory), oscuro = la app en Oscuro (Espresso). 1920 x 1200 y 1280 x 800 (16:10).",
+ "composiciones": [
+  {
+   "id": "sec_01",
+   "pantalla": "inicio",
+   "seccion_sugerida": "cronograma",
+   "nota": "01 · Empezás: el panel de Inicio con las materias y lo que viene",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 125.6,
+     "webp_kb": 123.0,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 62.4,
+     "webp_kb": 64.7,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 149.2,
+     "webp_kb": 146.1,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 73.5,
+     "webp_kb": 77.0,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_02",
+   "pantalla": "materia",
+   "seccion_sugerida": "subir",
+   "nota": "02 · Subís: la materia con su camino y su material",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 123.8,
+     "webp_kb": 122.5,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 60.3,
+     "webp_kb": 62.6,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 149.7,
+     "webp_kb": 145.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 72.0,
+     "webp_kb": 75.3,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_03",
+   "pantalla": "clase",
+   "seccion_sugerida": "lee",
+   "nota": "03 · La lee: la clase con sus pasos",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 111.6,
+     "webp_kb": 107.2,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 54.1,
+     "webp_kb": 55.4,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 137.2,
+     "webp_kb": 130.3,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 66.6,
+     "webp_kb": 68.0,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_04",
+   "pantalla": "guia",
+   "seccion_sugerida": "lee",
+   "nota": "03 · La lee (alternativa): la guía de la clase",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 111.9,
+     "webp_kb": 104.0,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 54.4,
+     "webp_kb": 54.1,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 136.8,
+     "webp_kb": 134.7,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 66.1,
+     "webp_kb": 68.0,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_05",
+   "pantalla": "preguntas",
+   "seccion_sugerida": "preguntar",
+   "nota": "04 · Preguntás: las preguntas de la clase",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 100.5,
+     "webp_kb": 93.9,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 48.2,
+     "webp_kb": 48.9,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 122.0,
+     "webp_kb": 117.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 58.1,
+     "webp_kb": 59.1,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_06",
+   "pantalla": "fichas",
+   "seccion_sugerida": "repaso",
+   "nota": "06 · Repasás: las fichas",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 97.0,
+     "webp_kb": 89.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 46.7,
+     "webp_kb": 46.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 119.8,
+     "webp_kb": 113.1,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 57.1,
+     "webp_kb": 57.5,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_07",
+   "pantalla": "simulacro",
+   "seccion_sugerida": "simulacro",
+   "nota": "05 · Rendís: el simulacro",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 115.2,
+     "webp_kb": 106.9,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 54.6,
+     "webp_kb": 54.5,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 141.6,
+     "webp_kb": 137.3,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 68.3,
+     "webp_kb": 69.9,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_08",
+   "pantalla": "apariencia",
+   "seccion_sugerida": "materiales",
+   "nota": "Materiales / Todo lo demás: la apariencia (Claro y Oscuro)",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 103.2,
+     "webp_kb": 102.2,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 50.7,
+     "webp_kb": 52.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 127.4,
+     "webp_kb": 121.1,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 61.5,
+     "webp_kb": 62.7,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_09",
+   "pantalla": "ajustes",
+   "seccion_sugerida": "todo",
+   "nota": "Todo lo demás: los ajustes",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 90.3,
+     "webp_kb": 85.5,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 42.4,
+     "webp_kb": 44.1,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 113.8,
+     "webp_kb": 106.3,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 52.8,
+     "webp_kb": 52.9,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  },
+  {
+   "id": "sec_10",
+   "pantalla": "buscar",
+   "seccion_sugerida": "todo",
+   "nota": "Todo lo demás: buscar en todo (la paleta de vidrio)",
+   "archivos": {
+    "claro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 111.9,
+     "webp_kb": 105.7,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "claro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 56.0,
+     "webp_kb": 57.3,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1920": {
+     "tamano": [
+      1920,
+      1200
+     ],
+     "avif_kb": 131.7,
+     "webp_kb": 123.8,
+     "q_avif": 80,
+     "q_webp": 90
+    },
+    "oscuro-1280": {
+     "tamano": [
+      1280,
+      800
+     ],
+     "avif_kb": 64.3,
+     "webp_kb": 65.7,
+     "q_avif": 80,
+     "q_webp": 90
+    }
+   }
+  }
+ ]
+}
