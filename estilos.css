@@ -1047,6 +1047,14 @@ section.cita { position: relative; }
 .todo > .sec-cab { margin: 0 auto 8vh; text-align: center; display: grid; justify-items: center; }
 .todo > .sec-cab .tramo-bajada { margin-inline: auto; max-width: 560px; }
 .tarjetas { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 36px); }
+/* d87 · la vitrina: cuatro pantallas más como composición 3D (panel de vidrio sobre el escritorio, la misma luz de ventana
+   que los tramos), de a dos, antes de las tarjetas; el pie va afuera de la imagen, con la letra de las tarjetas */
+.vitrina { list-style: none; margin: 0 0 clamp(72px, 12vh, 132px); padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(36px, 5vh, 64px) clamp(24px, 3vw, 48px); }
+.vitrina-item { margin: 0; min-width: 0; }
+.vitrina-pie { margin: 22px 6px 0; }
+.vitrina-pie b { display: block; font: 600 22px/1.25 var(--titulo-f); }
+.vitrina-pie small { display: block; margin-top: 6px; font-size: 15px; line-height: 1.5; color: var(--medio); }
 .tarjeta {
   --rx: 0deg; --ry: 0deg; --fx: 0px; --fy: 0px;
   all: unset; box-sizing: border-box; cursor: pointer; display: block; width: 100%;
@@ -1319,6 +1327,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   .profundidad, .tramo-der .profundidad { --rx: 0deg; --ry: 0deg; }
   .tramo > .demo { max-width: none; }
   .tarjetas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vitrina { grid-template-columns: minmax(0, 1fr); }
   section.cita { grid-template-columns: minmax(0, 1fr); padding: 10vh var(--gutter); }
   .cita-demo { grid-template-columns: minmax(0, 1fr); padding: 16px; }
 }

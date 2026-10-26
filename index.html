@@ -423,10 +423,12 @@
       </div>
       <div class="dp-hilo" data-hilo aria-live="polite"></div>
     </div>
-    <figure class="profundidad" data-profundidad>
+    <figure class="profundidad con-escena" data-profundidad data-seccion="sec_05">
       <picture>
-        <source type="image/avif" srcset="imagenes/app/preguntar-1280.avif 1280w, imagenes/app/preguntar-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
-        <img class="pf-fondo" src="imagenes/app/preguntar-1280.webp" srcset="imagenes/app/preguntar-1280.webp 1280w, imagenes/app/preguntar-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1080" loading="lazy" decoding="async" alt="El panel para preguntar abierto al costado de una materia de ejemplo, con preguntas sugeridas sobre sus temas.">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/secciones/sec_05_oscuro-1280.avif 1280w, imagenes/secciones/sec_05_oscuro-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/secciones/sec_05_oscuro-1280.webp 1280w, imagenes/secciones/sec_05_oscuro-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <source data-tema="marfil" type="image/avif" srcset="imagenes/secciones/sec_05_claro-1280.avif 1280w, imagenes/secciones/sec_05_claro-1920.avif 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)">
+        <img class="pf-fondo" src="imagenes/secciones/sec_05_claro-1280.webp" srcset="imagenes/secciones/sec_05_claro-1280.webp 1280w, imagenes/secciones/sec_05_claro-1920.webp 1920w" sizes="(max-width: 860px) 92vw, min(56vw, 760px)" width="1920" height="1200" loading="lazy" decoding="async" alt="El panel Preguntar al costado de una materia de ejemplo: la respuesta, un ejemplo propio con su aviso y la frase de la profesora con su clase y su minuto.">
       </picture>
       <button class="ampliar" type="button" data-ampliar="imagenes/app/preguntar" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
     </figure>
@@ -496,8 +498,60 @@
     <header class="sec-cab">
       <p class="rotulo">Y todo lo demás</p>
       <h2 id="todo-tit" class="titular"><span class="palabras">Lo que también hace.</span></h2>
-      <p class="tramo-bajada">Cada tarjeta es una pantalla de Cathedra. Se abre entera con un toque.</p>
+      <p class="tramo-bajada">Cada imagen es una pantalla de Cathedra. Se abre entera con un toque.</p>
     </header>
+    <!-- d87 · la vitrina: cuatro pantallas más en un panel de vidrio sobre el escritorio (composiciones 3D de las secciones;
+         usar_secciones_d80.py las pone por data-seccion). «Ampliar» abre la pantalla plana. -->
+    <ul class="vitrina" aria-label="Cuatro pantallas más">
+      <li class="vitrina-item">
+        <figure class="profundidad con-escena" data-profundidad data-seccion="sec_04">
+          <picture>
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/secciones/sec_04_oscuro-1280.avif 1280w, imagenes/secciones/sec_04_oscuro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/secciones/sec_04_oscuro-1280.webp 1280w, imagenes/secciones/sec_04_oscuro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="marfil" type="image/avif" srcset="imagenes/secciones/sec_04_claro-1280.avif 1280w, imagenes/secciones/sec_04_claro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <img class="pf-fondo" src="imagenes/secciones/sec_04_claro-1280.webp" srcset="imagenes/secciones/sec_04_claro-1280.webp 1280w, imagenes/secciones/sec_04_claro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)" width="1920" height="1200" loading="lazy" decoding="async" alt="La guía de una clase de ejemplo en un panel de vidrio sobre el escritorio: el resumen en audio y el primer bloque.">
+      </picture>
+          <button class="ampliar" type="button" data-ampliar="imagenes/app/guia" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        </figure>
+        <p class="vitrina-pie"><b>La guía, bloque por bloque</b><small>Cada bloque guarda la frase y el minuto de la clase.</small></p>
+      </li>
+      <li class="vitrina-item">
+        <figure class="profundidad con-escena" data-profundidad data-seccion="sec_10">
+          <picture>
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/secciones/sec_10_oscuro-1280.avif 1280w, imagenes/secciones/sec_10_oscuro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/secciones/sec_10_oscuro-1280.webp 1280w, imagenes/secciones/sec_10_oscuro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="marfil" type="image/avif" srcset="imagenes/secciones/sec_10_claro-1280.avif 1280w, imagenes/secciones/sec_10_claro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <img class="pf-fondo" src="imagenes/secciones/sec_10_claro-1280.webp" srcset="imagenes/secciones/sec_10_claro-1280.webp 1280w, imagenes/secciones/sec_10_claro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)" width="1920" height="1200" loading="lazy" decoding="async" alt="Buscar abierto sobre el inicio, en un panel de vidrio sobre el escritorio: la clase, la guía y el tema que nombran «fubini».">
+      </picture>
+          <button class="ampliar" type="button" data-ampliar="imagenes/app/buscar" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        </figure>
+        <p class="vitrina-pie"><b>Buscar en todo lo que dijo</b><small>Una palabra, y la clase en ese minuto.</small></p>
+      </li>
+      <li class="vitrina-item">
+        <figure class="profundidad con-escena" data-profundidad data-seccion="sec_09">
+          <picture>
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/secciones/sec_09_oscuro-1280.avif 1280w, imagenes/secciones/sec_09_oscuro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/secciones/sec_09_oscuro-1280.webp 1280w, imagenes/secciones/sec_09_oscuro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="marfil" type="image/avif" srcset="imagenes/secciones/sec_09_claro-1280.avif 1280w, imagenes/secciones/sec_09_claro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <img class="pf-fondo" src="imagenes/secciones/sec_09_claro-1280.webp" srcset="imagenes/secciones/sec_09_claro-1280.webp 1280w, imagenes/secciones/sec_09_claro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)" width="1920" height="1200" loading="lazy" decoding="async" alt="La voz del asistente en un panel de vidrio sobre el escritorio: dos voces, el nombre, el tono, la velocidad y la personalidad.">
+      </picture>
+          <button class="ampliar" type="button" data-ampliar="imagenes/app/voz" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        </figure>
+        <p class="vitrina-pie"><b>Una voz para el asistente</b><small>Tono, velocidad y personalidad a elección.</small></p>
+      </li>
+      <li class="vitrina-item">
+        <figure class="profundidad con-escena" data-profundidad data-seccion="sec_08">
+          <picture>
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/avif" srcset="imagenes/secciones/sec_08_oscuro-1280.avif 1280w, imagenes/secciones/sec_08_oscuro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="cuero" media="(prefers-color-scheme: dark)" type="image/webp" srcset="imagenes/secciones/sec_08_oscuro-1280.webp 1280w, imagenes/secciones/sec_08_oscuro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <source data-tema="marfil" type="image/avif" srcset="imagenes/secciones/sec_08_claro-1280.avif 1280w, imagenes/secciones/sec_08_claro-1920.avif 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)">
+        <img class="pf-fondo" src="imagenes/secciones/sec_08_claro-1280.webp" srcset="imagenes/secciones/sec_08_claro-1280.webp 1280w, imagenes/secciones/sec_08_claro-1920.webp 1920w" sizes="(max-width: 900px) 92vw, min(44vw, 660px)" width="1920" height="1200" loading="lazy" decoding="async" alt="Apariencia en un panel de vidrio sobre el escritorio: Oscuro y Claro lado a lado.">
+      </picture>
+          <button class="ampliar" type="button" data-ampliar="imagenes/app/apariencia" aria-label="Ver esta pantalla más grande"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/></svg></button>
+        </figure>
+        <p class="vitrina-pie"><b>Clara u oscura</b><small>Cuero, marfil y laca en las dos apariencias.</small></p>
+      </li>
+    </ul>
     <ul class="tarjetas" data-tarjetas>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/material" data-texto="El material de la cátedra vive al pie de cada materia. Una página recortada pasa a los apuntes. Las respuestas lo citan con su miniatura. Sin grabación, la guía sale del material."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/material-640.avif"><img class="tj-fondo" src="imagenes/app/material-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/material-frente.avif"><img class="tj-frente" src="imagenes/app/material-frente.webp" width="900" height="260" loading="lazy" decoding="async" alt=""></picture></span><b>Material de la cátedra</b><small>PDF, Word y PowerPoint al pie de su materia</small></button></li>
       <li><button class="tarjeta" type="button" data-grande="imagenes/app/plan-materia" data-texto="Los temas que entran, en orden para entenderlos. Cada uno con su peso en el examen y lo que el profesor marcó."><span class="tj-cuadro"><picture><source type="image/avif" srcset="imagenes/app/plan-materia-640.avif"><img class="tj-fondo" src="imagenes/app/plan-materia-640.webp" width="640" height="360" loading="lazy" decoding="async" alt=""></picture><picture><source type="image/avif" srcset="imagenes/app/plan-materia-frente.avif"><img class="tj-frente" src="imagenes/app/plan-materia-frente.webp" width="900" height="442" loading="lazy" decoding="async" alt=""></picture></span><b>Plan de la materia</b><small>Por tema, con lo que va a tomar primero</small></button></li>

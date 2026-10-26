@@ -693,6 +693,19 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     titulo(tl, todo.querySelector(".titular"), 0.06);
     tl.to(desde(todo.querySelectorAll(".sec-cab .tramo-bajada"), { opacity: 0, y: 22 }), { opacity: 1, y: 0, duration: 1.0 }, 0.3);
     alLlegar(todo, tl, "top 70%");
+    // d87 · la vitrina: cada composición se descubre como las de los tramos (recorte que se abre mientras se «desembala»,
+    // 1,22 → 1) y su pie sube después; la de la derecha, un poco más tarde
+    todo.querySelectorAll(".vitrina > li").forEach((li, i) => {
+      const fig = li.querySelector(".profundidad"), im = li.querySelector(".pf-fondo"), d = (i % 2) * 0.12;
+      const tl2 = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+      if (fig) { gsap.set(fig, { scale: 0.92, opacity: 0 }); tl2.to(fig, { scale: 1, opacity: 1, duration: 1.4 }, d); }
+      if (im) {
+        gsap.set(im, { clipPath: "inset(12% 10% 12% 10% round 22px)", scale: 1.22 });
+        tl2.to(im, { clipPath: "inset(0% 0% 0% 0% round 22px)", duration: 1.4, ease: "power3.inOut" }, d).to(im, { scale: 1, duration: 1.9 }, d);
+      }
+      tl2.to(desde(li.querySelectorAll(".vitrina-pie > *"), { opacity: 0, y: 18 }), { opacity: 1, y: 0, duration: 0.9, stagger: 0.08 }, 0.4 + d);
+      alLlegar(li, tl2, "top 86%");
+    });
     const fichas = [...todo.querySelectorAll(".tarjetas > li")];
     gsap.set(fichas, { opacity: 0, y: 90, rotationX: 14, transformPerspective: 1200, transformOrigin: "50% 0%" });
     ScrollTrigger.batch(fichas, { start: "top 90%",
