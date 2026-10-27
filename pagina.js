@@ -1021,7 +1021,11 @@ document.querySelectorAll("[data-quieto]").forEach((a) => {
 
 /* ══════════════════════ ver una pantalla en grande ══════════════════════ */
 /* Tocar una captura la abre a pantalla completa en un diálogo; Escape (o tocar afuera) la
-   cierra y el foco vuelve a donde estaba. */
+   cierra y el foco vuelve a donde estaba.
+   d95 (notas del dueño 26/10, «se puede seguir scrolleando y la página sigue avanzando de manera borrosa»): mientras el
+   visor está abierto la página de atrás NO se mueve: ni la rueda, ni las teclas, ni el dedo, ni la barra (el documento
+   queda con overflow: hidden y el hueco de la barra reservado, así nada salta de ancho). Al cerrarlo, de cualquier
+   manera (Escape, tocar afuera, «Cerrar»), vuelve exactamente a la altura que tenía al abrirse. */
 const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
@@ -1038,7 +1042,40 @@ if (visor && typeof visor.showModal === "function") {
     pts[48] = "1";
     return CSS.supports && CSS.supports("animation-timing-function", "linear(0, 1)") ? `linear(${pts.join(", ")})` : "cubic-bezier(.2, 0, 0, 1)";
   })();
-  let origen = null, animacion = null;
+  let origen = null, animacion = null, bloqueo = null;
+  const raiz = document.documentElement;
+  const bloquear = () => {
+    if (bloqueo) return;
+    conductor.parar();                                       // si la rueda con inercia venía andando, frena en seco
+    bloqueo = { x: window.scrollX, y: window.scrollY };
+    raiz.classList.add("visor-abierto");
+  };
+  const volverAlLugar = () => {
+    if (!bloqueo) return;
+    const { x, y } = bloqueo;
+    bloqueo = null;
+    raiz.classList.remove("visor-abierto");
+    if (Math.abs(window.scrollY - y) > 0.5 || window.scrollX !== x) window.scrollTo(x, y);
+    // el foco que vuelve a la captura podría querer acomodar la página: un cuadro después, otra vez a su altura
+    requestAnimationFrame(() => { if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(x, y); });
+  };
+  // con el visor abierto, la rueda y el dedo no llegan a la página (el texto largo del visor, si no entra, sí se desplaza)
+  const frenar = (e) => {
+    if (!bloqueo) return;
+    const caja = e.target && e.target.closest ? e.target.closest(".visor-texto") : null;
+    if (caja && caja.scrollHeight > caja.clientHeight + 1) return;
+    if (e.cancelable) e.preventDefault();
+  };
+  window.addEventListener("wheel", frenar, { passive: false, capture: true });
+  window.addEventListener("touchmove", frenar, { passive: false, capture: true });
+  // y las teclas que desplazan tampoco (el espacio y Enter sobre «Cerrar» siguen siendo del botón)
+  const TECLAS_QUE_MUEVEN = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End", " ", "Spacebar"]);
+  window.addEventListener("keydown", (e) => {
+    if (!bloqueo || !TECLAS_QUE_MUEVEN.has(e.key)) return;
+    if ((e.key === " " || e.key === "Spacebar") && e.target && e.target.closest && e.target.closest("button")) return;
+    e.preventDefault();
+  }, { capture: true });
+  visor.addEventListener("close", volverAlLugar);
   const transformDesde = (el) => {
     const o = el.getBoundingClientRect(), f = visor.getBoundingClientRect();
     return `translate(${o.left - f.left}px, ${o.top - f.top}px) scale(${o.width / f.width}, ${o.height / f.height})`;
@@ -1062,7 +1099,8 @@ if (visor && typeof visor.showModal === "function") {
     }
     origen = desde || null;
     visor.classList.toggle("flip", !!origen && !quieto);
-    visor.showModal();
+    bloquear();
+    try { visor.showModal(); } catch (err) { volverAlLugar(); return; }
     if (!origen || quieto || !visor.animate) return;
     visor.style.transformOrigin = "0 0";
     animacion = visor.animate([{ transform: transformDesde(origen), borderRadius: "16px" }, { transform: "none", borderRadius: "22px" }],

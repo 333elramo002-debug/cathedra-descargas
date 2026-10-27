@@ -1218,7 +1218,15 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
   border-image: var(--mi-vidrio-capsula-oscuro) 87 88 fill / 19.8px 20px stretch;
 }
 .ampliar svg { position: relative; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* d95 · con el visor abierto la página de atrás queda quieta: sin barra de desplazamiento pero con su hueco reservado
+   (nada cambia de ancho ni salta), y el desplazamiento no se encadena del visor a la página */
+html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 .visor {
+  /* d95 · fijo a la pantalla, no al documento: con «position: relative» (de la regla del vidrio) el diálogo quedaba
+     anclado arriba de todo el documento; al abrirse, el foco en «Cerrar» llevaba la página al principio y la rueda la
+     seguía moviendo detrás del desenfoque */
+  position: fixed;
+  overscroll-behavior: contain;
   width: min(96vw, 1600px); max-height: 94vh; padding: 0;
   border-radius: 22px; overflow: hidden; color: var(--texto);
   box-shadow: 0 60px 140px -40px rgba(10, 4, 2, .7);
