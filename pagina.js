@@ -1135,11 +1135,12 @@ if (visor && typeof visor.showModal === "function") {
 
 /* ══════════════════════ tu computadora ══════════════════════
    Estimación con lo que el navegador deja ver (memoria, núcleos, tarjeta de video);
-   el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
-   son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
+   el instalador mide la de verdad. Los ids son fijos, los textos se pueden editar. (27/10, d92) Las dos instalaciones
+   del instalador: la completa (la del botón, lo mejor para esa computadora) y la liviana (en «Personalizar»), sin
+   nombrar nada técnico. */
 const PAQUETES = {
-  liviano: { nombre: "liviana", lema: "Ocupa menos y anda bien en computadoras menos potentes." },
-  local_4b: { nombre: "completa", lema: "Con todo: también te contesta y te habla sin conexión." }
+  liviano: { nombre: "liviana", lema: "Se elige al instalar: se bajan unos 3,9 GB y anda bien en computadoras menos potentes." },
+  local_4b: { nombre: "completa", lema: "Es la del botón «Instalar»: trae lo mejor para tu computadora, también para estudiar sin conexión." }
 };
 function estimarPaquete() {
   const memoria = navigator.deviceMemory || 0;        // el navegador la topa en 8
