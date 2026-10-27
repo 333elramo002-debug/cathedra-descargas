@@ -3,9 +3,9 @@
    Las dos constantes que hay que tocar al publicar están arriba. El resto:
      · la carga: la estrella se enciende con lo que va llegando (las letras y la página) y se abre;
      · el héroe (manual §04, §14, 20/10): la entrada con GSAP (0,0 s el titular, 0,3 s la composición, 0,7 s el
-       emblema, después el atlas), el emblema que flota con ciclos de 6 a 10 s, el paralaje de las capas con el puntero
+       emblema, después la franja de lo que ganás), el emblema que flota con ciclos de 6 a 10 s, el paralaje de las capas con el puntero
        y al bajar (ScrollTrigger). En el teléfono, la composición arriba y sin puntero;
-     · el atlas de materiales (§05): la ficha técnica de cada panel;
+     · la franja de lo que ganás (d95, en el lugar del atlas de materiales) y el vidrio que sigue al puntero;
      · las apariencias Claro (marfil, la de fábrica) y Oscuro (cuero): siguen al sistema hasta que se elige una en la
        cabecera (se recuerda);
      · las entradas de las secciones atadas al scroll, la cabecera, las demos, el visor y el sonido.
@@ -174,7 +174,7 @@ cabeceraSegunScroll();
      0,62 s  los botones; 0,86 s las tres claves
      0,70 s  el emblema sube, crece y endereza su giro con un rebote mínimo (seguimiento); 1,15 s el núcleo cereza se
              enciende y 1,2 s una luz le recorre los cantos; 1,5 s la luz cruza la laca del botón principal
-     0,60 s  los paneles del atlas que se ven se descubren de abajo hacia arriba
+     0,60 s  los paneles de «lo que ganás» que se ven se descubren de abajo hacia arriba
    En reposo, una flotación mínima del emblema con ciclos de 6 a 10 s que no se repiten y, cada 8 a 10 s, un barrido de luz
    lento. Al bajar (scrub), las capas se separan, el texto sube más rápido que la escena y el emblema gira y se acerca.
    Cada elemento tiene un solo trabajo, así ninguna transformación pisa a otra:
@@ -215,11 +215,11 @@ cabeceraSegunScroll();
   const botones = [...sec.querySelectorAll(".portada-acciones > a")], datos = [...sec.querySelectorAll(".heroe-datos li")];
   // la barra: la marca baja (sus piezas: la barra misma se compacta con CSS al bajar) y la cápsula aparece
   const marcaPiezas = [...document.querySelectorAll(".cab-marca > *")], capsula = document.querySelector(".cab-nav");
-  const paneles = [...document.querySelectorAll(".atlas-panel")].filter((p) => p.getBoundingClientRect().top < window.innerHeight);
-  PAGINA.atlasEnHeroe = new Set(paneles);
-  const cuadros = paneles.map((p) => p.querySelector(".atlas-cuadro"));
-  const fotos = paneles.map((p) => p.querySelector(".atlas-img")).filter(Boolean);
-  const leyendas = paneles.flatMap((p) => [...p.querySelectorAll(".atlas-texto, .atlas-ver")]);
+  const paneles = [...document.querySelectorAll(".ganas-item")].filter((p) => p.getBoundingClientRect().top < window.innerHeight);
+  PAGINA.franjaEnHeroe = new Set(paneles);
+  const cuadros = paneles.map((p) => p.querySelector(".ganas-placa"));
+  const fotos = paneles.map((p) => p.querySelector(".ganas-medalla")).filter(Boolean);
+  const leyendas = paneles.flatMap((p) => [...p.querySelectorAll(".ganas-texto")]);
   const apilado = window.matchMedia("(max-width: 860px), (max-aspect-ratio: 11/10)").matches;
   const fino = window.matchMedia("(pointer: fine)").matches && !apilado;
   const FONDO = 1.08;                             // el margen del fondo (el mismo de estilos.css)
@@ -238,7 +238,7 @@ cabeceraSegunScroll();
   gsap.set(emblema, { opacity: 0, y: 90, rotation: -16, scale: 0.74, transformOrigin: "50% 55%" });
   if (nucleo) gsap.set(nucleo, { opacity: 0, scale: 0.4 });
   gsap.set([luzCantos, luzEscena], { xPercent: -110, opacity: 0 });
-  if (cuadros.length) { gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 1.25 }); gsap.set(leyendas, { opacity: 0, y: 14 }); }
+  if (cuadros.length) { gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 0.6, opacity: 0 }); gsap.set(leyendas, { opacity: 0, y: 14 }); }
 
   let enVista = true;
   const vivos = [];
@@ -270,14 +270,14 @@ cabeceraSegunScroll();
     .add(() => brillar(botones[0]), 1.5);                                                              //        la luz en la laca
   if (nucleo) tl.to(nucleo, { opacity: 0.85, scale: 1, duration: 0.5, ease: "power2.out" }, 1.15)     //        el núcleo se enciende
     .to(nucleo, { opacity: 0, duration: 1.6, ease: "sine.inOut" }, 1.65);
-  if (cuadros.length) tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, stagger: 0.07, ease: "power3.inOut" }, 0.6)    // 0,6 s · el atlas
-    .to(fotos, { scale: 1, duration: 1.9, stagger: 0.07 }, 0.6)
+  if (cuadros.length) tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.2, stagger: 0.07, ease: "power3.inOut" }, 0.6)    // 0,6 s · lo que ganás
+    .to(fotos, { scale: 1, opacity: 1, duration: 1.3, stagger: 0.08, ease: "back.out(1.7)" }, 0.95)
     .to(leyendas, { opacity: 1, y: 0, duration: 0.9, stagger: 0.04 }, 0.85);
   tl.add(() => {
     gsap.set(escenario, { clearProps: "clipPath" }); gsap.set(emblema, { clearProps: "transform" });
     if (bajada) gsap.set(bajada, { clearProps: "clipPath" });
-    // el atlas vuelve a sus reglas (al pasar, la ficha tapa la leyenda: un estilo puesto acá le ganaría al CSS)
-    if (cuadros.length) { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(leyendas, { clearProps: "opacity,transform" }); }
+    // la franja vuelve a sus reglas (un estilo puesto acá le ganaría al CSS)
+    if (cuadros.length) { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(fotos, { clearProps: "opacity,transform" }); gsap.set(leyendas, { clearProps: "opacity,transform" }); }
     flotar(); luzCada();
   }, 2.8);
 
@@ -330,38 +330,34 @@ cabeceraSegunScroll();
   PAGINA.entrarHeroe = () => tl.play();
 })();
 
-/* ══════════════════════ el atlas: la versión técnica de cada material (§05) ══════════════════════ */
-/* Con el mouse, la ficha aparece al pasar (CSS: se descubre de abajo hacia arriba y sus filas llegan una tras otra); con
-   el dedo o el teclado, con «Ficha técnica». d80 · con el mouse, la imagen se inclina hacia el puntero (hasta 9° y 7°,
-   perspectiva de 800 px, con inercia de 0,9 s) y un reflejo ancho la sigue: el material se mira como un objeto. */
-if (!quieto && gsap && window.matchMedia("(pointer: fine)").matches) {
-  document.querySelectorAll(".atlas-panel").forEach((p) => {
-    const cuadro = p.querySelector(".atlas-cuadro"), img = p.querySelector(".atlas-img");
-    if (!cuadro) return;
-    const luz = document.createElement("i"); luz.className = "atlas-luz"; luz.setAttribute("aria-hidden", "true");
-    cuadro.appendChild(luz);
-    const a = (el, prop, d) => gsap.quickTo(el, prop, { duration: d, ease: "power3.out" });
-    const lx = a(luz, "x", 0.6), ly = a(luz, "y", 0.6);
-    let rx, ry, sc;
-    if (img) { gsap.set(img, { transformPerspective: 800 }); rx = a(img, "rotationX", 0.9); ry = a(img, "rotationY", 0.9); sc = a(img, "scale", 1.1); }
-    p.addEventListener("pointermove", (e) => {
-      const r = cuadro.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
-      if (img) { ry(x * 9); rx(-y * 7); sc(1.08); }
-      lx((x + 0.5) * r.width - r.width * 0.15); ly((y + 0.5) * r.height - r.height * 0.2);
-    });
-    p.addEventListener("pointerleave", () => { if (img) { rx(0); ry(0); sc(1); } });
-  });
+/* ══════════════════════ el vidrio líquido sigue al puntero (d95) ══════════════════════ */
+/* Notas del dueño 26/10: «el liquid glass necesita más trabajo (inspirarse fuertemente en Apple)». En los botones y las
+   piezas que flotan (.vidrio-liquido), el reflejo especular va adonde está el puntero: --lx / --ly en porcentaje del
+   botón, que el CSS usa para centrar el brillo y correr apenas la banda de refracción. Sólo con mouse y con animaciones;
+   escribe una vez por cuadro y nada más (sin maquetar). Quieto o con el dedo, el reflejo queda arriba a la izquierda. */
+if (!quieto && window.matchMedia("(pointer: fine)").matches) {
+  let pendiente = null, cuadro = 0;
+  const pintarLuz = () => {
+    cuadro = 0;
+    if (!pendiente) return;
+    const [el, x, y] = pendiente; pendiente = null;
+    const r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    el.style.setProperty("--lx", (((x - r.left) / r.width) * 100).toFixed(1) + "%");
+    el.style.setProperty("--ly", (((y - r.top) / r.height) * 100).toFixed(1) + "%");
+  };
+  document.addEventListener("pointermove", (e) => {
+    const el = e.target && e.target.closest ? e.target.closest(".vidrio-liquido, .cab-tema button, .cab-nav") : null;
+    if (!el) return;
+    el.classList.add("con-luz");
+    pendiente = [el, e.clientX, e.clientY];
+    if (!cuadro) cuadro = requestAnimationFrame(pintarLuz);
+  }, { passive: true });
+  document.addEventListener("pointerout", (e) => {
+    const el = e.target && e.target.closest ? e.target.closest(".vidrio-liquido, .cab-tema button, .cab-nav") : null;
+    if (el && !(e.relatedTarget && el.contains(e.relatedTarget))) el.classList.remove("con-luz");
+  }, { passive: true });
 }
-document.querySelectorAll(".atlas-ver").forEach((b) => {
-  const panel = b.closest(".atlas-panel"), texto = b.querySelector("span");
-  b.addEventListener("click", () => {
-    const abrir = b.getAttribute("aria-expanded") !== "true";
-    b.setAttribute("aria-expanded", String(abrir));
-    panel.classList.toggle("ficha-abierta", abrir);
-    texto.textContent = abrir ? "Ver el material" : "Ficha técnica";
-  });
-});
 
 /* ══════════════════════ la carga: la estrella se enciende ══════════════════════ */
 /* Lo que se mide de verdad: las letras (70 %) y la página (30 %). Lo que se muestra persigue a lo medido con un
@@ -728,19 +724,19 @@ if (!quieto && window.matchMedia("(pointer: fine)").matches) {
     alLlegar(desc, tl, "top 65%");
   }
 
-  // el atlas que no entró con el héroe (pantallas bajas, el teléfono)
-  const resto = [...document.querySelectorAll(".atlas-panel")].filter((p) => !(PAGINA.atlasEnHeroe && PAGINA.atlasEnHeroe.has(p)));
+  // lo que ganás, si no entró con el héroe (pantallas bajas, el teléfono)
+  const resto = [...document.querySelectorAll(".ganas-item")].filter((p) => !(PAGINA.franjaEnHeroe && PAGINA.franjaEnHeroe.has(p)));
   if (resto.length) {
-    const cuadros = resto.map((p) => p.querySelector(".atlas-cuadro"));
-    const fotos = resto.map((p) => p.querySelector(".atlas-img")).filter(Boolean);
-    const ley = resto.flatMap((p) => [...p.querySelectorAll(".atlas-texto, .atlas-ver")]);
-    gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 1.25 }); gsap.set(ley, { opacity: 0, y: 14 });
+    const cuadros = resto.map((p) => p.querySelector(".ganas-placa"));
+    const fotos = resto.map((p) => p.querySelector(".ganas-medalla")).filter(Boolean);
+    const ley = resto.flatMap((p) => [...p.querySelectorAll(".ganas-texto")]);
+    gsap.set(cuadros, { clipPath: "inset(100% 0% 0% 0%)" }); gsap.set(fotos, { scale: 0.6, opacity: 0 }); gsap.set(ley, { opacity: 0, y: 14 });
     const tl = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
     tl.to(cuadros, { clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, stagger: 0.08, ease: "power3.inOut" }, 0)
-      .to(fotos, { scale: 1, duration: 1.9, stagger: 0.08 }, 0)
+      .to(fotos, { scale: 1, opacity: 1, duration: 1.3, stagger: 0.08, ease: "back.out(1.7)" }, 0.35)
       .to(ley, { opacity: 1, y: 0, duration: 0.9, stagger: 0.05 }, 0.25)
-      .add(() => { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(ley, { clearProps: "opacity,transform" }); });
-    ScrollTrigger.create({ trigger: document.getElementById("materiales"), start: "top 80%", once: true, onEnter: () => tl.play() });
+      .add(() => { gsap.set(cuadros, { clearProps: "clipPath" }); gsap.set(fotos, { clearProps: "opacity,transform" }); gsap.set(ley, { clearProps: "opacity,transform" }); });
+    ScrollTrigger.create({ trigger: document.getElementById("ganas"), start: "top 80%", once: true, onEnter: () => tl.play() });
   }
 
   // si el alto de la página cambia (las demos se montan y crecen, llegan las letras), ScrollTrigger vuelve a medir
@@ -926,7 +922,7 @@ if (demos.length) {
   });
 
   // el botón: la onda dibujada, plana si está apagado. Se mueve sólo mientras cambia (al prender o apagar) y queda
-  // quieta: fuera del héroe y del atlas no hay movimiento de reposo (manual §14)
+  // quieta: fuera del héroe no hay movimiento de reposo (manual §14)
   if (boton && window.AudioContext) {
     boton.hidden = false;
     const lienzo = boton.querySelector("canvas");
@@ -1021,7 +1017,11 @@ document.querySelectorAll("[data-quieto]").forEach((a) => {
 
 /* ══════════════════════ ver una pantalla en grande ══════════════════════ */
 /* Tocar una captura la abre a pantalla completa en un diálogo; Escape (o tocar afuera) la
-   cierra y el foco vuelve a donde estaba. */
+   cierra y el foco vuelve a donde estaba.
+   d95 (notas del dueño 26/10, «se puede seguir scrolleando y la página sigue avanzando de manera borrosa»): mientras el
+   visor está abierto la página de atrás NO se mueve: ni la rueda, ni las teclas, ni el dedo, ni la barra (el documento
+   queda con overflow: hidden y el hueco de la barra reservado, así nada salta de ancho). Al cerrarlo, de cualquier
+   manera (Escape, tocar afuera, «Cerrar»), vuelve exactamente a la altura que tenía al abrirse. */
 const visor = document.getElementById("visor");
 if (visor && typeof visor.showModal === "function") {
   const imgVisor = visor.querySelector("img");
@@ -1038,7 +1038,40 @@ if (visor && typeof visor.showModal === "function") {
     pts[48] = "1";
     return CSS.supports && CSS.supports("animation-timing-function", "linear(0, 1)") ? `linear(${pts.join(", ")})` : "cubic-bezier(.2, 0, 0, 1)";
   })();
-  let origen = null, animacion = null;
+  let origen = null, animacion = null, bloqueo = null;
+  const raiz = document.documentElement;
+  const bloquear = () => {
+    if (bloqueo) return;
+    conductor.parar();                                       // si la rueda con inercia venía andando, frena en seco
+    bloqueo = { x: window.scrollX, y: window.scrollY };
+    raiz.classList.add("visor-abierto");
+  };
+  const volverAlLugar = () => {
+    if (!bloqueo) return;
+    const { x, y } = bloqueo;
+    bloqueo = null;
+    raiz.classList.remove("visor-abierto");
+    if (Math.abs(window.scrollY - y) > 0.5 || window.scrollX !== x) window.scrollTo(x, y);
+    // el foco que vuelve a la captura podría querer acomodar la página: un cuadro después, otra vez a su altura
+    requestAnimationFrame(() => { if (Math.abs(window.scrollY - y) > 0.5) window.scrollTo(x, y); });
+  };
+  // con el visor abierto, la rueda y el dedo no llegan a la página (el texto largo del visor, si no entra, sí se desplaza)
+  const frenar = (e) => {
+    if (!bloqueo) return;
+    const caja = e.target && e.target.closest ? e.target.closest(".visor-texto") : null;
+    if (caja && caja.scrollHeight > caja.clientHeight + 1) return;
+    if (e.cancelable) e.preventDefault();
+  };
+  window.addEventListener("wheel", frenar, { passive: false, capture: true });
+  window.addEventListener("touchmove", frenar, { passive: false, capture: true });
+  // y las teclas que desplazan tampoco (el espacio y Enter sobre «Cerrar» siguen siendo del botón)
+  const TECLAS_QUE_MUEVEN = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown", "Home", "End", " ", "Spacebar"]);
+  window.addEventListener("keydown", (e) => {
+    if (!bloqueo || !TECLAS_QUE_MUEVEN.has(e.key)) return;
+    if ((e.key === " " || e.key === "Spacebar") && e.target && e.target.closest && e.target.closest("button")) return;
+    e.preventDefault();
+  }, { capture: true });
+  visor.addEventListener("close", volverAlLugar);
   const transformDesde = (el) => {
     const o = el.getBoundingClientRect(), f = visor.getBoundingClientRect();
     return `translate(${o.left - f.left}px, ${o.top - f.top}px) scale(${o.width / f.width}, ${o.height / f.height})`;
@@ -1062,7 +1095,8 @@ if (visor && typeof visor.showModal === "function") {
     }
     origen = desde || null;
     visor.classList.toggle("flip", !!origen && !quieto);
-    visor.showModal();
+    bloquear();
+    try { visor.showModal(); } catch (err) { volverAlLugar(); return; }
     if (!origen || quieto || !visor.animate) return;
     visor.style.transformOrigin = "0 0";
     animacion = visor.animate([{ transform: transformDesde(origen), borderRadius: "16px" }, { transform: "none", borderRadius: "22px" }],
@@ -1104,8 +1138,8 @@ if (visor && typeof visor.showModal === "function") {
    el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
    son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
 const PAQUETES = {
-  liviano: { nombre: "Liviano", lema: "En «Personalizar», conviene quitar el Motor local; lo demás se instala igual." },
-  local_4b: { nombre: "Local", lema: "Con todo instalado: preguntas y voz también sin conexión." }
+  liviano: { nombre: "liviana", lema: "Ocupa menos y anda bien en computadoras menos potentes." },
+  local_4b: { nombre: "completa", lema: "Con todo: también te contesta y te habla sin conexión." }
 };
 function estimarPaquete() {
   const memoria = navigator.deviceMemory || 0;        // el navegador la topa en 8
@@ -1124,8 +1158,9 @@ function estimarPaquete() {
   const caja = document.getElementById("tu-equipo");
   if (!caja || /Windows/.test(navigator.userAgent) === false) return;
   const p = PAQUETES[estimarPaquete()];
-  // la misma frase que la tarjeta de Ajustes › Módulos de la app (paquetes.json › textos › titulo)
-  document.getElementById("te-nombre").textContent = "Te recomendamos el paquete «" + p.nombre + "».";
+  // d95 · en palabras del instalador nuevo (notas del dueño 26/10, punto 15): «Instalación completa / liviana», sin
+  // nombres de paquetes, módulos ni motores
+  document.getElementById("te-nombre").textContent = "Te conviene la instalación " + p.nombre + ".";
   document.getElementById("te-lema").textContent = p.lema;
   caja.hidden = false;
 })();
