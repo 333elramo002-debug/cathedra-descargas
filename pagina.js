@@ -1101,11 +1101,12 @@ if (visor && typeof visor.showModal === "function") {
 
 /* ══════════════════════ tu computadora ══════════════════════
    Estimación con lo que el navegador deja ver (memoria, núcleos, tarjeta de video);
-   el instalador mide la de verdad. Espejo de app/paquetes.json de la app: los ids
-   son fijos, los textos se pueden editar. «Local plus» sólo lo propone el instalador. */
+   el instalador mide la de verdad. Los ids son fijos, los textos se pueden editar. (27/10, d92) Las dos instalaciones
+   del instalador: la completa (la del botón, lo mejor para esa computadora) y la liviana (en «Personalizar»), sin
+   nombrar nada técnico. */
 const PAQUETES = {
-  liviano: { nombre: "Liviano", lema: "En «Personalizar», conviene quitar el Motor local; lo demás se instala igual." },
-  local_4b: { nombre: "Local", lema: "Con todo instalado: preguntas y voz también sin conexión." }
+  liviano: { nombre: "Liviana", lema: "Se elige en «Personalizar», al instalar: ocupa unos 2 GB." },
+  local_4b: { nombre: "Completa", lema: "Es la del botón «Instalar»: trae lo mejor para tu computadora." }
 };
 function estimarPaquete() {
   const memoria = navigator.deviceMemory || 0;        // el navegador la topa en 8
@@ -1124,8 +1125,7 @@ function estimarPaquete() {
   const caja = document.getElementById("tu-equipo");
   if (!caja || /Windows/.test(navigator.userAgent) === false) return;
   const p = PAQUETES[estimarPaquete()];
-  // la misma frase que la tarjeta de Ajustes › Módulos de la app (paquetes.json › textos › titulo)
-  document.getElementById("te-nombre").textContent = "Te recomendamos el paquete «" + p.nombre + "».";
+  document.getElementById("te-nombre").textContent = "Te recomendamos la instalación «" + p.nombre + "».";
   document.getElementById("te-lema").textContent = p.lema;
   caja.hidden = false;
 })();

@@ -33,7 +33,7 @@ Playwright), además sirve el repo en un puerto libre y mira la página de verda
   · un solo enlace al instalador, el que tiene data-descarga;
   · con «reducir movimiento» del sistema nada se anima y la carga no aparece; sin JS la página se ve;
   · «Descargar» de la cabecera llega a la sección (celular y escritorio) y el foco pasa a ella;
-  · el bloque «Tu computadora» aparece en Windows, con un paquete del catálogo, y no en otros sistemas;
+  · el bloque «Tu computadora» aparece en Windows, con una de las dos instalaciones, y no en otros sistemas;
   · a 390px no hay desborde horizontal.
 """
 from __future__ import annotations
@@ -661,13 +661,13 @@ def en_navegador() -> dict[str, list[str]]:
                 ctx.close()
             resultados["«Descargar» de la cabecera llega a la sección"] = problemas
 
-            # 5 · «Tu computadora»: en Windows, con un paquete del catálogo; en otros sistemas, nada
+            # 5 · «Tu computadora»: en Windows, con una de las dos instalaciones; en otros sistemas, nada
             ctx, pag, _, _ = abrir(viewport={"width": 390, "height": 844})
             bloque = pag.evaluate("() => { const b = document.getElementById('tu-equipo'); return { oculto: b.hidden, texto: b.innerText }; }")
             problemas = []
             if bloque["oculto"]:
                 problemas.append("en Windows el bloque no aparece")
-            elif not re.search(r"Te recomendamos el paquete «(Liviano|Local)»\.", bloque["texto"]):
+            elif not re.search(r"Te recomendamos la instalación «(Liviana|Completa)»\.", bloque["texto"]):
                 problemas.append(f"el bloque dice: {bloque['texto']!r}")
             problemas += [f"bloque: {h}" for h in buscar_prohibidas(bloque["texto"], con_beta=True)]
             ctx.close()
