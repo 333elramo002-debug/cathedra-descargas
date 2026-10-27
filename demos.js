@@ -202,7 +202,7 @@ function preguntar(d, calma) {
       p.textContent = P.r;
       if (P.propio) {
         const pr = el("div", "dp-propio");
-        pr.append(el("span", "rot", "Esto no lo dijo la profe: es de Voz 1"), el("span", null, P.propio));
+        pr.append(el("span", "rot", "Esto no lo dijo la profe: es un ejemplo propio"), el("span", null, P.propio));
         resp.append(pr);
       }
       const c = P.cita;

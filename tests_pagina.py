@@ -12,6 +12,8 @@ Qué verifica (sin navegador):
     propias viven únicamente en las etiquetas para compartir, que lo exigen);
   · ninguna palabra prohibida en el texto visible (precio, gratis, beta fuera de las legales,
     modelo, API, placa, tokens, JSON, WebGL, shader, nombres de proveedores...);
+  · (d95, notas del dueño 26/10) nada de copy técnico en lo que vende: ni colores, ni materiales, ni letras, ni medidas, ni
+    módulos o motores del instalador (sólo las legales y los créditos nombran lo que las licencias piden);
   · cada página declara lang="es-AR", charset utf-8 y viewport;
   · el peso: cada imagen servida <= 2 MB y lo público < 16 MB (sin lo de antes, en las carpetas _anterior, que no se
     publica). Lo que baja de verdad un visitante (un solo tamaño y un solo formato de cada pantalla, y sólo al llegar)
@@ -23,8 +25,8 @@ Qué verifica (sin navegador):
   · el CSS respeta prefers-reduced-motion por sí solo y la página se ve sin JS;
   · (d66, el manual de producción visual) el héroe de §04: titular, botón principal cherry y secundario de borde fino,
     la barra de marca con su navegación breve y Oscuro / Claro, y la composición en capas con sus tamaños en avif y webp
-    (la escena de 1920 <= 450 KB); el atlas de §05: cinco paneles con su ficha técnica, las imágenes de nombre fijo y sus
-    variantes al día (imagenes/atlas/derivadas.json); el movimiento de §14 y §16: reposo sólo en el héroe, @keyframes
+    (la escena de 1920 <= 450 KB); la franja de «lo que ganás» (d95, en el lugar del atlas de §05): cuatro beneficios con
+    su placa marfil y su medallón de vidrio; el movimiento de §14 y §16: reposo sólo en el héroe, @keyframes
     sólo con transform y opacity, a lo sumo dos superficies con desenfoque, y la clara de fábrica.
 
 Con Chromium (si hay uno; se busca en CATHEDRA_NAVEGADOR_PRUEBAS, /opt/pw-browsers/chromium o el de
@@ -33,7 +35,7 @@ Playwright), además sirve el repo en un puerto libre y mira la página de verda
   · un solo enlace al instalador, el que tiene data-descarga;
   · con «reducir movimiento» del sistema nada se anima y la carga no aparece; sin JS la página se ve;
   · «Descargar» de la cabecera llega a la sección (celular y escritorio) y el foco pasa a ella;
-  · el bloque «Tu computadora» aparece en Windows, con un paquete del catálogo, y no en otros sistemas;
+  · el bloque «Tu computadora» aparece en Windows, con la instalación que conviene, y no en otros sistemas;
   · a 390px no hay desborde horizontal.
 """
 from __future__ import annotations
@@ -75,6 +77,15 @@ PROHIBIDAS = [
      r"OpenRouter|Groq|Hugging ?Face|Azure|Bedrock|Cohere|ElevenLabs|Copilot|Vercel|GitHub)\b", "proveedor"),
 ]
 BETA = (r"\bbeta\b", "beta (sólo en las legales)")
+# d95 · lo que la página que vende no nombra (notas del dueño 26/10, punto 2 de la página): cómo está hecha por dentro
+COPY_TECNICO = [
+    (r"\bLiquid\s+Glass\b", "Liquid Glass"), (r"\b(Leather|Ivory|Espresso|Stone|Signature|Brand\s+system)\b", "nombre de material en inglés"),
+    (r"\b(Playfair|Inter)\b", "nombre de tipografía"), (r"\btipograf", "tipografía"), (r"\btexturas?\b", "textura"),
+    (r"\b(cuero|marfil|laca|cristal|vidrio|pespunte|resina|peana)\b", "material"), (r"\brugosidad|refracci[oó]n|\bpaleta\b", "dato de material"),
+    (r"#[0-9A-Fa-f]{6}\b", "color en HEX"), (r"\b\d+\s?px\b", "medida en px"), (r"\brenders?\b", "render"),
+    (r"\bficha t[eé]cnica\b", "ficha técnica"), (r"\bm[oó]dulos?\b", "módulo"), (r"\bmotor(es)?\b", "motor"),
+    (r"\bpaquetes?\b", "paquete"), (r"\bpersonalizar\b", "«Personalizar» del instalador"), (r"\bherramientas?\b", "herramienta"),
+]
 
 
 # ─────────────────────────── lo que se lee de los archivos ───────────────────────────
@@ -242,6 +253,22 @@ def sin_palabras_prohibidas() -> list[str]:
     return problemas
 
 
+@estatico("sin copy técnico en lo que vende (colores, materiales, letras, medidas, módulos)")
+def sin_copy_tecnico() -> list[str]:
+    problemas = []
+    textos = [(pagina, "\n".join(analizar(pagina).trozos)) for pagina in ("index.html", "404.html")]
+    # de los guiones, sólo las frases (no los selectores, las consultas de medios ni las plantillas de rutas)
+    textos += [(guion, "\n".join(f for f in frases_js(guion) if not re.match(r"^[\s(]*[.#\[:(]|^\$\{|^[\w-]+\[", f)))
+               for guion in GUIONES]
+    for nombre_archivo, texto in textos:
+        for patron, nombre in COPY_TECNICO:
+            if nombre_archivo in GUIONES and nombre in ("medida en px", "color en HEX"):
+                continue                      # en el código las medidas y los colores son estilo, no texto
+            for m in re.finditer(patron, texto, flags=re.I):
+                problemas.append(f"{nombre_archivo}: {nombre} («{texto[max(0, m.start() - 30):m.end() + 30].strip()}»)")
+    return problemas
+
+
 @estatico("es-AR, utf-8 y viewport en cada página")
 def idioma_y_viewport() -> list[str]:
     problemas = []
@@ -388,7 +415,6 @@ HEROE_CAPAS = {   # cada capa del héroe, en sus tamaños; avif y webp de cada u
     "emblema-ivory": (474, 948), "emblema-espresso": (474, 948), "frente-ivory": (960,), "frente-espresso": (960,),
 }
 ESCENA_MAXIMA = 450 * 1024        # la escena del héroe a 1920, en cada formato (encargo d66)
-ATLAS = ["01_leather", "02_glass", "03_emblem", "04_ivory_stone"]
 
 
 @estatico("el héroe según el manual: grilla, titular, dos botones y la composición en capas")
@@ -404,8 +430,8 @@ def heroe_del_manual() -> list[str]:
         problemas.append("el titular no es «Estudiás de lo que dijo tu profesor.» con la última palabra en cherry")
     if not re.search(r'class="boton-descarga boton-principal"[^>]*>.*?Descargar para Windows', heroe, flags=re.S):
         problemas.append("falta el botón principal cherry «Descargar para Windows»")
-    if not re.search(r'class="pildora"[^>]*>Cómo funciona<', heroe):
-        problemas.append("falta el secundario de borde fino «Cómo funciona»")
+    if not re.search(r'class="pildora(?: [^"]*)?"[^>]*>Cómo funciona<', heroe):        # d95: de vidrio líquido, con borde >= 3 : 1
+        problemas.append("falta el secundario «Cómo funciona»")
     cabecera = html.split('<header class="cabecera"', 1)[-1].split("</header>", 1)[0]
     for texto in ("Cómo funciona", "Todo lo que hace", "Descargar"):
         if f">{texto}<" not in cabecera:
@@ -439,7 +465,8 @@ def heroe_del_manual() -> list[str]:
 @estatico("más cinemático y texturizado: barrido cada 8–10 s sólo en el héroe, microtextura nunca bajo el texto")
 def cinematico_y_texturas() -> list[str]:
     """Dueño 20/10 15:05: capas que se separan, luz en los cantos, viñeta y bruma, un barrido cada 8–10 s SÓLO en el
-    héroe; macros reales en el atlas; tarjetas marfil con microtextura perceptible pero NUNCA debajo del texto (§08)."""
+    héroe; tarjetas marfil con microtextura perceptible pero NUNCA debajo del texto (§08). d95: el grano, más visible
+    (notas del dueño 26/10: «mejor calidad en textura»), sigue fuera del texto; también en las placas de «lo que ganás»."""
     problemas = []
     js = sin_comentarios_js(leer("pagina.js"))
     if not re.search(r"delayedCall\(gsap\.utils\.random\(8,\s*10\)", js):
@@ -447,10 +474,11 @@ def cinematico_y_texturas() -> list[str]:
     if ".heroe-barrido i" not in js or ".emblema-luz i" not in js:
         problemas.append("el barrido no está en el héroe")
     grano = RAIZ / "imagenes/grano-marfil-384.webp"
-    if not grano.is_file() or grano.stat().st_size > 64 * 1024:
-        problemas.append("la microtextura del marfil falta o pesa más de 64 KB")
+    if not grano.is_file() or grano.stat().st_size > 96 * 1024:
+        problemas.append("la microtextura del marfil falta o pesa más de 96 KB")
     con_grano = [sel for sel, cuerpo in reglas_css() if "grano-marfil" in cuerpo]
-    permitidos = {".demo::before", ".cita-demo::before", ".profundidad::before", ".tj-cuadro::before", ".legal-indice::before"}
+    permitidos = {".demo::before", ".cita-demo::before", ".profundidad::before", ".tj-cuadro::before", ".legal-indice::before",
+                  ".ganas-placa::before", ".ganas-medalla"}      # el medallón no tiene texto: el relieve agrandado es su lente
     for sel in con_grano:
         for s in (x.strip() for x in sel.split(",")):
             if s not in permitidos:
@@ -463,30 +491,25 @@ def cinematico_y_texturas() -> list[str]:
     return problemas
 
 
-@estatico("el atlas de materiales: cinco paneles, imágenes con nombre fijo y variantes al día")
-def atlas_de_materiales() -> list[str]:
-    import hashlib
+@estatico("lo que ganás: cuatro beneficios con su placa marfil y su medallón de vidrio")
+def franja_lo_que_ganas() -> list[str]:
+    """d95 · en el lugar del atlas de materiales (colores, letras y fichas técnicas), lo que gana el estudiante."""
     problemas = []
     html = sin_comentarios_html(leer("index.html"))
-    if html.count('class="atlas-panel') != 5:
-        problemas.append(f"el atlas tiene {html.count('class=\"atlas-panel')} paneles (se esperaban 5)")
-    for n in ("01 · Leather", "02 · Liquid Glass", "03 · Signature Emblem", "04 · Ivory &amp; Stone", "05 · Brand system"):
-        if n not in html:
-            problemas.append(f"falta el panel «{n}»")
-    if html.count('class="atlas-ficha"') != 5:
-        problemas.append("cada panel lleva su ficha técnica (versión técnica neutra, §05)")
-    huellas_f = RAIZ / "imagenes/atlas/derivadas.json"
-    huellas = json.loads(huellas_f.read_text(encoding="utf-8")) if huellas_f.is_file() else {}
-    for n in ATLAS:
-        maestro = RAIZ / f"imagenes/atlas/{n}.webp"
-        if not maestro.is_file():
-            problemas.append(f"falta imagenes/atlas/{n}.webp")
-            continue
-        for v in (f"{n}.avif", f"{n}-600.avif", f"{n}-600.webp"):
-            if not (RAIZ / "imagenes/atlas" / v).is_file():
-                problemas.append(f"falta imagenes/atlas/{v}")
-        if huellas.get(n) != hashlib.sha256(maestro.read_bytes()).hexdigest():
-            problemas.append(f"imagenes/atlas/{n}.webp cambió y sus variantes no: correr hacer_imagenes_d66.py --atlas")
+    if "atlas" in html:
+        problemas.append("el atlas de materiales sigue en la página")
+    franja = html.split('id="ganas"', 1)[-1].split("</section>", 1)[0] if 'id="ganas"' in html else ""
+    if not franja:
+        return problemas + ["falta la franja «lo que ganás» (#ganas)"]
+    n = franja.count('class="ganas-item"')
+    if n != 4:
+        problemas.append(f"la franja tiene {n} beneficios (se esperaban 4)")
+    for clase in ("ganas-placa", "ganas-medalla vidrio-liquido", "ganas-num", "ganas-tit", "ganas-desc"):
+        if franja.count(f'class="{clase}"') != 4:
+            problemas.append(f"cada beneficio lleva .{clase.split()[0]}")
+    for palabra in ("Aprobar", "Entender", "Organizarte", "Repasar"):
+        if f">{palabra}<" not in franja:
+            problemas.append(f"falta el beneficio «{palabra}»")
     return problemas
 
 
@@ -502,7 +525,7 @@ def movimiento_del_manual() -> list[str]:
     css = sin_comentarios_css(leer("estilos.css"))
     for sel, cuerpo in reglas_css():
         if re.search(r"animation[^;]*\binfinite\b", cuerpo) and not re.search(r"\.boton-principal|\.cursor-escribe", sel):
-            problemas.append(f"movimiento de reposo fuera del héroe y el atlas: {sel}")
+            problemas.append(f"movimiento de reposo fuera del héroe: {sel}")
     for nombre, cuerpo in re.findall(r"@keyframes\s+([\w-]+)\s*\{((?:[^{}]*\{[^{}]*\})*)\s*\}", css):
         for prop in re.findall(r"([\w-]+)\s*:", cuerpo):
             if prop not in ("transform", "opacity", "translate", "scale", "rotate"):
@@ -661,13 +684,13 @@ def en_navegador() -> dict[str, list[str]]:
                 ctx.close()
             resultados["«Descargar» de la cabecera llega a la sección"] = problemas
 
-            # 5 · «Tu computadora»: en Windows, con un paquete del catálogo; en otros sistemas, nada
+            # 5 · «Tu computadora»: en Windows, con la instalación que conviene; en otros sistemas, nada
             ctx, pag, _, _ = abrir(viewport={"width": 390, "height": 844})
             bloque = pag.evaluate("() => { const b = document.getElementById('tu-equipo'); return { oculto: b.hidden, texto: b.innerText }; }")
             problemas = []
             if bloque["oculto"]:
                 problemas.append("en Windows el bloque no aparece")
-            elif not re.search(r"Te recomendamos el paquete «(Liviano|Local)»\.", bloque["texto"]):
+            elif not re.search(r"Te conviene la instalación (completa|liviana)\.", bloque["texto"]):
                 problemas.append(f"el bloque dice: {bloque['texto']!r}")
             problemas += [f"bloque: {h}" for h in buscar_prohibidas(bloque["texto"], con_beta=True)]
             ctx.close()

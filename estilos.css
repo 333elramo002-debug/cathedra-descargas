@@ -8,11 +8,14 @@
    de la cabecera (Oscuro / Claro, luna y sol) la fija con <html data-tema="cuero|marfil"> y se recuerda.
 
    Materiales (§07, §08, §10): marfil mineral satinado para lo que se lee (tarjetas, demos, marcos); cuero sólo en los
-   acentos de la marca (el atlas, la descarga, la burbuja de lo que preguntás); Liquid Glass sólo en lo que flota
-   (la cápsula de la cabecera, el visor, el botón de ampliar); cherry en la acción principal y en los estados activos.
+   acentos de la marca (la burbuja de lo que preguntás; en Oscuro también la descarga y la franja de lo que ganás);
+   vidrio líquido en lo que flota y en los botones (la cápsula de la cabecera, el visor, ampliar, el secundario, los
+   medallones); cherry en la acción principal y en los estados activos.
+   d95 (notas del dueño 26/10): más marfil en Claro (la franja de abajo del héroe y la descarga pasan a marfil, el fondo
+   de la página con el relieve del yeso a la vista) y un vidrio líquido más cercano al de Apple (ver «el vidrio líquido»).
 
-   Movimiento (§14): cuatro duraciones (160 / 240 / 420 / 700 ms) y tres curvas. En reposo sólo se mueven el héroe (la
-   flotación del emblema y la respiración del botón principal) y el atlas al pasar el mouse. Sólo transform y opacity.
+   Movimiento (§14): cuatro duraciones (160 / 240 / 420 / 700 ms) y tres curvas. En reposo sólo se mueve el héroe (la
+   flotación del emblema y la respiración del botón principal). Sólo transform y opacity.
    Con «reducir movimiento» nada se anima.
 
    Contraste (umbrales del dueño): texto corriente >= 7, secundario >= 4,5, bordes / íconos / texto grande >= 3,
@@ -73,8 +76,8 @@
   --hueco: 24px;
   --c-ancho: min(100vw - 2 * var(--gutter), var(--grilla));
   --c-izq: calc((100vw - var(--c-ancho)) / 2);
-  /* §05 · el atlas: 250–320 px a 1440 (302), hasta 340 en pantallas más anchas */
-  --atlas-alto: clamp(250px, 21vw, 340px);
+  /* la franja de abajo del héroe (d95: «lo que ganás», en el lugar del atlas de §05): 250–320 px a 1440 (302), hasta 340 */
+  --franja-alto: clamp(250px, 21vw, 340px);
 
   --radio-panel: 18px;         /* tarjetas y paneles de contenido (cuero incluido, §07) */
   --radio-tarjeta: 18px;
@@ -101,7 +104,10 @@
 :root {
   color-scheme: light;
   --fondo: #F1ECE4;
-  --fondo-trama: url(imagenes/trama-marfil.webp);   /* microtextura casi imperceptible (desvío 0,6–1,1 / 255), sin vetas (§08) */
+  /* d95 · el relieve de yeso real (el de las tarjetas, a fuerza baja): desvío de luminancia 3,2 / 255 (antes 0,8, no se
+     veía); los poros más hondos se levantan hasta 222 / 255, así el párrafo mide 7 : 1 o más aun en el peor píxel */
+  --fondo-trama: url(imagenes/marfil-yeso-384.webp);
+  --trama-tam: 384px;
   --sup-1: #FAF7F2;             /* Ivory levantado: tarjetas, demos, marcos */
   --sup-2: #F6F1EA;
   --sup-3: #E2D8CC;             /* Ivory shadow */
@@ -128,7 +134,7 @@
   --sombra-2: 1px 1px 1px rgba(56, 32, 22, .07), 3px 6px 12px -5px rgba(56, 32, 22, .14), 10px 24px 46px -22px rgba(56, 32, 22, .34);
   --sombra-3: 1px 2px 3px rgba(56, 32, 22, .08), 7px 16px 32px -14px rgba(56, 32, 22, .24), 22px 58px 104px -44px rgba(56, 32, 22, .46);
   --sombra-larga: 12px 34px 64px -34px rgba(56, 32, 22, .34), 3px 8px 18px -10px rgba(56, 32, 22, .12);     /* el contacto, en la placa (d75) */
-  --grano-fuerza: .7;           /* la microtextura de las tarjetas marfil: desvío de ~4 / 255 sobre el marfil */
+  --grano-fuerza: .7;           /* d95 · el relieve de las tarjetas marfil, más presente: desvío de 7,0 / 255 (antes 4,1) */
   --sombra-vidrio: inset 0 1px 0 rgba(255, 255, 255, .9), 0 18px 48px rgba(38, 22, 14, .15);
   --halo-cereza: 0 6px 20px rgba(165, 18, 37, .26), 0 0 34px rgba(225, 59, 67, .14);
   --halo-cereza-fuerte: 0 8px 26px rgba(165, 18, 37, .38), 0 0 48px rgba(225, 59, 67, .22);
@@ -143,6 +149,35 @@
   /* el campo del héroe: marfil ligeramente tonal, una luz suave arriba a la izquierda (§04: sin textura pesada) */
   --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(255, 255, 255, .62), rgba(255, 255, 255, 0) 62%),
                linear-gradient(180deg, rgba(226, 216, 204, 0) 55%, rgba(226, 216, 204, .5) 100%);
+  /* d95 · el vidrio líquido en Claro: velo claro, canto blanco arriba, hilo cálido abajo, sombra interior y especular */
+  --vl-arriba: rgba(255, 255, 255, .5); --vl-medio: rgba(255, 255, 255, .12); --vl-abajo: rgba(255, 253, 249, .34);
+  --vl-refraccion: rgba(255, 255, 255, .7);
+  --vl-borde: rgba(110, 98, 90, .8);         /* el borde de los controles: 3,3 : 1 sobre el marfil más hondo (#ECE5DB), 3,9 sobre #FAF7F2 */
+  --vl-canto-arriba: rgba(255, 255, 255, 1); --vl-canto-abajo: rgba(255, 238, 222, .95);
+  --vl-especular: rgba(255, 255, 255, .95);
+  --capsula-especular: rgba(255, 255, 255, .5);
+  /* el filo de arriba a la izquierda y el de abajo a la derecha (la luz entra y sale), el hilo blanco de adentro, el borde
+     que se oscurece apenas (lo de atrás, refractado en la curva), el espesor abajo y la sombra de contacto */
+  --vl-sombra: inset 1.5px 2px 1px -1px rgba(255, 255, 255, 1), inset -1.5px -2px 2px -1.5px rgba(255, 255, 255, .9),
+               inset 0 0 0 1px rgba(255, 255, 255, .38), inset 0 0 10px 1px rgba(120, 96, 80, .11),
+               inset 0 -12px 16px -14px rgba(56, 32, 22, .24), 0 1px 1px rgba(56, 32, 22, .1), 3px 12px 24px -12px rgba(56, 32, 22, .32);
+  /* la franja de lo que ganás: un marfil un tono más hondo que la página (las placas, levantadas, se despegan) */
+  --ganas-fondo: linear-gradient(180deg, rgba(120, 92, 72, .075), rgba(120, 92, 72, .045)),
+                 var(--fondo) var(--fondo-trama) 0 0 / var(--trama-tam) var(--trama-tam) repeat;
+  --ganas-filo: rgba(110, 98, 90, .22);
+  --ganas-divisor: rgba(110, 98, 90, .2);
+  --ganas-icono: #A51225;
+  /* la descarga en Claro: una losa marfil con su pespunte cereza (antes, cuero en las dos) */
+  --caja-texto: #1F1510; --caja-medio: #3E2F26; --caja-tenue: #5F544C; --caja-linea: rgba(110, 98, 90, .3);
+  --caja-linea-viva: rgba(110, 98, 90, .78); --caja-acento: #A51225; --caja-chip: rgba(255, 255, 255, .5);
+  --caja-foco: 0 0 0 2px #FAF7F2, 0 0 0 4px #A51225;
+  --caja-fondo: linear-gradient(170deg, #FFFDF9 0%, #FAF6F0 48%, #F3EDE4 100%);
+  --caja-luz: var(--m-tarjeta); --caja-luz-corte: 64 72 96 72 fill;
+  --caja-luz-ancho: 50px 56px 75px 56px; --caja-luz-afuera: 12px 19px 37px 19px;
+  --caja-sombra: 1px 2px 3px rgba(56, 32, 22, .1), 14px 34px 64px -30px rgba(56, 32, 22, .4);
+  /* la barra al bajar: vidrio marfil con el filo de luz abajo */
+  --barra-vidrio: linear-gradient(180deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .14)), color-mix(in srgb, var(--fondo) 80%, transparent);
+  --barra-filo: inset 0 -1px 0 rgba(255, 255, 255, .7), 0 1px 0 var(--linea), 6px 14px 30px -24px rgba(38, 22, 14, .5);
 }
 /* ── Oscuro · Espresso Signature: la variante de marca (por el sistema, o elegida) ── */
 @media (prefers-color-scheme: dark) {
@@ -150,6 +185,7 @@
     color-scheme: dark;
     --fondo: #1A0F0B;
     --fondo-trama: url(imagenes/trama-cuero.webp);
+    --trama-tam: 320px;
     --sup-1: #24140F;
     --sup-2: #2B1811;
     --sup-3: #382016;
@@ -187,6 +223,31 @@
     --capsula: rgba(22, 12, 9, .68);
     --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(117, 69, 45, .22), rgba(117, 69, 45, 0) 62%),
                  linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, .4) 100%);
+    --vl-arriba: rgba(255, 244, 234, .12); --vl-medio: rgba(255, 244, 234, .035); --vl-abajo: rgba(255, 244, 234, .08);
+    --vl-refraccion: rgba(255, 236, 220, .17);
+    --vl-borde: rgba(241, 236, 228, .45);
+    --vl-canto-arriba: rgba(255, 255, 255, .6); --vl-canto-abajo: rgba(255, 222, 198, .3);
+    --vl-especular: rgba(255, 240, 228, .26);
+    --capsula-especular: rgba(255, 240, 228, .1);
+    --vl-sombra: inset 1.5px 2px 1px -1px rgba(255, 255, 255, .42), inset -1.5px -2px 2px -1.5px rgba(255, 226, 204, .3),
+                 inset 0 0 0 1px rgba(255, 255, 255, .07), inset 0 0 12px 1px rgba(0, 0, 0, .28),
+                 inset 0 -12px 16px -14px rgba(0, 0, 0, .6), 0 1px 1px rgba(0, 0, 0, .3), 3px 12px 26px -12px rgba(0, 0, 0, .7);
+    --ganas-fondo: var(--cuero-filo),
+      linear-gradient(155deg, rgba(36, 18, 11, .22) 0%, rgba(22, 11, 7, .44) 52%, rgba(14, 7, 4, .58) 100%),
+      var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
+      linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
+    --ganas-filo: rgba(255, 231, 211, .1);
+    --ganas-divisor: rgba(241, 236, 228, .14);
+    --ganas-icono: #F4636A;
+    --caja-texto: #FFF8F0; --caja-medio: #FFF8F0; --caja-tenue: #C9C3BD; --caja-linea: rgba(255, 231, 211, .2);
+    --caja-linea-viva: rgba(255, 231, 211, .5); --caja-acento: #F4636A; --caja-chip: rgba(255, 248, 240, .06);
+    --caja-foco: 0 0 0 2px #382016, 0 0 0 4px #F4636A;
+    --caja-fondo: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, #2A1912;
+    --caja-luz: var(--mi-cuero-luz); --caja-luz-corte: 48 fill;
+    --caja-luz-ancho: 37.3px; --caja-luz-afuera: 0;
+    --caja-sombra: 1px 2px 3px rgba(12, 5, 3, .48), 14px 34px 64px -26px rgba(12, 5, 3, .55);
+    --barra-vidrio: color-mix(in srgb, var(--fondo) 82%, transparent);
+    --barra-filo: inset 0 -1px 0 rgba(255, 236, 214, .08), 0 1px 0 var(--linea), 6px 14px 30px -24px rgba(0, 0, 0, .6);
   }
 }
 /* la luz de los cantos, la atmósfera y el barrido en la oscura */
@@ -210,6 +271,7 @@
   color-scheme: dark;
   --fondo: #1A0F0B;
   --fondo-trama: url(imagenes/trama-cuero.webp);
+  --trama-tam: 320px;
   --sup-1: #24140F;
   --sup-2: #2B1811;
   --sup-3: #382016;
@@ -247,6 +309,31 @@
   --capsula: rgba(22, 12, 9, .68);
   --heroe-luz: radial-gradient(70% 90% at 14% 22%, rgba(117, 69, 45, .22), rgba(117, 69, 45, 0) 62%),
                linear-gradient(180deg, rgba(10, 5, 3, 0) 55%, rgba(10, 5, 3, .4) 100%);
+  --vl-arriba: rgba(255, 244, 234, .12); --vl-medio: rgba(255, 244, 234, .035); --vl-abajo: rgba(255, 244, 234, .08);
+  --vl-refraccion: rgba(255, 236, 220, .17);
+  --vl-borde: rgba(241, 236, 228, .45);
+  --vl-canto-arriba: rgba(255, 255, 255, .6); --vl-canto-abajo: rgba(255, 222, 198, .3);
+  --vl-especular: rgba(255, 240, 228, .26);
+  --capsula-especular: rgba(255, 240, 228, .1);
+  --vl-sombra: inset 1.5px 2px 1px -1px rgba(255, 255, 255, .42), inset -1.5px -2px 2px -1.5px rgba(255, 226, 204, .3),
+               inset 0 0 0 1px rgba(255, 255, 255, .07), inset 0 0 12px 1px rgba(0, 0, 0, .28),
+               inset 0 -12px 16px -14px rgba(0, 0, 0, .6), 0 1px 1px rgba(0, 0, 0, .3), 3px 12px 26px -12px rgba(0, 0, 0, .7);
+  --ganas-fondo: var(--cuero-filo),
+    linear-gradient(155deg, rgba(36, 18, 11, .22) 0%, rgba(22, 11, 7, .44) 52%, rgba(14, 7, 4, .58) 100%),
+    var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
+    linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
+  --ganas-filo: rgba(255, 231, 211, .1);
+  --ganas-divisor: rgba(241, 236, 228, .14);
+  --ganas-icono: #F4636A;
+  --caja-texto: #FFF8F0; --caja-medio: #FFF8F0; --caja-tenue: #C9C3BD; --caja-linea: rgba(255, 231, 211, .2);
+  --caja-linea-viva: rgba(255, 231, 211, .5); --caja-acento: #F4636A; --caja-chip: rgba(255, 248, 240, .06);
+  --caja-foco: 0 0 0 2px #382016, 0 0 0 4px #F4636A;
+  --caja-fondo: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, #2A1912;
+  --caja-luz: var(--mi-cuero-luz); --caja-luz-corte: 48 fill;
+  --caja-luz-ancho: 37.3px; --caja-luz-afuera: 0;
+  --caja-sombra: 1px 2px 3px rgba(12, 5, 3, .48), 14px 34px 64px -26px rgba(12, 5, 3, .55);
+  --barra-vidrio: color-mix(in srgb, var(--fondo) 82%, transparent);
+  --barra-filo: inset 0 -1px 0 rgba(255, 236, 214, .08), 0 1px 0 var(--linea), 6px 14px 30px -24px rgba(0, 0, 0, .6);
 }
 
 /* ═══════════════════════ las placas de material renderizadas (d75, 21/10: «los materiales no son realistas») ═══════════════════════
@@ -302,7 +389,7 @@
 html { background: var(--fondo); -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  background: var(--fondo) var(--fondo-trama) 0 0 / 320px 320px repeat;
+  background: var(--fondo) var(--fondo-trama) 0 0 / var(--trama-tam) var(--trama-tam) repeat;
   color: var(--texto);
   font: 400 17px/1.6 var(--texto-f);
   font-feature-settings: "cv11", "ss01";
@@ -326,7 +413,7 @@ main:focus, section:focus { outline: none; }
 
 /* §08 · las superficies de lectura: marfil mineral (Ivory levantado, degradé amplio de baja amplitud, sombra suave).
    En la oscura, el mismo papel en cuero hondo. Nada de vidrio acá: el vidrio es para lo que flota. */
-.demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice {
+.demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice, .ganas-placa {
   --pm: 1;                       /* escala de la placa: radio CSS / 18 (la losa renderizada tiene radio 18) */
   position: relative; isolation: isolate;
   background: var(--superficie);
@@ -336,7 +423,7 @@ main:focus, section:focus { outline: none; }
 /* d75 · la losa marfil renderizada: bisel claro e hilo de luz arriba a la izquierda, caída satinada, canto en sombra abajo a
    la derecha y, afuera, la sombra de contacto (la placa se sale de la caja: 8 px arriba, 12 a los lados, 24 abajo). Debajo
    del texto la placa es casi transparente (alfa <= 0,13 a 24 px del borde): el contraste lo mide la captura. */
-.demo::after, .cita-demo::after, .profundidad::after, .tj-cuadro::after, .legal-indice::after {
+.demo::after, .cita-demo::after, .profundidad::after, .tj-cuadro::after, .legal-indice::after, .ganas-placa::after {
   content: ""; position: absolute; inset: -1px; z-index: -1; pointer-events: none;
   border-style: solid; border-color: transparent;
   border-width: calc(32px * var(--pm)) calc(36px * var(--pm)) calc(48px * var(--pm)) calc(36px * var(--pm));
@@ -352,7 +439,7 @@ main:focus, section:focus { outline: none; }
    paspartú de las pantallas, el cuadro de «Lo que también hace») cubre la superficie; en lo que sí (demos, cita, índice)
    queda en el canto: un filo de 7 px que el texto nunca toca (el relleno de esas tarjetas es de 16 px o más). Detrás
    del contenido (z-index -1 dentro de su propio contexto): la sombra del relieve del yeso, en taupe con alfa. */
-.demo::before, .cita-demo::before, .profundidad::before, .tj-cuadro::before, .legal-indice::before {
+.demo::before, .cita-demo::before, .profundidad::before, .tj-cuadro::before, .legal-indice::before, .ganas-placa::before {
   content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
   background: url(imagenes/grano-marfil-384.webp) 0 0 / 384px 384px repeat;
   opacity: var(--grano-fuerza);
@@ -449,8 +536,8 @@ main:focus, section:focus { outline: none; }
    único desenfoque que queda a la vista mientras se lee (§08 y §16). */
 .cabecera::before {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: color-mix(in srgb, var(--fondo) 82%, transparent);
-  box-shadow: 0 1px 0 var(--linea), 6px 14px 30px -24px rgba(38, 22, 14, .5);
+  background: var(--barra-vidrio);
+  box-shadow: var(--barra-filo);
   opacity: 0; transform: translateY(-100%);
   transition: opacity 320ms var(--curva), transform 620ms var(--curva-enfasis);
 }
@@ -489,6 +576,13 @@ main:focus, section:focus { outline: none; }
   border: 25.7px solid transparent;
   border-image: var(--m-capsula) 87 88 fill / 25.7px 26px stretch;   /* 2 px de placa en el medio: sin costura */
 }
+.cab-nav::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(28% 120% at var(--lx, 18%) var(--ly, 0%), var(--capsula-especular), rgba(255, 255, 255, 0) 70%);
+  opacity: .5; transition: opacity var(--dur-largo) var(--curva);
+}
+.cab-nav.con-luz::after { opacity: 1; }
+.sobre .cab-nav::after, .legal-pagina .cab-nav::after { content: none; }
 .sobre .cab-nav, .legal-pagina .cab-nav { background: transparent; border-color: transparent; box-shadow: none; }
 .sobre .cab-nav::before, .legal-pagina .cab-nav::before { content: none; }
 .cab-nav a {
@@ -530,16 +624,17 @@ main:focus, section:focus { outline: none; }
 .cab-sonido {
   position: relative; display: grid; place-items: center;
   width: 38px; height: 38px; padding: 0; border-radius: 50%;
-  border: 1px solid var(--linea); background: transparent; color: var(--texto);
+  color: var(--texto);
   cursor: pointer;
   transition: border-color var(--dur-medio) var(--curva);
 }
-.cab-sonido:hover { border-color: var(--linea-viva); }
+.cab-sonido:hover { border-color: var(--texto); }
 .cab-sonido canvas { width: 22px; height: 22px; }
 /* la apariencia (20/10, el dueño): Oscuro con la luna y Claro con el sol; la elegida, marcada por forma (relleno y borde), no sólo por color (§04) */
 .cab-tema {
   display: inline-flex; align-items: center; gap: 2px; padding: 3px;
   border-radius: 999px; border: 1px solid var(--linea);
+  background: color-mix(in srgb, var(--fondo) 30%, transparent);
 }
 .cab-tema[hidden] { display: none; }
 .cab-tema button {
@@ -549,7 +644,7 @@ main:focus, section:focus { outline: none; }
   transition: color var(--dur-medio) var(--curva), background-color var(--dur-medio) var(--curva), box-shadow var(--dur-medio) var(--curva);
 }
 .cab-tema button:hover { color: var(--texto); }
-.cab-tema button[aria-pressed="true"] { color: var(--texto); background: var(--relleno-elegido); box-shadow: inset 0 0 0 1px var(--linea-viva), var(--sombra-1); }
+.cab-tema button[aria-pressed="true"] { color: var(--texto); }
 .cab-tema button:focus-visible { box-shadow: var(--foco); }
 .cab-tema svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .cab-seccion {
@@ -565,19 +660,19 @@ main:focus, section:focus { outline: none; }
 main, .pie { position: relative; z-index: 1; }
 
 /* ═══════════════════════ el héroe (§04) ═══════════════════════ */
-/* En escritorio el héroe y el atlas comparten la primera pantalla (como la referencia del manual): el héroe ocupa lo que
-   el atlas deja. Con menos de 860 px de alto (1280 × 800) no entran los dos sin apretar: el héroe ocupa la pantalla y el
-   atlas viene al bajar. */
+/* En escritorio el héroe y la franja de lo que ganás comparten la primera pantalla (como la referencia del manual): el
+   héroe ocupa lo que la franja deja. Con menos de 860 px de alto (1280 × 800) no entran los dos sin apretar: el héroe
+   ocupa la pantalla y la franja viene al bajar. */
 .heroe {
-  --atlas-debajo: 0px;
+  --franja-debajo: 0px;
   position: relative; isolation: isolate;
-  min-height: max(560px, calc(100vh - var(--atlas-debajo)));
-  min-height: max(560px, calc(100svh - var(--atlas-debajo)));
+  min-height: max(560px, calc(100vh - var(--franja-debajo)));
+  min-height: max(560px, calc(100svh - var(--franja-debajo)));
   display: grid; align-items: center;
   overflow: hidden;
   background: var(--heroe-luz);
 }
-@media (min-width: 1024px) and (min-height: 860px) { .heroe { --atlas-debajo: var(--atlas-alto); } }
+@media (min-width: 1024px) and (min-height: 860px) { .heroe { --franja-debajo: var(--franja-alto); } }
 /* la composición 3D, a la derecha: empieza donde termina la quinta columna y se funde en el marfil (no pisa el texto) */
 .heroe-escenario {
   --izq: calc(var(--c-izq) + (var(--c-ancho) + var(--hueco)) * 5 / 12 - var(--hueco));
@@ -748,119 +843,110 @@ main, .pie { position: relative; z-index: 1; }
 /* el secundario: transparente con borde fino (§04) */
 .pildora {
   display: inline-flex; align-items: center; min-height: 58px; padding: 0 26px; border-radius: 999px;
-  border: 1px solid var(--linea-viva); color: var(--texto); text-decoration: none;
-  background: transparent;
+  color: var(--texto); text-decoration: none;
   font: 600 17px/1 var(--texto-f); letter-spacing: .01em;
-  transition: border-color var(--dur-medio) var(--curva), background-color var(--dur-medio) var(--curva);
+  transition: border-color var(--dur-medio) var(--curva), transform var(--dur-toque) var(--curva);
 }
-.pildora:hover { border-color: var(--texto); background: color-mix(in srgb, var(--texto) 5%, transparent); }
+.pildora:hover { border-color: var(--texto); transform: translateY(-1px); }
+.pildora:active { transform: translateY(1px); }
 
-/* ═══════════════════════ el atlas de materiales (§05) ═══════════════════════ */
-/* Franja sobre espresso con divisores finos; cuatro materiales y el sistema de la marca. Cada panel: la imagen arriba, el
-   número, el título serif compacto y una línea sans; la ficha técnica neutra aparece en su lugar. */
-.atlas {
-  position: relative; isolation: isolate; overflow: hidden;
-  min-height: var(--atlas-alto);
-  color: #F1ECE4;
-  /* el degradé del cuero, ajustado al tamaño (§07: «ajustarla por tamaño de componente y contraste»): en una franja de
-     1440 × 300 el de las tarjetas deja la esquina de abajo a la izquierda en #75452D y el secundario bajaba a 4,07 : 1 */
-  background: var(--cuero-filo),
-    linear-gradient(155deg, rgba(36, 18, 11, .22) 0%, rgba(22, 11, 7, .44) 52%, rgba(14, 7, 4, .58) 100%),   /* d80: .12 → .22 arriba a la izquierda (el grano v2 es más vivo: «01 · Leather» medía 7,00) */
-    var(--mi-cuero-grano) 0 0 / 384px 384px repeat,
-    linear-gradient(155deg, #5A3422 0%, #382016 48%, #24140F 100%);
-  border-top: 1px solid rgba(255, 231, 211, .12);
-  border-bottom: 1px solid rgba(255, 231, 211, .08);
+/* ═══════════════════════ el vidrio líquido (d95) ═══════════════════════ */
+/* Notas del dueño 26/10: «el liquid glass necesita más trabajo (inspirarse fuertemente en Apple)». Sin desenfoque (el
+   tope de dos desenfoques a la vista, §16, lo usan la barra y el fondo del visor): el vidrio se lee por la luz, en cuatro
+   capas como el de Apple:
+     1. el cuerpo: un velo que deja ver lo de atrás, más claro arriba y con masa abajo, y una banda de refracción en el
+        borde de abajo que se corre apenas hacia donde está el puntero;
+     2. el canto: un hilo luminoso arriba (el filo que agarra la luz) y uno cálido abajo (la luz que atraviesa el vidrio y
+        rebota), recortados al borde;
+     3. el espesor: sombra interior abajo, brillo interior arriba y la sombra de contacto afuera;
+     4. el especular: un reflejo que sigue al puntero (pagina.js escribe --lx / --ly); quieto o con el dedo, arriba a la
+        izquierda, de donde viene la luz de toda la página.
+   Las capas van con z-index -1 dentro de su propio contexto: quedan entre el fondo y la letra, nunca sobre la letra. */
+.vidrio-liquido, .cab-tema button[aria-pressed="true"] {
+  --lx: 26%; --ly: 6%;
+  position: relative; isolation: isolate;
+  background:
+    radial-gradient(120% 70% at var(--lx) 118%, var(--vl-refraccion), rgba(255, 255, 255, 0) 64%),
+    linear-gradient(180deg, var(--vl-arriba) 0%, var(--vl-medio) 54%, var(--vl-abajo) 100%);
+  border: 1px solid var(--vl-borde);
+  box-shadow: var(--vl-sombra);
 }
-.atlas::after { content: none; }      /* d75: el grano ya está en el fondo (mosaico iluminado, sin mezclas) */
-.atlas-pista { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); min-height: calc(var(--atlas-alto) - 2px); }   /* los 2 px: los filos de arriba y abajo */
-.atlas-pista:focus-visible { outline-offset: -3px; }
-.atlas-panel {
-  --pad: clamp(24px, 1.8vw, 36px);   /* §05: márgenes internos de 24–36 px */
+.vidrio-liquido::before, .cab-tema button[aria-pressed="true"]::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: linear-gradient(180deg, var(--vl-canto-arriba) 0%, rgba(255, 255, 255, 0) 36%, rgba(255, 255, 255, 0) 68%, var(--vl-canto-abajo) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.vidrio-liquido::after, .cab-tema button[aria-pressed="true"]::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
+  background:
+    radial-gradient(30% 44% at var(--lx) var(--ly), var(--vl-especular), rgba(255, 255, 255, 0) 70%),
+    radial-gradient(70% 90% at var(--lx) var(--ly), color-mix(in srgb, var(--vl-especular) 30%, transparent), rgba(255, 255, 255, 0) 72%);
+  opacity: .55;
+  transition: opacity var(--dur-largo) var(--curva);
+}
+.vidrio-liquido.con-luz::after, .cab-tema button[aria-pressed="true"].con-luz::after { opacity: 1; }
+/* el vidrio oscuro: lo que flota sobre una pantalla de la app (ampliar, cerrar el visor), en las dos apariencias */
+.vidrio-oscuro {
+  --vl-arriba: rgba(64, 38, 27, .74); --vl-medio: rgba(28, 16, 11, .66); --vl-abajo: rgba(46, 27, 19, .76);
+  --vl-refraccion: rgba(255, 228, 208, .22);
+  --vl-borde: rgba(255, 236, 222, .46);
+  --vl-canto-arriba: rgba(255, 255, 255, .78); --vl-canto-abajo: rgba(255, 214, 188, .38);
+  --vl-especular: rgba(255, 240, 228, .46);
+  --vl-sombra: inset 1.5px 2px 1px -1px rgba(255, 255, 255, .5), inset -1.5px -2px 2px -1.5px rgba(255, 220, 196, .32),
+               inset 0 0 10px 1px rgba(0, 0, 0, .3), 0 8px 18px -8px rgba(10, 4, 2, .65);
+  color: #FFF8F0;
+}
+
+/* ═══════════════════════ lo que ganás (d95, en el lugar del atlas de §05) ═══════════════════════ */
+/* La franja de abajo del héroe ya no habla de cómo está hecha la página (colores, materiales, letras, fichas técnicas):
+   dice lo que gana el estudiante. En Claro es marfil (un tono más hondo que la página, con el relieve del yeso) y cada
+   panel lleva una placa marfil levantada (la losa de las tarjetas, con su grano entero: no tiene texto encima) con el
+   ícono en un medallón de vidrio líquido; abajo, el beneficio. En Oscuro, la misma franja en cuero. Divisores finos. */
+.ganas {
+  position: relative; isolation: isolate;
+  min-height: var(--franja-alto);
+  background: var(--ganas-fondo);
+  border-top: 1px solid var(--ganas-filo);
+  border-bottom: 1px solid var(--ganas-filo);
+}
+.ganas-pista { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); min-height: calc(var(--franja-alto) - 2px); }
+.ganas-item {
+  --pad: clamp(24px, 2vw, 40px);
   position: relative; display: flex; flex-direction: column; min-width: 0;
-  border-left: 1px solid rgba(241, 236, 228, .14);
+  padding: clamp(18px, 1.5vw, 28px) var(--pad) clamp(20px, 1.7vw, 32px);
+  border-left: 1px solid var(--ganas-divisor);
 }
-.atlas-panel:first-child { border-left: 0; }
-.atlas-cuadro {
-  position: relative; overflow: hidden; flex: none;
-  height: calc(var(--atlas-alto) - 152px);
-  background: #24140F;
+.ganas-item:first-child { border-left: 0; }
+.ganas-placa {
+  --pm: .889;                   /* radio 16 */
+  flex: none; height: clamp(84px, calc(var(--franja-alto) - 200px), 150px);
+  border-radius: 16px;
+  display: grid; place-items: center;
 }
-.atlas-cuadro picture { display: contents; }
-.atlas-img { width: 100%; height: 100%; object-fit: cover; transition: opacity var(--dur-largo) var(--curva); }
-/* d80 · la luz que sigue al puntero sobre la imagen (la mueve pagina.js con transform): un reflejo ancho y suave */
-.atlas-luz {
-  position: absolute; left: -30%; top: -60%; width: 90%; height: 160%; z-index: 1; pointer-events: none; opacity: 0;
-  background: radial-gradient(closest-side, rgba(255, 240, 226, .2), rgba(255, 240, 226, .06) 55%, rgba(255, 240, 226, 0));
-  transition: opacity 500ms var(--curva);
+.ganas-medalla {
+  --vl-borde: color-mix(in srgb, var(--linea-viva) 55%, transparent);
+  width: clamp(62px, 4.5vw, 86px); aspect-ratio: 1; border-radius: 50%;
+  display: grid; place-items: center;
 }
-.atlas-panel:hover .atlas-luz { opacity: 1; }
-.atlas-cuadro::after {            /* un filo de luz abajo, donde la imagen se apoya en el cuero */
-  content: ""; position: absolute; inset: auto 0 0 0; height: 1px; background: rgba(255, 231, 211, .14);
+/* la lente: el relieve del yeso de la placa, agrandado un 25 % adentro del medallón (como lo de atrás visto por el vidrio) */
+.ganas-medalla { background-image:
+    radial-gradient(120% 70% at var(--lx) 118%, var(--vl-refraccion), rgba(255, 255, 255, 0) 64%),
+    linear-gradient(180deg, var(--vl-arriba) 0%, var(--vl-medio) 54%, var(--vl-abajo) 100%),
+    url(imagenes/grano-marfil-384.webp); background-size: auto, auto, 480px 480px; background-position: 0 0, 0 0, 50% 50%; }
+.ganas-medalla svg {
+  width: 42%; height: 42%; fill: none; stroke: var(--ganas-icono); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
 }
-.atlas-texto { padding: 16px var(--pad) 0; transition: opacity var(--dur-largo) var(--curva); }
-.atlas-num { margin: 0 0 8px; font: 600 11px/1.2 var(--texto-f); letter-spacing: .18em; text-transform: uppercase; color: #B9AEA3; }
-.atlas-tit { margin: 0; display: flex; align-items: center; gap: 8px; font: 600 clamp(16px, 1.15vw, 19px)/1.22 var(--titulo-f); letter-spacing: -.005em; color: #F1ECE4; }
-.atlas-desc { margin: 6px 0 0; font: 400 13.5px/1.45 var(--texto-f); color: #DCD2C7; text-wrap: pretty; }
-.am-estrella { width: 15px; height: 15px; flex: none; }
+.ganas-texto { padding-top: clamp(14px, 1.2vw, 20px); }
+.ganas-num {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 7px; font: 600 11px/1.2 var(--texto-f); letter-spacing: .18em; text-transform: uppercase; color: var(--texto);
+}
+.ganas-num::before { content: ""; flex: none; width: 18px; height: 2px; border-radius: 1px; background: var(--cereza-luz); }
+.ganas-tit { margin: 0; font: 600 clamp(17px, 1.2vw, 22px)/1.22 var(--titulo-f); letter-spacing: -.005em; color: var(--texto); text-wrap: balance; }
+.ganas-desc { margin: 6px 0 0; font: 400 14px/1.5 var(--texto-f); color: var(--medio); text-wrap: pretty; }
 .pie-firma img { width: 14px; height: 14px; }
-/* la ficha técnica: neutra, en el lugar del panel */
-.atlas-ficha {
-  position: absolute; inset: 0 0 40px 0; z-index: 2; margin: 0;
-  padding: calc(var(--pad) * .8) var(--pad) 0;
-  display: grid; align-content: start; gap: 8px;
-  background: linear-gradient(180deg, rgba(26, 15, 11, .97), rgba(26, 15, 11, .93));
-  opacity: 0; pointer-events: none;
-  clip-path: inset(100% 0 0 0);
-  transition: opacity 260ms var(--curva), clip-path 640ms var(--curva-enfasis);
-}
-/* d80 · las filas de la ficha llegan una tras otra, después del recorte */
-.atlas-ficha > div { opacity: 0; transform: translateY(10px); transition: opacity 360ms var(--curva), transform 520ms var(--curva-enfasis); }
-.ficha-abierta .atlas-ficha > div { opacity: 1; transform: none; }
-.atlas-ficha > div:nth-child(2) { transition-delay: 50ms; }
-.atlas-ficha > div:nth-child(3) { transition-delay: 100ms; }
-.atlas-ficha > div:nth-child(4) { transition-delay: 150ms; }
-.atlas-ficha > div { display: grid; gap: 2px; padding-bottom: 7px; border-bottom: 1px solid rgba(241, 236, 228, .1); }
-.atlas-ficha dt { font: 600 11px/1.4 var(--texto-f); letter-spacing: .14em; text-transform: uppercase; color: #B9AEA3; }
-.atlas-ficha dd { margin: 0; font: 500 13.5px/1.4 var(--texto-f); color: #F1ECE4; font-variant-numeric: tabular-nums; }
-.af-paleta dd { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3px 10px; margin-top: 3px; font-size: 12px; }
-.af-paleta dd span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.af-paleta dd span::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(241, 236, 228, .3); }
-.atlas-ver {
-  all: unset; box-sizing: border-box; cursor: pointer; position: relative; z-index: 3;
-  margin-top: auto; display: flex; align-items: center; gap: 10px; height: 40px; padding: 0 var(--pad);
-  font: 600 11px/1 var(--texto-f); letter-spacing: .16em; text-transform: uppercase; color: #B9AEA3;
-  transition: color var(--dur-medio) var(--curva);
-}
-.atlas-ver i { display: block; width: 18px; height: 1px; background: currentColor; transition: width var(--dur-largo) var(--curva); }
-.atlas-ver:hover, .atlas-ver[aria-expanded="true"] { color: #F1ECE4; }
-.atlas-ver:hover i, .atlas-ver[aria-expanded="true"] i { width: 30px; }
-.atlas-ver:focus-visible { box-shadow: inset 0 0 0 2px #F4636A; border-radius: 4px; }
-.ficha-abierta .atlas-ficha { opacity: 1; clip-path: inset(0 0 0 0); pointer-events: auto; }
-/* abierta, la versión editorial se va del todo (también para el lector de pantalla): en su lugar queda la técnica */
-.ficha-abierta .atlas-texto, .ficha-abierta .atlas-muestras > * { opacity: 0; visibility: hidden; transition: opacity var(--dur-largo) var(--curva), visibility 0s linear var(--dur-largo); }
-@media (hover: hover) and (pointer: fine) {
-  .atlas-panel:hover .atlas-ficha { opacity: 1; clip-path: inset(0 0 0 0); }
-  .atlas-panel:hover .atlas-ficha > div { opacity: 1; transform: none; }
-  .atlas-panel:hover .atlas-texto { opacity: 0; }
-}
-/* el panel del sistema de la marca: muestras de color con HEX, las dos letras y los íconos de línea */
-.atlas-muestras {
-  display: flex; flex-direction: column; justify-content: center; gap: 12px;
-  padding: 0 var(--pad);
-  background: radial-gradient(80% 90% at 30% 20%, rgba(117, 69, 45, .35), rgba(117, 69, 45, 0) 70%), #22130E;
-}
-/* d75 · las cuatro esferas de materiales de ref2 (cuero, cristal, laca, marfil), renderizadas */
-.am-colores { list-style: none; margin: 0; padding: 0; display: flex; gap: 14px; }
-.am-colores li { display: grid; justify-items: center; gap: 7px; }
-.am-colores picture { display: contents; }
-.am-colores img { display: block; width: 42px; height: 42px; }
-.am-colores span { font: 600 10px/1 var(--texto-f); color: #DCD2C7; letter-spacing: .14em; text-transform: uppercase; }
-.am-letras { margin: 0; display: flex; align-items: baseline; gap: 14px; color: #F1ECE4; }
-.am-serif { font: 600 19px/1 var(--titulo-f); }
-.am-sans { font: 500 14px/1 var(--texto-f); color: #DCD2C7; }
-.am-iconos { margin: 0; display: flex; gap: 16px; }
-.am-iconos svg { width: 21px; height: 21px; fill: none; stroke: #E9DCCF; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-.am-iconos svg:nth-child(3) { stroke: #E13B43; }
 
 /* ═══════════════════════ secciones ═══════════════════════ */
 /* la película: un tramo por cosa que hace la app */
@@ -925,13 +1011,14 @@ section.cita { position: relative; }
 .demo button { font: inherit; color: inherit; }
 .chip, .dp-chips button, .conmutador button {
   cursor: pointer; padding: 9px 15px; border-radius: 999px;
-  background: var(--relleno-chip); border: 1px solid var(--linea-viva); color: var(--texto) !important;
+  color: var(--texto) !important;
   font: 600 14px/1 var(--texto-f) !important;
   transition: background var(--dur-medio) var(--curva), color var(--dur-medio) var(--curva), border-color var(--dur-medio) var(--curva), box-shadow var(--dur-medio) var(--curva);
 }
 .dp-chips button:hover, .conmutador button:hover { border-color: var(--acento); }
 /* estado activo: cherry (§01) y además forma: relleno lleno */
-.dp-chips button[aria-pressed="true"], .conmutador button[aria-pressed="true"] { background: var(--cereza-degrade); color: var(--sobre-cereza) !important; border-color: transparent; box-shadow: var(--halo-cereza); }
+.dp-chips button[aria-pressed="true"], .conmutador button[aria-pressed="true"] { background: var(--cereza-degrade); color: var(--sobre-cereza) !important; border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), var(--halo-cereza); }
+.dp-chips button[aria-pressed="true"]::after, .conmutador button[aria-pressed="true"]::after { opacity: 0; }   /* sobre cherry el especular aclaraba detrás de la letra */
 .demo :focus-visible { outline: 2px solid var(--acento); outline-offset: 3px; }
 
 /* cronograma */
@@ -1089,9 +1176,11 @@ section.cita { position: relative; }
 /* ── descargar: el mensaje de la marca, en una tarjeta de cuero (§04, §07) ── */
 .descargar { min-height: 100vh; padding: 18vh var(--gutter) 12vh; display: grid; place-items: center; }
 .descargar-caja {
-  /* adentro del cuero las claves cambian: letra marfil casi blanca (7,5 : 1 en lo más claro), secundario Stone (§03, d64) */
-  --texto: #FFF8F0; --medio: #FFF8F0; --tenue: #C9C3BD; --linea: rgba(255, 231, 211, .2); --linea-viva: rgba(255, 231, 211, .5);
-  --acento: #F4636A; --relleno-chip: rgba(255, 248, 240, .06); --foco: 0 0 0 2px #382016, 0 0 0 4px #F4636A;
+  /* las claves de adentro las pone cada apariencia (d95): en Claro, una losa marfil con letra tinta; en Oscuro, el cuero
+     de siempre con letra marfil casi blanca (7,5 : 1 en lo más claro) y secundario Stone (§03, d64) */
+  --texto: var(--caja-texto); --medio: var(--caja-medio); --tenue: var(--caja-tenue); --linea: var(--caja-linea);
+  --linea-viva: var(--caja-linea-viva); --vl-borde: var(--caja-linea-viva);
+  --acento: var(--caja-acento); --relleno-chip: var(--caja-chip); --foco: var(--caja-foco);
   width: 100%; max-width: 800px;
   padding: clamp(28px, 4vw, 56px);
   border-radius: 28px;
@@ -1100,6 +1189,13 @@ section.cita { position: relative; }
   overflow: visible;
 }
 .descargar-caja { --pc: 1.556; }     /* radio 28 */
+.descargar-caja.cuero-tarjeta { background: var(--caja-fondo); box-shadow: var(--caja-sombra); }
+.descargar-caja.cuero-tarjeta::after {
+  border-style: solid; border-color: transparent; border-image: none;
+  inset: 0; border-width: var(--caja-luz-ancho);
+  border-image-source: var(--caja-luz); border-image-slice: var(--caja-luz-corte);
+  border-image-width: var(--caja-luz-ancho); border-image-outset: var(--caja-luz-afuera); border-image-repeat: stretch;
+}
 .descargar-emblema { display: block; width: clamp(130px, 13vw, 180px); margin: calc(clamp(28px, 4vw, 56px) * -1 - 70px) auto 8px; }
 .descargar-emblema img { width: 100%; height: auto; filter: drop-shadow(0 22px 26px rgba(10, 4, 2, .45)); }
 .descargar .rotulo { justify-content: center; }
@@ -1145,10 +1241,10 @@ section.cita { position: relative; }
 .vt-enlace { align-self: flex-start; margin-top: 3px; font-size: 10.5px; text-decoration: underline; text-underline-offset: 2px; }
 .vt-pie { margin: auto -13px -10px; padding: 7px 10px; display: flex; justify-content: flex-end; gap: 6px; background: rgba(0, 0, 0, .22); }
 .vt-boton { padding: 3px 8px; border: 1px solid rgba(255, 255, 255, .8); font-size: 10px; white-space: nowrap; }
-/* lo que hay que tocar, marcado (quieto: fuera del héroe y del atlas no hay movimiento de reposo, §14) */
+/* lo que hay que tocar, marcado (quieto: fuera del héroe no hay movimiento de reposo, §14) */
 .marcado { position: relative; border-radius: 3px; box-shadow: 0 0 0 2px var(--ventana-win), 0 0 0 4px #FF6B72, 0 0 14px 3px rgba(225, 59, 67, .45); }
 .vt-enlace.marcado { padding: 1px 4px; margin-left: -4px; }
-.tu-equipo { margin: 26px 0 0; padding: 18px 20px; border: 1px solid var(--linea); border-radius: 16px; background: var(--relleno-chip); }
+.tu-equipo { margin: 26px 0 0; padding: 18px 20px; border-radius: 16px; }
 .tu-equipo .rotulo { margin: 0 0 8px; justify-content: center; }
 .te-paquete { margin: 0; font-size: 16px; line-height: 1.5; color: var(--medio); }
 .te-paquete strong { color: var(--texto); font-weight: 600; }
@@ -1158,14 +1254,14 @@ section.cita { position: relative; }
 /* ═══════════════════════ la cita al minuto ═══════════════════════ */
 /* el sello: cada respuesta trae la fuente exacta; cuando algo no está en el material, el sello queda vacío */
 .sello {
-  all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px;
+  all: unset; box-sizing: border-box; display: inline-block; text-wrap: balance;
   padding: 6px 12px 6px 10px; border-radius: 999px;
   font: 500 12.5px/1.25 var(--texto-f); letter-spacing: .02em; color: var(--medio);
   background: var(--sup-2);
   border: 1px solid var(--linea);
   transition: background var(--dur-medio) var(--curva), border-color var(--dur-medio) var(--curva), color var(--dur-medio) var(--curva);
 }
-.sello::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--cereza-luz); }
+.sello::before { content: ""; display: inline-block; vertical-align: .08em; margin-right: 8px; width: 7px; height: 7px; border-radius: 50%; background: var(--cereza-luz); }
 .sello-vacio { background: transparent; border: 1.5px dashed color-mix(in srgb, var(--cereza-luz) 80%, transparent); color: var(--medio); }
 .sello-vacio::before { background: transparent; border: 1.5px solid var(--cereza-luz); width: 5px; height: 5px; }
 button.sello { cursor: pointer; }
@@ -1180,7 +1276,7 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 .cd-materia { margin: 0 0 10px; font: 600 11px/1.2 var(--texto-f); letter-spacing: .2em; text-transform: uppercase; color: var(--tenue); }
 .cd-pregunta { margin: 0 0 14px; padding: 12px 14px; border-radius: 16px 16px 4px 16px; background: var(--mi-cuero-grano) 0 0 / 384px 384px repeat, var(--burbuja); box-shadow: inset 0 1px 0 rgba(255, 236, 214, .16), inset 0 -1px 0 rgba(0, 0, 0, .35), 0 8px 16px -10px rgba(20, 9, 5, .55); font: 600 16.5px/1.4 var(--texto-f); color: var(--sobre-cuero); }
 .cd-respuesta p { margin: 0 0 14px; font: 400 15px/1.58 var(--texto-f); color: var(--medio); }
-.cd-respuesta .sello { margin-top: 8px; display: flex; width: max-content; max-width: 100%; }
+.cd-respuesta .sello { margin-top: 8px; display: block; width: fit-content; max-width: 100%; }   /* d95: en bloque (con flex, cada trozo era una columna y se perdían los espacios) */
 .cd-clase { list-style: none; margin: 0; padding: 14px; border-radius: 14px; background: var(--relleno-campo); border: 1px solid var(--linea); display: flex; flex-direction: column; gap: 8px; }
 .cd-clase li { font: 400 14px/1.5 var(--texto-f); color: var(--tenue); padding: 6px 8px; border-radius: 9px; box-shadow: inset 2px 0 0 transparent; transition: background var(--dur-largo) var(--curva), color var(--dur-largo) var(--curva), box-shadow var(--dur-largo) var(--curva); }
 .cd-clase time { font: 600 12px/1 var(--texto-f); color: var(--acento-texto); margin-right: 8px; font-variant-numeric: tabular-nums; }
@@ -1204,20 +1300,14 @@ section.cita { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7f
 /* ═══════════════════════ ver una pantalla en grande (una superposición: vidrio, §08) ═══════════════════════ */
 .ampliar {
   position: absolute; z-index: 3; top: 20px; right: 20px;
-  width: 40px; height: 40px; display: grid; place-items: center;
-  border-radius: 50%; border: 0;
-  background: rgba(36, 20, 15, .72); color: #F1ECE4;
-  box-shadow: 0 8px 18px -8px rgba(10, 4, 2, .65);
+  width: 44px; height: 44px; display: grid; place-items: center; padding: 0;
+  border-radius: 50%;
   cursor: zoom-in;
-  opacity: .9; transition: opacity var(--dur-medio) var(--curva), background var(--dur-medio) var(--curva);
+  transition: transform var(--dur-toque) var(--curva);
 }
-.ampliar:hover, .ampliar:focus-visible { opacity: 1; background: var(--cereza-degrade); color: var(--sobre-cereza); }
-.ampliar::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
-  border: 19.8px solid transparent;
-  border-image: var(--mi-vidrio-capsula-oscuro) 87 88 fill / 19.8px 20px stretch;
-}
-.ampliar svg { position: relative; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ampliar:hover, .ampliar:focus-visible { transform: scale(1.06); }
+.ampliar:active { transform: scale(.97); }
+.ampliar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 /* d95 · con el visor abierto la página de atrás queda quieta: sin barra de desplazamiento pero con su hueco reservado
    (nada cambia de ancho ni salta), y el desplazamiento no se encadena del visor a la página */
 html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
@@ -1247,10 +1337,11 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 .visor-texto { margin: 14px auto 0; max-width: 900px; padding: 0 24px 22px; font-size: 16px; line-height: 1.6; color: var(--medio); text-align: center; }
 .visor-texto b { display: block; font: 600 25px/1.2 var(--titulo-f); margin-bottom: 6px; color: var(--texto); }
 .visor-cerrar {
-  position: absolute; top: 12px; right: 12px; padding: 10px 16px; border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, .3); background: rgba(26, 15, 11, .74); color: #F1ECE4;
+  position: absolute; z-index: 3; top: 14px; right: 14px; padding: 11px 18px; border-radius: 999px;
   font: 600 14px/1 var(--texto-f); cursor: pointer;
+  transition: transform var(--dur-toque) var(--curva);
 }
+.visor-cerrar:hover { transform: translateY(-1px); }
 
 /* ═══════════════════════ la cortina entre páginas ═══════════════════════ */
 .cortina {
@@ -1317,18 +1408,17 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 @media (max-width: 1179px) { .viajero { display: none; } }
 
 /* ═══════════════════════ pantallas angostas y teléfono ═══════════════════════ */
-/* el atlas angosto: un carrusel que se desliza, sin comprimir las etiquetas (§05) */
+/* la franja angosta: un carrusel que se desliza, sin comprimir los textos (como el atlas de §05) */
 @media (max-width: 1179px) {
-  .atlas-pista {
+  .ganas-pista {
     display: flex; overflow-x: auto; overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); padding-inline: 0 var(--gutter);
-    scrollbar-width: thin; scrollbar-color: rgba(241, 236, 228, .3) transparent;
+    scrollbar-width: thin; scrollbar-color: var(--ganas-divisor) transparent;
   }
-  .atlas-panel { flex: 0 0 min(80vw, 320px); scroll-snap-align: start; min-height: 320px; }
-  .atlas-panel:first-child { margin-left: var(--gutter); border-left: 1px solid rgba(241, 236, 228, .14); }
-  .atlas-panel:last-child { border-right: 1px solid rgba(241, 236, 228, .14); }
-  .atlas-cuadro { height: 180px; }
-  .atlas-ver { margin-top: 14px; margin-bottom: 4px; }
+  .ganas-item { flex: 0 0 min(78vw, 320px); scroll-snap-align: start; }
+  .ganas-item:first-child { margin-left: var(--gutter); border-left: 1px solid var(--ganas-divisor); }
+  .ganas-item:last-child { border-right: 1px solid var(--ganas-divisor); }
+  .ganas-placa { height: 120px; }
 }
 @media (max-width: 900px) {
   .tramo, .tramo-der { grid-template-columns: minmax(0, 1fr); grid-template-areas: "texto" "figura" "demo"; min-height: auto; padding: 10vh var(--gutter); row-gap: 36px; }
@@ -1395,7 +1485,7 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 .legal-pagina body {
   background:
     radial-gradient(900px 420px at 50% -120px, color-mix(in srgb, var(--cereza-luz) 6%, transparent), transparent 70%),
-    var(--fondo) var(--fondo-trama) 0 0 / 320px 320px repeat;
+    var(--fondo) var(--fondo-trama) 0 0 / var(--trama-tam) var(--trama-tam) repeat;
 }
 .legal { padding: 140px var(--gutter) 90px; }
 .legal article { max-width: 760px; margin: 0 auto; }
@@ -1428,7 +1518,7 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 
 /* ═══════════════════════ 404 ═══════════════════════ */
 .escena { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-.escena-404 { background: radial-gradient(60% 55% at 70% 38%, color-mix(in srgb, var(--cereza-luz) 9%, transparent), transparent 70%), var(--fondo) var(--fondo-trama) 0 0 / 320px 320px repeat; }
+.escena-404 { background: radial-gradient(60% 55% at 70% 38%, color-mix(in srgb, var(--cereza-luz) 9%, transparent), transparent 70%), var(--fondo) var(--fondo-trama) 0 0 / var(--trama-tam) var(--trama-tam) repeat; }
 .perdida {
   position: relative; z-index: 1;
   min-height: 100vh; min-height: 100svh;
@@ -1448,7 +1538,7 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 
 /* vista de taller: sólo para fabricar la imagen para compartir (1200 × 630) desde el héroe claro */
 .vista-compartir .cab-nav, .vista-compartir .portada-acciones, .vista-compartir .requisito, .vista-compartir .heroe-datos, .vista-compartir .carga, .vista-compartir .cab-seccion { display: none !important; }
-.vista-compartir .heroe { --atlas-debajo: 0px !important; min-height: 100vh; }
+.vista-compartir .heroe { --franja-debajo: 0px !important; min-height: 100vh; }
 
 /* ── lo que está lejos de la pantalla no se maqueta ni se dibuja hasta acercarse ── */
 .legal section { content-visibility: auto; contain-intrinsic-size: auto 420px; }
@@ -1459,9 +1549,13 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 /* ═══════════════════════ sin materiales (d75) ═══════════════════════ */
 @media (prefers-contrast: more) {
   .demo::after, .cita-demo::after, .profundidad::after, .tj-cuadro::after, .legal-indice::after,
-  .cuero-tarjeta::after, .cuero-tarjeta::before, .cab-nav::before, .ampliar::before, .visor::after { content: none; }
+  .cuero-tarjeta::after, .cuero-tarjeta::before, .cab-nav::before, .cab-nav::after, .visor::after { content: none; }
+  .cuero-tarjeta:not(.descargar-caja) { background: var(--espresso); }
   .demo, .cita-demo, .profundidad, .tj-cuadro, .legal-indice { border-color: var(--linea-viva); }
-  .cuero-tarjeta, .atlas, .cd-pregunta, .dp-vos { background: var(--espresso); }
+  .cd-pregunta, .dp-vos { background: var(--espresso); }
+  .ganas-placa::after, .vidrio-liquido::before, .vidrio-liquido::after { content: none; }
+  .vidrio-liquido { background: var(--sup-1); }
+  .vidrio-oscuro { background: #24140F; }
   .boton-descarga::before, .boton-descarga::after, .cab-nav .cab-ir::before, .cab-nav .cab-ir::after { border-image: none; inset: 0; border: 0; border-radius: 999px; background: #A51225; }
   .boton-descarga::after, .cab-nav .cab-ir::after { display: none; }
 }
@@ -1479,4 +1573,4 @@ html.visor-abierto { overflow: hidden; scrollbar-gutter: stable; }
 .quieto .carga, .quieto .cortina { display: none; }
 .quieto .profundidad, .quieto .tj-cuadro { transform: none !important; }
 .quieto .dc-clases li { opacity: 1; translate: none; }
-.quieto .viajero, .quieto .laca-brillo, .quieto .atlas-luz, .quieto .pf-luz { display: none; }
+.quieto .viajero, .quieto .laca-brillo, .quieto .pf-luz { display: none; }

@@ -32,3 +32,11 @@ Materiales renderizados (d75, 21/10/2026):
     de «Plaster001» (ambientCG, CC0 1.0); el vidrio y la laca son materiales propios.
   icono.svg, icono-claro.svg, favicon.ico, imagenes/icono-180.png, imagenes/materiales/estrella-*.png: la estrella
     laqueada de la marca (render propio). Los anteriores quedaron en imagenes/_anterior/icono_d66/.
+
+Notas del dueño 26/10 (d95):
+  imagenes/grano-marfil-384.webp: el mismo relieve de «Plaster001» (ambientCG, CC0 1.0) con el alfa x 1,7 (más visible en
+    las placas marfil); el de antes quedó en imagenes/_anterior/texturas_d95/.
+  imagenes/marfil-yeso-384.webp: el fondo de la página en Claro, el marfil #F1ECE4 con ese relieve a fuerza baja (los poros
+    más hondos levantados a 222 / 255 por el contraste). Reemplaza a imagenes/trama-marfil.webp (en _anterior/texturas_d95/).
+  imagenes/atlas/ y las esferas de materiales salieron de la página con el atlas (imagenes/_anterior/atlas_d66/ y
+    materiales_d95/).
