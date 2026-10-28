@@ -17,7 +17,7 @@
 <link rel="icon" href="icono.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icono-claro.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
 <link rel="stylesheet" href="estilos.css">
-<script>/* (d116) Claro de fábrica, como la app */ var t = null; try { t = localStorage.getItem("cathedra-tema"); } catch (e) {} document.documentElement.dataset.tema = (t === "cuero" || t === "marfil") ? t : "marfil";</script>
+<script>/* (d116, decisión del dueño 28/10) sin elegir, la del sistema (Claro u Oscuro, como lo tenga Windows); lo elegido con el selector de la cabecera se recuerda y manda */ try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
