@@ -15,7 +15,7 @@
 <link rel="icon" href="/icono.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="/icono-claro.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
 <link rel="stylesheet" href="/estilos.css">
-<script>try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
+<script>/* (d116) Claro de fábrica, como la app */ var t = null; try { t = localStorage.getItem("cathedra-tema"); } catch (e) {} document.documentElement.dataset.tema = (t === "cuero" || t === "marfil") ? t : "marfil";</script>
 </head>
 <body>
 <div class="escena escena-404" aria-hidden="true"><div class="escena-velo"></div></div>

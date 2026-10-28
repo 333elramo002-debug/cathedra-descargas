@@ -12,40 +12,40 @@
       1920,
       1200
      ],
-     "avif_kb": 125.6,
-     "webp_kb": 123.0,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 114.3,
+     "webp_kb": 98.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 62.4,
-     "webp_kb": 64.7,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 57.1,
+     "webp_kb": 54.9,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 149.2,
-     "webp_kb": 146.1,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 141.1,
+     "webp_kb": 121.1,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 73.5,
-     "webp_kb": 77.0,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 70.1,
+     "webp_kb": 67.3,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -60,40 +60,40 @@
       1920,
       1200
      ],
-     "avif_kb": 123.8,
-     "webp_kb": 122.5,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 102.8,
+     "webp_kb": 87.5,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 60.3,
-     "webp_kb": 62.6,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 50.8,
+     "webp_kb": 48.1,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 149.7,
-     "webp_kb": 145.8,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 130.2,
+     "webp_kb": 111.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 72.0,
-     "webp_kb": 75.3,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 63.8,
+     "webp_kb": 59.1,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -108,40 +108,40 @@
       1920,
       1200
      ],
-     "avif_kb": 111.6,
-     "webp_kb": 107.2,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 98.2,
+     "webp_kb": 84.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 54.1,
-     "webp_kb": 55.4,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 49.0,
+     "webp_kb": 45.6,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 137.2,
-     "webp_kb": 130.3,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 130.2,
+     "webp_kb": 109.7,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 66.6,
-     "webp_kb": 68.0,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 64.6,
+     "webp_kb": 59.0,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -156,40 +156,40 @@
       1920,
       1200
      ],
-     "avif_kb": 113.0,
-     "webp_kb": 107.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 102.7,
+     "webp_kb": 89.7,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 55.1,
-     "webp_kb": 54.3,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 51.5,
+     "webp_kb": 47.5,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 137.9,
-     "webp_kb": 134.6,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 135.2,
+     "webp_kb": 117.9,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 66.3,
-     "webp_kb": 68.6,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 67.7,
+     "webp_kb": 64.4,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -204,40 +204,40 @@
       1920,
       1200
      ],
-     "avif_kb": 125.5,
-     "webp_kb": 125.0,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 112.6,
+     "webp_kb": 98.6,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 61.6,
-     "webp_kb": 67.1,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 56.2,
+     "webp_kb": 54.7,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 154.9,
-     "webp_kb": 156.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 142.0,
+     "webp_kb": 130.9,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 75.5,
-     "webp_kb": 82.4,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 70.1,
+     "webp_kb": 69.6,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -252,40 +252,40 @@
       1920,
       1200
      ],
-     "avif_kb": 97.0,
-     "webp_kb": 89.8,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 89.3,
+     "webp_kb": 72.6,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 46.7,
-     "webp_kb": 46.8,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 44.1,
+     "webp_kb": 38.1,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 119.8,
-     "webp_kb": 113.1,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 123.5,
+     "webp_kb": 102.5,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 57.1,
-     "webp_kb": 57.5,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 60.1,
+     "webp_kb": 53.5,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -300,40 +300,40 @@
       1920,
       1200
      ],
-     "avif_kb": 115.2,
-     "webp_kb": 106.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 100.2,
+     "webp_kb": 82.5,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 54.6,
-     "webp_kb": 54.5,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 49.5,
+     "webp_kb": 44.7,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 141.6,
-     "webp_kb": 137.3,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 133.5,
+     "webp_kb": 114.7,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 68.3,
-     "webp_kb": 69.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 65.8,
+     "webp_kb": 63.0,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -348,40 +348,40 @@
       1920,
       1200
      ],
-     "avif_kb": 104.4,
-     "webp_kb": 103.2,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 92.3,
+     "webp_kb": 77.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 51.1,
-     "webp_kb": 53.5,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 45.4,
+     "webp_kb": 42.0,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 128.2,
-     "webp_kb": 123.0,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 119.1,
+     "webp_kb": 99.5,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 61.4,
-     "webp_kb": 63.5,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 58.1,
+     "webp_kb": 53.9,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -396,40 +396,40 @@
       1920,
       1200
      ],
-     "avif_kb": 101.2,
-     "webp_kb": 95.8,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 91.5,
+     "webp_kb": 74.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 48.0,
-     "webp_kb": 48.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 43.9,
+     "webp_kb": 39.3,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 128.3,
-     "webp_kb": 119.2,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 118.1,
+     "webp_kb": 100.2,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 60.9,
-     "webp_kb": 61.6,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 57.8,
+     "webp_kb": 53.3,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   },
@@ -444,40 +444,40 @@
       1920,
       1200
      ],
-     "avif_kb": 112.6,
-     "webp_kb": 108.9,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 97.0,
+     "webp_kb": 82.9,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "claro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 56.2,
-     "webp_kb": 57.7,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 48.8,
+     "webp_kb": 45.3,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1920": {
      "tamano": [
       1920,
       1200
      ],
-     "avif_kb": 131.9,
-     "webp_kb": 128.3,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 118.3,
+     "webp_kb": 101.4,
+     "q_avif": 76,
+     "q_webp": 86
     },
     "oscuro-1280": {
      "tamano": [
       1280,
       800
      ],
-     "avif_kb": 64.7,
-     "webp_kb": 66.6,
-     "q_avif": 80,
-     "q_webp": 90
+     "avif_kb": 58.4,
+     "webp_kb": 53.5,
+     "q_avif": 76,
+     "q_webp": 86
     }
    }
   }

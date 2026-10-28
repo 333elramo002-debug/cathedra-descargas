@@ -6,3 +6,5 @@ __pycache__
 _anterior
 imagenes/_anterior
 fuentes/_anterior
+# (d116) el servidor local con direcciones limpias, para mirarla antes de publicar
+servir_local.py
