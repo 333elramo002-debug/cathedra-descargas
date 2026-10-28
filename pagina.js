@@ -43,9 +43,10 @@ document.querySelectorAll("[data-contacto]").forEach((a) => {
 document.querySelectorAll("[data-contacto-texto]").forEach((el) => { el.textContent = CONTACTO; });
 
 /* ══════════════════════ las apariencias: Claro (marfil) y Oscuro (cuero) ══════════════════════ */
-/* (d116) Sin elegir, Claro, como la app (antes seguía al sistema: en una PC con Windows en oscuro abría en Oscuro y el marfil
-   no se veía hasta tocar «Claro»). El guion de la cabecera pone <html data-tema> antes de pintar (lo elegido, o «marfil») y
-   las fuentes de las imágenes se ajustan acá; el <source media> del sistema queda para cuando no corre ningún guion. */
+/* Sin elegir, la página sigue al sistema (las imágenes también, con <source media>). Al elegir, <html data-tema>
+   fija la apariencia (lo pone ya el guion de la cabecera antes de pintar) y las fuentes de las imágenes se ajustan.
+   (d116, decisión del dueño 28/10: «lo mejor para la comodidad del usuario: que siga la preferencia del sistema al entrar,
+   que el selector Claro/Oscuro esté a la vista y recuerde la elección») */
 // (20/10, manual §02) la clara es la de fábrica: sin elegir, Claro, salvo que el sistema pida oscuro
 const oscuroSistema = window.matchMedia("(prefers-color-scheme: dark)");
 const temaActual = () => raiz.dataset.tema || (oscuroSistema.matches ? "cuero" : "marfil");

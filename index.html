@@ -26,7 +26,7 @@
 <link rel="preload" href="fuentes/PlayfairDisplay-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fuentes/Inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="estilos.css">
-<script>/* (d116) Claro de fábrica aunque Windows esté en oscuro (como la app): sólo lo elegido con el selector lo cambia */ var t = null; try { t = localStorage.getItem("cathedra-tema"); } catch (e) {} document.documentElement.dataset.tema = (t === "cuero" || t === "marfil") ? t : "marfil";</script>
+<script>/* (d116, decisión del dueño 28/10) sin elegir, la del sistema (Claro u Oscuro, como lo tenga Windows); lo elegido con el selector de la cabecera se recuerda y manda */ try { var t = localStorage.getItem("cathedra-tema"); if (t === "cuero" || t === "marfil") document.documentElement.dataset.tema = t; } catch (e) {}</script>
 <noscript><style>
   /* sin JS: la página ya puesta y quieta (la carga no se abre sola) */
   .carga, .cab-sonido, .cab-tema, [data-quieto] { display: none !important; }
@@ -538,7 +538,6 @@
           </li>
         </ol>
       </div>
-      <p class="invitacion">Con invitación, no hay que escribir ningún código: el instalador que te mandaron ya la trae.</p>
     </div>
   </section>
 </main>
