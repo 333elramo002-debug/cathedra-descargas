@@ -13,7 +13,7 @@
    de completa. El texto, los enlaces y los botones son HTML. */
 
 const ENLACE_INSTALADOR = "https://github.com/333elramo002-debug/cathedra-descargas/releases/latest/download/Cathedra-Setup.exe";
-const CONTACTO = "[EMAIL DE CONTACTO]";
+const CONTACTO = "ramirobales@gmail.com";
 
 (function () {
 "use strict";
